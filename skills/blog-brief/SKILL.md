@@ -50,10 +50,27 @@ For evidence-led keyword discovery, audience-avatar prompts, and content priorit
 Gather from the user:
 1. **Topic or keyword** (required)
 2. **Target audience** (who reads this?)
-3. **Search intent**: Informational, commercial, transactional, navigational
-4. **Business context**: What does the company do? What's the CTA?
+3. **Business context**: What does the company do? What's the CTA?
 
-If only a topic is given, infer the rest from context.
+If only a topic is given, infer the rest from context. Search intent is not
+asked or inferred here; it comes from the live SERP in Step 1.5.
+
+### Step 1.5: SERP Intent Gate
+
+Plan a blog post only if Google already ranks blog posts for the keyword.
+
+1. Call `mcp__dataforseo__api_request` once: `POST /v3/serp/google/organic/live/advanced`,
+   `depth: 10`, `location_code: 2840`, `language_code: "en"` unless the user
+   names another market. If the tool is missing or fails twice, stop and say
+   why; never fall back to WebSearch.
+2. Label each `organic` item from its URL and title: `blog` (any article
+   answering the query, including guides on store sites), `product`,
+   `category`, or the specific other kind (`video`, `forum`, ...). Count each
+   label separately.
+3. Continue only if `blog` strictly outnumbers every other label. Otherwise
+   stop, ties included: show the counts with one example URL each and ask the
+   user to write anyway, try another keyword, or end.
+4. Carry the table, counts, and decision into the brief's Search Intent section.
 
 ### Step 2: Keyword Research
 
@@ -63,7 +80,7 @@ Using WebSearch:
 3. Identify **3-5 secondary keywords** (related terms, long-tail)
 4. Identify **3-5 question queries** (People Also Ask style)
 5. Check AI Overviews, AI Mode where available, visible citation/source surfaces, featured snippets, and People Also Ask. Record cited publishers and answer formats when visible; mark surfaces as unavailable when not directly checked.
-6. Note the **search intent**: what do searchers actually want?
+6. Describe what searchers want, consistent with the Step 1.5 decision
 
 ### Step 2.5: Template Recommendation
 
@@ -121,168 +138,20 @@ Find the statistics the article should include (a pool of about 8-12 candidates 
 
 ### Step 5: Generate the Brief
 
-Output format:
+Read `${CLAUDE_SKILL_DIR}/templates/brief-template.md` and fill it in section
+by section, keeping its order. Rules while filling it:
 
-```
-# Content Brief: [Title Suggestion]
-
-## Template
-**Recommended**: [template-name]: [1-sentence rationale]
-**Template file**: `${CLAUDE_SKILL_DIR}/../blog/templates/[type].md`
-
-## Target Keywords
-- **Primary**: [keyword]: [monthly search volume from a named tool and date, or "not measured"; never estimate it]
-- **Secondary**: [keyword 1], [keyword 2], [keyword 3]
-- **Questions**: [question 1], [question 2], [question 3]
-
-## Search Intent
-[Informational/Commercial/Transactional]: [1-2 sentence explanation of
-what the searcher wants]
-
-## Content Parameters
-- **Word count**: [2,000-2,500] words
-- **Reading level**: Flesch 60-70 (expert-accessible)
-- **Format**: [Markdown/MDX/HTML]
-- **H2 sections**: [6-8]
-- **Images**: as the topic needs (original assets, product screenshots, diagrams, or licensed stock); no fixed count
-- **Charts**: as the evidence needs, via built-in blog-chart, choosing the clearest chart type; no fixed count
-- **FAQ items**: Optional 3-5 when People Also Ask or user questions warrant them; not a Google rich-result target
-
-## Recommended Title
-[Clear title that identifies the page and matches search intent]
-
-Alternative titles:
-1. [Option 2]
-2. [Option 3]
-
-## Meta Description
-[Accurate, page-specific summary that matches the visible content]
-
-## TL;DR Draft
-> **TL;DR:** [Concise optional summary with the key finding and verified support
-> when needed.
-> Should be self-contained; a reader who only reads this box gets the
-> core value of the article.]
-
-## Information Gain Opportunities
-- **[ORIGINAL DATA]**: [Suggestion for proprietary data, survey, experiment,
-  or benchmark the author can produce to differentiate this post]
-- **[PERSONAL EXPERIENCE]**: [Include only when the author supplies the actual
-  methodology, evidence, and results. Otherwise omit this marker and propose a
-  sourced analysis or unique insight without a first-hand claim.]
-- **[UNIQUE INSIGHT]**: [Suggestion for contrarian take, novel analysis,
-  or non-obvious connection that competitors have not covered]
-
-## Content Outline
-
-### Introduction
-- Hook: [Specific reader problem, useful finding, or supported evidence]
-- Problem: [What challenge does the reader face?]
-- Promise: [What will they learn?]
-- TL;DR box placement (after hook, before first H2)
-
-### H2: [Intent-Matched Heading]
-- **Answer-first**: Open with the section's useful conclusion and support it
-- Cover: [subtopic 1], [subtopic 2]
-- **Image**: [Description of recommended image]
-- **Key stat**: [Specific statistic to include]
-
-### H2: [Intent-Matched Heading]
-- **Answer-first**: Open with the section's useful conclusion and support it
-- Cover: [subtopic 1], [subtopic 2]
-- **Chart**: [Type] showing [data description]
-- **Key stat**: [Specific statistic to include]
-
-[... repeat for 6-8 sections ...]
-
-### Optional FAQ Section (3-5 items)
-1. [Question]: Answer with [stat + source when factual and relevant]
-2. [Question]: Answer with [stat + source when factual and relevant]
-3. [Question]: Answer with [stat + source when factual and relevant]
-
-### Conclusion (100-150 words)
-- Key takeaways (bulleted)
-- Call to action: [What should the reader do next?]
-
-## Statistics to Include
-
-| # | Statistic | Source | Year | Section |
-|---|-----------|--------|------|---------|
-| 1 | [stat] | [source + URL] | 2025 | H2: Section 1 |
-| 2 | [stat] | [source + URL] | 2026 | H2: Section 2 |
-| ... | ... | ... | ... | ... |
-
-## Evidence-Backed Section Plan
-For important claims, plan a self-contained explanation with enough context
-and verified support to stand alone. Do not prescribe a word band or require a
-statistic for every section.
-
-| Section | Claim Focus | Supporting Evidence | Source |
-|---------|--------------|----------|--------|
-| H2: [Section 1] | [Core claim this section makes] | [stat] | [source] |
-| H2: [Section 2] | [Core claim this section makes] | [stat] | [source] |
-| H2: [Section 3] | [Core claim this section makes] | [stat] | [source] |
-| ... | ... | ... | ... |
-
-## Cover Image
-
-| Option | Details |
-|--------|---------|
-| Photo cover | [Pixabay/Unsplash/Pexels search terms for wide hero image] |
-| Generated SVG | [Text-on-gradient concept with key stat, if data-heavy topic; sanitize to remove scripts and event attributes, or rasterize to PNG before publishing] |
-| Dimensions | 1200x630 (OG-compatible) |
-
-## Visual Element Plan
-
-| # | Type | Data | Section |
-|---|------|------|---------|
-| 1 | [Bar chart] | [Data description] | H2: Section 2 |
-| 2 | [Donut chart] | [Data description] | H2: Section 4 |
-| 3 | [Image: Pixabay] | [Search terms] | H2: Section 1 |
-| 4 | [Image: Pixabay] | [Search terms] | H2: Section 3 |
-
-## Competitive Gaps to Exploit
-1. [What competitors miss that we should cover]
-2. [Unique angle or original data we can provide]
-3. [Format advantage: charts/visuals competitors lack]
-
-## Internal Link Architecture
-- **Link TO** (from this new post to existing pages):
-  1. [Page title/URL] - anchor text: "[descriptive anchor]"
-  2. [Page title/URL] - anchor text: "[descriptive anchor]"
-  3. [Page title/URL] - anchor text: "[descriptive anchor]"
-  4. [Page title/URL] - anchor text: "[descriptive anchor]"
-  5. [Page title/URL] - anchor text: "[descriptive anchor]"
-- **Link FROM** (update these existing pages to link to this new post):
-  1. [Page title/URL] - anchor text: "[descriptive anchor]"
-  2. [Page title/URL] - anchor text: "[descriptive anchor]"
-  3. [Page title/URL] - anchor text: "[descriptive anchor]"
-  4. [Page title/URL] - anchor text: "[descriptive anchor]"
-  5. [Page title/URL] - anchor text: "[descriptive anchor]"
-- **Pillar connection**: [Which pillar page this belongs to, if applicable]
-- **Cluster position**: [Hub / Spoke / Standalone]
-
-## E-E-A-T Signals to Include
-- **Experience**: [Ask for and include first-hand insight, a case study, or test
+- **Template file** line: resolve `${CLAUDE_SKILL_DIR}/../blog/templates/[type].md`
+  to an absolute path.
+- **Search volume**: cite a named tool and date, or write "not measured"; never estimate it.
+- **Experience / E-E-A-T**: include first-hand insight, a case study, or test
   results only when the user supplies supporting methodology, evidence, and
   results; otherwise use differentiated sourced synthesis without implying
-  personal experience]
-- **Expertise**: [Author credentials relevant to topic]
-- **Authority**: [Industry recognition, citations, partnerships]
-- **Trust**: [Transparency, sourced data, no self-promotion]
-
-## Distribution Plan
-- **Reddit**: [Specific subreddits (r/sub1, r/sub2), posting approach (value-first
-  comment vs. link post), authentic participation strategy, timing]
-- **YouTube**: [Video companion concept, estimated length, key visuals from the
-  post to reuse, thumbnail idea]
-- **LinkedIn**: [Article excerpt angle, target audience segment, best posting
-  time for the niche, engagement hook]
-- **Email**: [Newsletter excerpt (2-3 sentences), subject line suggestion,
-  CTA linking back to the full post]
-- **Twitter/X**: [Thread hook (first tweet), 3-5 key tweet ideas built from
-  statistics in the post, hashtag suggestions]
-```
+  personal experience.
+- **Statistics**: only those that passed the Step 4 provenance rules.
+- **Generated SVG covers**: sanitize to remove scripts and event attributes, or
+  rasterize to PNG before publishing.
+- **FAQ**: optional, 3-5 items, not a Google rich-result target.
 
 ### Step 6: Save the Brief
 

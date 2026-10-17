@@ -56,7 +56,9 @@ claude-blog/
     blog-write/SKILL.md            # Write new articles from scratch
     blog-rewrite/SKILL.md         # Optimize existing blog posts
     blog-analyze/SKILL.md         # 5-category 100-point scoring
-    blog-brief/SKILL.md           # Detailed content briefs
+    blog-brief/                    # Detailed content briefs
+      SKILL.md                    # Workflow and filling rules
+      templates/brief-template.md # Brief output template (Step 5)
     blog-outline/SKILL.md         # SERP-informed outlines
     blog-calendar/SKILL.md        # Editorial calendars
     blog-strategy/SKILL.md        # Blog positioning and planning
