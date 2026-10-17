@@ -21,5 +21,6 @@
 
 | 编号 | 日期 | 修改事项 | 分支名 | 分支类型 | PR | 开发原因 | 带来的提升 | 开发步骤 | 验证 |
 |------|------|----------|--------|----------|----|----------|------------|----------|------|
+| 003 | 2026-10-17 | 简报模板移出 blog-brief 的 SKILL.md | refactor/blog-brief-template | refactor | 无（本地直接合并） | SKILL.md 已 290 行，后续加功能容易逼近 500 行上限 | SKILL.md 降到 142 行，模板按需读取，后续有约 350 行余量 | 1. 查官方 Skill 最佳实践<br>2. 模板抽到 templates/brief-template.md<br>3. SKILL.md 留引用和填写规则 | pytest 1531 通过；validate_skills、lint_prose、consistency_check 通过 |
 | 002 | 2026-10-17 | 新建二次开发日志 | docs/add-fork-devlog | docs | #2 | CHANGELOG 和提交信息只记"改了什么"，不记动机和做法 | 每次改动的原因、收益、步骤集中在一处，也能分清哪些是自己加的 | 1. 查 docs/ 命名和文档规范<br>2. 新建本文件并补录 001<br>3. 改成一行一条的表格 | lint_prose、consistency_check、validate_public_release 通过；pytest 1531 通过 |
 | 001 | 2026-10-17 | 固定本地 Python 为 3.14 | chore/pin-python-314 | chore | #1 | `uv sync` 默认用 3.13.5，其 `html.parser` 处理未闭合标签极慢，一个测试超时 | 本地自动用 3.14，同一输入解析约 0.017 秒，测试恢复正常；CI 不受影响 | 1. 定位超时根因<br>2. 根目录加 `.python-version`（3.14）<br>3. 重建虚拟环境重跑测试 | 该测试在 3.14 下通过 |
