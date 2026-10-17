@@ -57,29 +57,20 @@ asked or inferred here; it comes from the live SERP in Step 1.5.
 
 ### Step 1.5: SERP Intent Gate
 
-Check that Google ranks blog posts for the focus keyword before planning one.
+Plan a blog post only if Google already ranks blog posts for the keyword.
 
-1. Make one call with the DataForSEO MCP tool `mcp__dataforseo__api_request`:
-   `POST /v3/serp/google/organic/live/advanced` with `keyword` set to the focus
-   keyword, `depth: 10`, `location_code: 2840`, `language_code: "en"`. Use
-   another location or language only when the user names one. If the tool is
-   missing or the call fails after one retry, stop and tell the user why. Do
-   not judge intent from WebSearch instead.
-2. Take the items whose `type` is `organic` (rank is `rank_group`; page 1 may
-   have fewer than 10). Label each one from its URL, domain, and title only,
-   without fetching it: `blog` (an article that answers the query: blog post,
-   guide, listicle, magazine article, including guides on store domains),
-   `product` (one product's sales page), `category` (a store page listing many
-   products, or store search results), or the specific other kind, such as
-   `video`, `forum`, `social`, `tool`, `news`.
-3. Count each label separately; never merge the other kinds into one group.
-4. **Continue** only when `blog` has strictly more results than every other
-   label. Otherwise **stop**, even on a tie: tell the user the search intent
-   is not a blog post, show the count per label with one example URL each, and
-   ask them to choose: write the blog anyway, switch to another keyword (redo
-   this step with it), or end the brief here.
-5. Keep the labeled table, the counts, and the decision for the brief's
-   Search Intent section. If the user chose to write anyway, record that.
+1. Call `mcp__dataforseo__api_request` once: `POST /v3/serp/google/organic/live/advanced`,
+   `depth: 10`, `location_code: 2840`, `language_code: "en"` unless the user
+   names another market. If the tool is missing or fails twice, stop and say
+   why; never fall back to WebSearch.
+2. Label each `organic` item from its URL and title: `blog` (any article
+   answering the query, including guides on store sites), `product`,
+   `category`, or the specific other kind (`video`, `forum`, ...). Count each
+   label separately.
+3. Continue only if `blog` strictly outnumbers every other label. Otherwise
+   stop, ties included: show the counts with one example URL each and ask the
+   user to write anyway, try another keyword, or end.
+4. Carry the table, counts, and decision into the brief's Search Intent section.
 
 ### Step 2: Keyword Research
 
