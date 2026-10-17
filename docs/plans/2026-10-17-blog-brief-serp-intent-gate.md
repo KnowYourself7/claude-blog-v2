@@ -55,4 +55,4 @@ Top 10 最多 10 行，模型数得清。真正的风险不是算错，而是模
 - DataForSEO Google Organic SERP 定价（Live $0.002/次，Standard $0.0006/次）：https://dataforseo.com/pricing/serp/google-organic-serp-api
 - DataForSEO Labs Search Intent 只给关键词级意图（informational 等），不分页面类型，所以不适合本需求：https://docs.dataforseo.com/v3/dataforseo_labs/google/search_intent/live/
 - Ahrefs 搜索意图 3C：https://ahrefs.com/blog/search-intent/
-- 旧实现（参考，未搬脚本）：`/Users/Kai/个人项目/github-skills/claude-blog-kai/skills/blog-brief/`（SKILL.md Step 2a、`scripts/count_serp_types.py`）
+- 旧实现（参考，未搬脚本）：本机旧 fork claude-blog-kai 的 blog-brief 技能（SKILL.md Step 2a 和计数脚本 count_serp_types.py）
