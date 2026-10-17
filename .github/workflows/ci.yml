@@ -5,6 +5,15 @@ on:
     branches: [main, master]
   pull_request:
     branches: [main, master]
+  workflow_dispatch:
+
+# Two tiers. Pull requests run the fast checks: tests on Python 3.14 only,
+# lint, skill validation, version coherence and the uv.lock check. Pushes to
+# main/master and manual runs (workflow_dispatch) also run the full Python
+# matrix, every hash-locked install on three operating systems, the installer
+# profiles and the dependency smoke. Heavy jobs say so with
+# `if: github.event_name != 'pull_request'`; a skipped job reports Success,
+# so it never blocks a merge.
 
 # Least-privilege token (closes audit VULN-501). Override per-job if needed.
 permissions:
@@ -25,7 +34,8 @@ jobs:
         # Every pinned dependency publishes wheels for 3.13 and 3.14 (checked
         # with `pip install --dry-run --only-binary=:all:` for the dev extra and
         # for all four hash locks), so the pure test job covers all four.
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
+        # Pull requests test the newest version only; other events test all.
+        python-version: ${{ fromJSON(github.event_name == 'pull_request' && '["3.14"]' || '["3.11", "3.12", "3.13", "3.14"]') }}
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1, SHA-pinned, closes VULN-503
@@ -65,6 +75,7 @@ jobs:
   dependency-smoke:
     # Validate the exact hash-locked optional runtimes without API calls,
     # secrets, a browser download, or a browser launch.
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -100,6 +111,7 @@ jobs:
     # three operating systems, then confirm the resolved set is consistent.
     # The locks are universal (platform markers), so Windows and macOS must
     # resolve the same files that Linux does.
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     strategy:
@@ -273,6 +285,7 @@ jobs:
         run: python3 -m pytest tests/test_version_coherence.py -v
 
   unix-installers:
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -295,6 +308,7 @@ jobs:
           tests/test_legacy_ownership_inventory.py
 
   windows-installers:
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: windows-latest
     strategy:
       fail-fast: false
