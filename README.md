@@ -49,7 +49,7 @@ The publishing workflow is documented in
 
 claude-blog is a full-lifecycle blog engine for strategy, briefs, outlines, writing, rewriting, analysis, schema, AI citation readiness, site audits, topic clusters, multilingual publishing, audio narration, and content decay detection.
 
-Current v2.3.1 shape: **32 skill directories = 1 orchestrator + 31 sub-skills; 30 user-facing /blog commands (`blog-chart` is internal, not a command).** It also includes 5 specialized agents, repository consistency and public-release validators, 22 core references, 12 templates, a pytest suite (run `python3 -m pytest --collect-only -q | tail -1` for the current count), and the bundled Claude Blog Brain at `./brain`.
+Current v2.3.1 shape: **32 skill directories = 1 orchestrator + 31 sub-skills; 30 user-facing /blog commands (`blog-chart` is internal, not a command).** It also includes 5 specialized agents, repository consistency and public-release validators, 22 core references, 12 templates, and a pytest suite (run `python3 -m pytest --collect-only -q | tail -1` for the current count).
 
 Every draft ships as an artifact folder with the markdown source, rendered HTML, PDF, real `hero.<ext>`, 3 viewport screenshots, `review.md`, and `preflight-report.json`. The renderer uses XSS-safe JSON-LD handling, dark-mode-aware CSS, and the same source for every output format.
 
@@ -108,7 +108,7 @@ The orchestrator in `skills/blog/SKILL.md` parses `/blog` input, detects the tar
 | User-facing `/blog` commands | 30 | `skills/blog/SKILL.md` routing table |
 | Internal-only sub-skill | 1 | `skills/blog-chart/SKILL.md` |
 | Specialized agents | 5 | `agents/blog-*.md` |
-| Root scripts | 22 | `scripts/*.py` |
+| Root scripts | 21 | `scripts/*.py` |
 | References | 22 | `skills/blog/references/*.md` |
 | Templates | 12 | `skills/blog/templates/*.md` |
 | Tests | pytest suite | `tests/` (`python3 -m pytest --collect-only -q \| tail -1` for the count) |
@@ -247,10 +247,6 @@ Scoring bands: Exceptional (90-100), Strong (80-89), Acceptable (70-79), Below S
 | `synthesis-contract.md` | Research synthesis LAWs for citation-safe output |
 
 Adapted attribution lives in [`CONTRIBUTORS.md`](docs/CONTRIBUTORS.md).
-
-## Brain Provenance
-
-The Claude Blog Brain is vendored at `./brain` as a self-contained, evidence-gated Obsidian brain. It is not part of the plugin payload; all skill tooling remains scoped to `skills/`. Brain-derived updates land through reviewed reference, script, and documentation changes.
 
 ## Install
 
@@ -405,7 +401,6 @@ Linux CLI; the Desktop app is fixture-tested only). See
 7. **Command coherence**: `skills/blog/SKILL.md` and [`docs/COMMANDS.md`](docs/COMMANDS.md) must declare the same command set.
 8. **Repository consistency**: validates local reference targets, FLOW prompt locks, and reports orphaned resources without blocking.
 9. **Hash-locked dependency smoke**: installs the audio and NotebookLM locks with `--require-hashes`, then initializes google-genai, Patchright, and preflight without API calls or a browser launch.
-10. **Brain validation**: changes under `brain/**` run its pytest suite, vault lint, and report-only audit.
 
 Run locally before pushing:
 

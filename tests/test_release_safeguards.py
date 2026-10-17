@@ -286,35 +286,6 @@ def test_pillar_and_quality_gate_source_only_material_numeric_claims() -> None:
     assert "do not need redundant inline sourcing" in orchestrator
 
 
-def test_brain_delivery_gate_matches_v21_editorial_thresholds() -> None:
-    gate = (
-        ROOT / "brain" / "wiki" / "quality" / "Delivery Contract Gate.md"
-    ).read_text(encoding="utf-8")
-    rubric = (
-        ROOT / "brain" / "wiki" / "quality" / "Quality Score Rubric.md"
-    ).read_text(encoding="utf-8")
-    readiness = (
-        ROOT
-        / "brain"
-        / "wiki"
-        / "quality"
-        / "AI Citation Readiness Subscore.md"
-    ).read_text(encoding="utf-8")
-
-    quality_gate = (ROOT / "scripts" / "quality_gate.py").read_text(
-        encoding="utf-8"
-    )
-
-    assert "below 90" in gate
-    assert "descriptive and non-blocking" in gate
-    assert "word-count mismatch beyond the allowed tolerance" not in gate
-    assert "pre-commit `quality_gate.py` threshold is 70" in rubric
-    assert "90 to 100 are delivery" in rubric
-    assert "DEFAULT_THRESHOLD = 70" in quality_gate
-    assert "internal AI citation readiness heuristic" in readiness
-    assert "not a calibrated probability" in readiness
-
-
 def test_rendering_guidance_accepts_valid_google_rendered_dom() -> None:
     analyzer = (ROOT / "skills" / "blog-analyze" / "SKILL.md").read_text(
         encoding="utf-8"
