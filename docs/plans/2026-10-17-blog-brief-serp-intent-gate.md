@@ -1,7 +1,7 @@
 # 方案评估：blog-brief 用 DataForSEO Live SERP 判定搜索意图
 
 - 日期：2026-10-17
-- 状态：待确认（未写代码）
+- 状态：已确认，按第 3 节简化版实现
 - 涉及：`skills/blog-brief/SKILL.md` Step 1 / Step 2
 
 ## 1. 需求原文
