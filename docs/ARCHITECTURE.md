@@ -3,8 +3,6 @@
 System design documentation for `claude-blog`, covering component types,
 data flow, scoring methodology, file conventions, and extension points.
 
-The Claude Blog Brain is vendored at `./brain` as a self-contained, evidence-gated Obsidian brain. It is not part of the plugin payload; all skill tooling remains scoped to `skills/`.
-
 ---
 
 ## System Overview
@@ -221,7 +219,6 @@ dependencies are stdlib-only or narrowly pinned.
 | `quality_gate.py` | Pre-commit gate: block posts scoring < 70; fail-closed on bad paths and missing frontmatter; `--select` is the pre-commit hook mode that skips Markdown files that are not blog posts | v1.10.0 |
 | `style_learn.py` | Author voice-profile learner from sample posts | v1.10.0 |
 | `sync_flow.py` | Pulls FLOW reference prompts from upstream; sandboxed; stdlib-only | v1.7.0 |
-| `sync_google_updates.py` | Synchronizes the canonical Google update ledger into the Blog Brain | Maintenance |
 | `validate_public_release.py` | Read-only validation of a prepared public worktree | Maintenance |
 | `validate_skills.py` | Real-YAML validation of skill and agent frontmatter plus the maintained bundle contract | Maintenance |
 

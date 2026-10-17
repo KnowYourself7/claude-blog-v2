@@ -285,8 +285,7 @@ its absolute path):
 2. Review all manual sources in `data/google-updates.json`.
 3. Add only claims directly supported by the cited source.
 4. Keep source conflicts and pending impact explicit.
-5. Run `python3 "<repo-root>/scripts/sync_google_updates.py" --root "<repo-root>"`.
-6. Run the Google ledger tests and repository release gates.
+5. Run the Google ledger tests and repository release gates.
 
 The automated checker reports new source dates and stale reviews. It never
 creates guidance, changes scoring, or decides what an update targeted.

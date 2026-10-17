@@ -62,6 +62,8 @@ firebase-debug.log
 output/
 demo-output/
 .raw/
+# /blog audit writes dated reports here; they describe a specific site, not this repo
+/reports/
 
 # Working documents
 definitive-resesarch-blueprint-for-claude-blog.md

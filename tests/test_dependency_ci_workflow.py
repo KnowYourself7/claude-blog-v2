@@ -1,6 +1,7 @@
 """Structure checks for the CI workflows and the browser-required test gate."""
 from __future__ import annotations
 
+import json
 import os
 import re
 import subprocess
@@ -65,8 +66,34 @@ def test_test_job_installs_the_browser_and_requires_it():
 
 
 def test_test_matrix_covers_current_pythons():
-    versions = CI["jobs"]["test"]["strategy"]["matrix"]["python-version"]
-    assert {"3.11", "3.12", "3.13", "3.14"} <= set(versions)
+    expression = CI["jobs"]["test"]["strategy"]["matrix"]["python-version"]
+    assert "github.event_name == 'pull_request'" in expression
+    pull_request_versions, full_versions = (
+        json.loads(chunk) for chunk in re.findall(r"'(\[[^']*\])'", expression)
+    )
+    assert pull_request_versions == ["3.14"]
+    assert {"3.11", "3.12", "3.13", "3.14"} <= set(full_versions)
+
+
+HEAVY_JOBS = {"dependency-smoke", "locked-installs", "unix-installers", "windows-installers"}
+
+
+def test_ci_can_be_run_manually_for_the_full_suite():
+    # PyYAML reads the bare key `on` as the boolean True.
+    triggers = CI[True]
+    assert {"push", "pull_request", "workflow_dispatch"} <= set(triggers)
+
+
+def test_heavy_jobs_run_only_outside_pull_requests():
+    for name in HEAVY_JOBS:
+        assert CI["jobs"][name]["if"] == "${{ github.event_name != 'pull_request' }}", name
+
+
+def test_fast_jobs_run_on_every_event():
+    fast_jobs = set(CI["jobs"]) - HEAVY_JOBS
+    assert {"test", "validate-skills", "lint-markdown", "lint-prose-hygiene", "version-coherence", "uv-lock-check"} <= fast_jobs
+    for name in fast_jobs:
+        assert "if" not in CI["jobs"][name], name
 
 
 def test_every_hash_lock_is_installed_with_hash_checking_on_three_oses():

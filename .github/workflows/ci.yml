@@ -5,6 +5,15 @@ on:
     branches: [main, master]
   pull_request:
     branches: [main, master]
+  workflow_dispatch:
+
+# Two tiers. Pull requests run the fast checks: tests on Python 3.14 only,
+# lint, skill validation, version coherence and the uv.lock check. Pushes to
+# main/master and manual runs (workflow_dispatch) also run the full Python
+# matrix, every hash-locked install on three operating systems, the installer
+# profiles and the dependency smoke. Heavy jobs say so with
+# `if: github.event_name != 'pull_request'`; a skipped job reports Success,
+# so it never blocks a merge.
 
 # Least-privilege token (closes audit VULN-501). Override per-job if needed.
 permissions:
@@ -25,7 +34,8 @@ jobs:
         # Every pinned dependency publishes wheels for 3.13 and 3.14 (checked
         # with `pip install --dry-run --only-binary=:all:` for the dev extra and
         # for all four hash locks), so the pure test job covers all four.
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
+        # Pull requests test the newest version only; other events test all.
+        python-version: ${{ fromJSON(github.event_name == 'pull_request' && '["3.14"]' || '["3.11", "3.12", "3.13", "3.14"]') }}
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1, SHA-pinned, closes VULN-503
@@ -65,6 +75,7 @@ jobs:
   dependency-smoke:
     # Validate the exact hash-locked optional runtimes without API calls,
     # secrets, a browser download, or a browser launch.
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -100,6 +111,7 @@ jobs:
     # three operating systems, then confirm the resolved set is consistent.
     # The locks are universal (platform markers), so Windows and macOS must
     # resolve the same files that Linux does.
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     strategy:
@@ -272,77 +284,8 @@ jobs:
         # assertion logic. Closes 7TH-AUDIT-012.
         run: python3 -m pytest tests/test_version_coherence.py -v
 
-  # Keep the brain job conditional on brain/** changes without filtering existing jobs.
-  brain-changes:
-    name: Detect brain changes
-    runs-on: ubuntu-latest
-    outputs:
-      changed: ${{ steps.filter.outputs.changed }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1, SHA-pinned
-        with:
-          persist-credentials: false
-          fetch-depth: 0
-
-      - name: Check whether brain changed
-        id: filter
-        shell: bash
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          BEFORE_SHA: ${{ github.event.before }}
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: |
-          if [ "$EVENT_NAME" = "pull_request" ]; then
-            changed_files="$(git diff --name-only "$BASE_SHA...$HEAD_SHA" -- brain/)"
-          elif [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
-            changed_files="$(git ls-tree -r --name-only "$GITHUB_SHA" -- brain/)"
-          else
-            changed_files="$(git diff --name-only "$BEFORE_SHA" "$GITHUB_SHA" -- brain/)"
-          fi
-
-          if [ -n "$changed_files" ]; then
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          fi
-
-  brain:
-    name: Brain
-    needs: brain-changes
-    # Run on every main push so a release commit cannot skip the executable
-    # Brain gate. Pull requests without Brain changes retain the fast path.
-    if: ${{ github.event_name == 'push' || needs.brain-changes.outputs.changed == 'true' }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1, SHA-pinned
-        with:
-          persist-credentials: false
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0, SHA-pinned
-        with:
-          python-version: "3.12"
-
-      - name: Install pytest
-        run: python3 -m pip install "pytest>=8.0,<10.0"
-
-      - name: Run brain tests
-        run: python3 -m pytest brain/tests/
-
-      - name: Lint brain vaults
-        run: |
-          python3 brain/scripts/lint_vault.py --vault brain
-          python3 brain/scripts/lint_vault.py --vault brain/assets/template-brain
-          python3 brain/scripts/lint_vault.py --vault brain/examples/sample-vault
-
-      - name: Verify brain source-review records offline
-        run: python3 brain/scripts/verify_source_ledger.py --offline-check
-
-      - name: Audit brain
-        run: python3 brain/scripts/audit_brain.py --json --require market-ready --verify
-
   unix-installers:
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -363,9 +306,9 @@ jobs:
           python3 -m pytest -v -rs
           tests/test_unix_installer_ownership.py
           tests/test_legacy_ownership_inventory.py
-          brain/tests/test_installer_ownership.py
 
   windows-installers:
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: windows-latest
     strategy:
       fail-fast: false

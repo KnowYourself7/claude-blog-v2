@@ -21,7 +21,6 @@ SCHEMA_REFERENCE_PATH = REPO_ROOT / "skills" / "blog" / "references" / "schema-s
 CRAWLER_REFERENCE_PATH = (
     REPO_ROOT / "skills" / "blog" / "references" / "ai-crawler-guide.md"
 )
-BRAIN_LEDGER_PATH = REPO_ROOT / "brain" / "data" / "google-updates.json"
 LANDSCAPE_PATH = (
     REPO_ROOT / "skills" / "blog" / "references" / "google-landscape-2026.md"
 )
@@ -145,10 +144,6 @@ def test_platform_availability_conflict_keeps_both_google_sources() -> None:
     ]
 
 
-def test_brain_ledger_is_an_exact_projection_of_the_canonical_ledger() -> None:
-    assert BRAIN_LEDGER_PATH.read_bytes() == LEDGER_PATH.read_bytes()
-
-
 def test_currentness_evaluator_distinguishes_current_and_refresh_required() -> None:
     module = _load_currentness_module()
     # Exercise evaluator behavior against a frozen review date. The canonical
@@ -228,7 +223,6 @@ def test_scheduled_currentness_workflow_is_read_only() -> None:
     assert "schedule:" in workflow and "workflow_dispatch:" in workflow
     assert "contents: read" in workflow
     assert "check_google_currentness.py" in workflow
-    assert "sync_google_updates.py --root . --check" in workflow
     assert "issues: write" not in workflow
     assert "contents: write" not in workflow
 

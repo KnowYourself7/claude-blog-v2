@@ -27,7 +27,6 @@ claude-blog/
   plugins/blog-studio/               # Optional Claude Code mod companion (status band, pipeline panel); own README, tests, version 0.2.0
   .mcp.example.json                  # MCP config example (tracked; .mcp.json is gitignored)
   pyproject.toml                     # Python packaging (3.11+)
-  brain/                             # Vendored self-contained evidence-gated Obsidian brain; not plugin payload; tooling stays under skills/
   scripts/analyze_blog.py            # 5-category quality scoring (stdlib)
   scripts/blog_preflight.py          # 5-gate delivery contract runner (v1.9.0)
   scripts/blog_render.py             # md -> html -> pdf renderer; XSS-safe JSON-LD (v1.9.0)
@@ -48,9 +47,8 @@ claude-blog/
   scripts/validate_skills.py         # Real-YAML skill and agent frontmatter validation
   scripts/check_secrets.py           # Fails on unadjudicated detect-secrets findings (no raw values)
   scripts/check_google_currentness.py # Google update ledger vs official feeds
-  scripts/sync_google_updates.py     # Google update ledger sync into the Blog Brain
   scripts/installer_ownership.py     # Shared Unix installer ownership engine
-  # 22 scripts/*.py in total: `ls scripts/*.py | wc -l`
+  # 21 scripts/*.py in total: `ls scripts/*.py | wc -l`
   skills/                            # 32 skill directories (1 orchestrator + 31 sub-skills)
     blog/SKILL.md                   # Main orchestrator, routing, scoring
       references/                   # 22 on-demand knowledge files (5 in v1.8.0, 1 in v1.9.0)

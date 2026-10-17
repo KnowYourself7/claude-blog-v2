@@ -14,7 +14,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SHA_FIELD_RE = re.compile(
-    r'"(?:sha256|raw_snapshot_sha256|content_sha256|normalized_content_sha256|captured_excerpt_sha256|normalized_full_document_sha256)"\s*:\s*"[0-9a-f]{64}"',
+    r'"(?:sha256|raw_snapshot_sha256|content_sha256|normalized_content_sha256)"\s*:\s*"[0-9a-f]{64}"',
     re.IGNORECASE,
 )
 GIT_REVISION_FIELD_RE = re.compile(r'"revision"\s*:\s*"[0-9a-f]{40}"', re.IGNORECASE)
