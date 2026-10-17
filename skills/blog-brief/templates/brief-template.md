@@ -16,6 +16,15 @@
 [Informational/Commercial/Transactional]: [1-2 sentence explanation of
 what the searcher wants]
 
+**SERP check** (Step 1.5): DataForSEO Live SERP, [location] / [language], [YYYY-MM-DD]
+
+| Rank | URL | Title | Label |
+|------|-----|-------|-------|
+| [1] | [url] | [title] | [blog/product/category/other kind] |
+
+- **Counts**: blog [n], [label] [n], [label] [n]
+- **Decision**: [continue / stop, user chose to write the blog anyway]
+
 ## Content Parameters
 - **Word count**: [2,000-2,500] words
 - **Reading level**: Flesch 60-70 (expert-accessible)

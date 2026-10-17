@@ -50,10 +50,36 @@ For evidence-led keyword discovery, audience-avatar prompts, and content priorit
 Gather from the user:
 1. **Topic or keyword** (required)
 2. **Target audience** (who reads this?)
-3. **Search intent**: Informational, commercial, transactional, navigational
-4. **Business context**: What does the company do? What's the CTA?
+3. **Business context**: What does the company do? What's the CTA?
 
-If only a topic is given, infer the rest from context.
+If only a topic is given, infer the rest from context. Search intent is not
+asked or inferred here; it comes from the live SERP in Step 1.5.
+
+### Step 1.5: SERP Intent Gate
+
+Check that Google ranks blog posts for the focus keyword before planning one.
+
+1. Make one call with the DataForSEO MCP tool `mcp__dataforseo__api_request`:
+   `POST /v3/serp/google/organic/live/advanced` with `keyword` set to the focus
+   keyword, `depth: 10`, `location_code: 2840`, `language_code: "en"`. Use
+   another location or language only when the user names one. If the tool is
+   missing or the call fails after one retry, stop and tell the user why. Do
+   not judge intent from WebSearch instead.
+2. Take the items whose `type` is `organic` (rank is `rank_group`; page 1 may
+   have fewer than 10). Label each one from its URL, domain, and title only,
+   without fetching it: `blog` (an article that answers the query: blog post,
+   guide, listicle, magazine article, including guides on store domains),
+   `product` (one product's sales page), `category` (a store page listing many
+   products, or store search results), or the specific other kind, such as
+   `video`, `forum`, `social`, `tool`, `news`.
+3. Count each label separately; never merge the other kinds into one group.
+4. **Continue** only when `blog` has strictly more results than every other
+   label. Otherwise **stop**, even on a tie: tell the user the search intent
+   is not a blog post, show the count per label with one example URL each, and
+   ask them to choose: write the blog anyway, switch to another keyword (redo
+   this step with it), or end the brief here.
+5. Keep the labeled table, the counts, and the decision for the brief's
+   Search Intent section. If the user chose to write anyway, record that.
 
 ### Step 2: Keyword Research
 
@@ -63,7 +89,7 @@ Using WebSearch:
 3. Identify **3-5 secondary keywords** (related terms, long-tail)
 4. Identify **3-5 question queries** (People Also Ask style)
 5. Check AI Overviews, AI Mode where available, visible citation/source surfaces, featured snippets, and People Also Ask. Record cited publishers and answer formats when visible; mark surfaces as unavailable when not directly checked.
-6. Note the **search intent**: what do searchers actually want?
+6. Describe what searchers want, consistent with the Step 1.5 decision
 
 ### Step 2.5: Template Recommendation
 
