@@ -3,16 +3,6 @@
 
 # Content Brief: [Title Suggestion]
 
-## Business Context
-- **Entity**: [company or brand name]: [one sentence on what it does]
-- **Offer**: [the specific product, service, or offer this post serves]
-- **Audience**: [who this post serves]
-- **Conversion goal**: [what the reader should do after reading]
-- **Primary CTA**: [CTA text] -> [destination URL or on-site page]
-- **Secondary CTA**: [optional CTA text and destination, or "none"]
-- **Out of scope**: [topics this post must not cover]
-- **Source**: [which fields came from BRAND.md, from the user, or were inferred and confirmed]
-
 ## Template
 **Recommended**: [template-name]: [1-sentence rationale]
 **Template file**: [absolute path to the chosen file in the blog templates root]
@@ -97,7 +87,7 @@ Alternative titles:
 
 ### Conclusion (100-150 words)
 - Key takeaways (bulleted)
-- Call to action: [the primary CTA from Business Context, with the same wording and destination]
+- Call to action: [What should the reader do next?]
 
 ## Statistics to Include
 
