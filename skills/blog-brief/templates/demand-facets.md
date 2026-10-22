@@ -1,6 +1,6 @@
 <!-- Output template for the blog-brief skill (Step 2, items 13 to 22).
      Fill every [bracket] and keep the section order. The rules for
-     filling it are in ../SKILL.md. -->
+     filling it are in ../references/a05-demand-facets.md. -->
 
 # Demand Facets: [focus keyword]
 

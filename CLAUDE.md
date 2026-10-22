@@ -57,8 +57,9 @@ claude-blog/
     blog-rewrite/SKILL.md         # Optimize existing blog posts
     blog-analyze/SKILL.md         # 5-category 100-point scoring
     blog-brief/                    # Detailed content briefs
-      SKILL.md                    # Workflow and filling rules
-      templates/brief-template.md # Brief output template (Step 5)
+      SKILL.md                    # Step order table, shared rules, Step 6
+      references/                 # 7 step files, one per brief step
+      templates/                  # 3 output templates (keyword research, demand facets, brief)
     blog-outline/SKILL.md         # SERP-informed outlines
     blog-calendar/SKILL.md        # Editorial calendars
     blog-strategy/SKILL.md        # Blog positioning and planning
