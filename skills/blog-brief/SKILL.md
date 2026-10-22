@@ -60,7 +60,7 @@ asked or inferred here; it comes from the live SERP in Step 1.5.
 Plan a blog post only if Google already ranks blog posts for the keyword.
 
 1. Call `mcp__dataforseo__api_request` once: `POST /v3/serp/google/organic/live/advanced`,
-   `depth: 10`, `location_code: 2840`, `language_code: "en"` unless the user
+   `depth: 10`, `noAiMode: true`, `location_code: 2840`, `language_code: "en"` unless the user
    names another market. If the tool is missing or fails twice, stop and say
    why; never fall back to WebSearch.
 2. Label each `organic` item from its URL and title: `blog` (any article
@@ -74,18 +74,47 @@ Plan a blog post only if Google already ranks blog posts for the keyword.
 
 ### Step 2: Keyword Research
 
-Using WebSearch:
-1. Search for the target keyword; analyze what currently ranks
-2. Identify **primary keyword** (exact match target)
-3. Identify **3-5 secondary keywords** (related terms, long-tail)
-4. Identify **3-5 question queries** (People Also Ask style)
-5. Check AI Overviews, AI Mode where available, visible citation/source surfaces, featured snippets, and People Also Ask. Record cited publishers and answer formats when visible; mark surfaces as unavailable when not directly checked.
-6. Describe what searchers want, consistent with the Step 1.5 decision
+Find all keywords for the topic. Remove only off-topic keywords. Do not
+select keywords.
+
+Use the Step 1.5 Live SERP response again: PAA questions, related searches, AI
+Overview, featured snippet, and organic titles and URLs. Send the other calls
+with `mcp__dataforseo__api_request`, `noAiMode: true`, `location_code: 2840`,
+and `language_code: "en"`, or the market of the user. If a call fails two
+times, stop and give the reason. Do not use WebSearch.
+
+1. Seeds: the focus keyword, and 1 or 2 other phrases for it from the SERP
+   titles and URLs, with the same subject and audience. If the focus keyword
+   gets a `total_count` of less than 50, add 1 or 2 shorter seeds that keep
+   the core noun and audience.
+2. Get keywords with these calls:
+   - `POST /v3/dataforseo_labs/google/keyword_suggestions/live`: each seed, `limit: 300`
+   - `POST /v3/dataforseo_labs/google/related_keywords/live`: focus keyword, `depth: 2`
+   - `POST /v3/serp/google/autocomplete/live/advanced`: focus keyword, `client: "gws-wiz-serp"`
+3. Remove exact duplicates. Ignore letter case.
+4. Keyword pool: group the Suggestions and Related keywords by `core_keyword`
+   (in `keyword_properties` or `keyword_data.keyword_properties`). A keyword
+   without `core_keyword` is one group with the keywords that point to it.
+   The main keyword is the spelling with the highest volume. If volumes are
+   equal, use the `core_keyword` spelling, or else the first in the response.
+5. Other sources: put the Autocomplete, PAA, and related search words that are
+   not in the pool in a second table. Do not group them.
+6. Remove only these classes from the two tables, in this sequence: other
+   audience, other task, store or platform navigation (amazon, reddit),
+   business conflict. A product brand (nike) is not a store. Use the first class that
+   applies. If you are not sure, keep the keyword. Do not remove for volume or
+   intent. Give one reason for each class.
+7. Call `POST /v3/dataforseo_labs/google/keyword_overview/live` for the words
+   in the second table, but not for PAA questions. If no words stay, do not
+   call it.
+8. Fill `${CLAUDE_SKILL_DIR}/templates/keyword-research.md` and save it as
+   `briefs/[slug]-keyword-research.md`. All data comes from these Labs
+   responses. Write `null` for a missing value, not `0`.
 
 ### Step 2.5: Template Recommendation
 
-Analyze the topic, search intent, and competitive landscape to recommend one
-of 12 content templates. Load `${CLAUDE_SKILL_DIR}/../blog/references/content-templates.md` for selection
+Recommend one of 12 content templates from the Step 1.5 results and the Step 2
+keyword research. Load `${CLAUDE_SKILL_DIR}/../blog/references/content-templates.md` for selection
 criteria.
 
 **Available templates:**
@@ -105,11 +134,15 @@ criteria.
 | `faq-knowledge` | Question-driven reference content |
 
 **Selection process:**
-1. Match search intent to template strength
-2. Check what format top-ranking competitors use
-3. Consider the user's available assets (data, expertise, tools)
-4. Load the matching template file from `${CLAUDE_SKILL_DIR}/../blog/templates/[type].md`
-5. Include the template name in the brief output
+1. Use the format that most Step 1.5 `blog` titles have: a number of items
+   or "ideas" (`listicle`), "how to" (`how-to-guide`), "vs" (`comparison`),
+   "best" (`roundup`), or a question (`faq-knowledge`). If titles tie or show
+   no format, use the format that more Step 2 keywords show. If neither shows
+   one, ask the user.
+2. Use another format only when the user's assets need it, and say why.
+3. Load the matching template file from `${CLAUDE_SKILL_DIR}/../blog/templates/[type].md`
+4. Include the template name in the brief output, with the title counts as
+   the rationale.
 
 ### Step 3: Competitive Analysis
 
@@ -143,7 +176,9 @@ by section, keeping its order. Rules while filling it:
 
 - **Template file** line: resolve `${CLAUDE_SKILL_DIR}/../blog/templates/[type].md`
   to an absolute path.
-- **Search volume**: cite a named tool and date, or write "not measured"; never estimate it.
+- **Target Keywords**: copy the focus keyword and its data from the Step 2
+  keyword research file, and link to that file. Keep `null` as `null`. Never
+  estimate a value.
 - **Experience / E-E-A-T**: include first-hand insight, a case study, or test
   results only when the user supplies supporting methodology, evidence, and
   results; otherwise use differentiated sourced synthesis without implying
