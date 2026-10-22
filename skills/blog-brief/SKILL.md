@@ -74,55 +74,42 @@ Plan a blog post only if Google already ranks blog posts for the keyword.
 
 ### Step 2: Keyword Research
 
-Find every keyword that fits the topic, then remove the off-topic ones. Do
-not pick keywords here, because the demand facet step needs the full set.
-Step 2 reuses the Step 1.5 Live SERP response, because Live SERP results
-change between calls. Send each other call with
-`mcp__dataforseo__api_request` and `noAiMode: true`. The default AI mode
-cuts results and drops `null` fields. Use `location_code: 2840` and
-`language_code: "en"` unless the user names another market. If a call fails
-twice, stop and say why. Never use WebSearch.
+Find all keywords for the topic. Remove only off-topic keywords. Do not
+select keywords.
 
-1. From the Step 1.5 Live SERP response, take the PAA questions, related
-   searches, AI Overview, featured snippet, and the organic titles and URLs.
-2. Seeds: the focus keyword, plus 1 or 2 other phrasings of it from those
-   titles and URLs, for example "his and hers matching outfits". Each one
-   names the same thing for the same audience.
-3. Call `POST /v3/dataforseo_labs/google/keyword_suggestions/live` on each
-   seed, with `limit: 300`. Suggestions only returns terms that contain the
-   seed, so other phrasings find demand that the focus keyword misses.
-4. If the focus keyword has a `total_count` under 50, make 1 or 2 shorter
-   seeds. Each one keeps the core noun and the audience. Call Keyword
-   Suggestions on each one.
-5. Call `POST /v3/dataforseo_labs/google/related_keywords/live` on the focus
-   keyword, with `depth: 2`.
-6. Call `POST /v3/serp/google/autocomplete/live/advanced` on the focus
-   keyword, with `client: "gws-wiz-serp"`.
-7. Remove exact duplicates. Ignore letter case.
-8. Keyword pool: group the Suggestions and Related keywords by `core_keyword`.
-   Read it from `keyword_properties`, or from `keyword_data.keyword_properties`
-   in Related. A keyword with no `core_keyword` and the keywords that point to
-   it form one group. Write one row for each group.
-9. Other sources: put the Autocomplete, PAA, and related search words in a
-   separate table. Do not group them. Drop a word that is already in the
-   pool, ignoring case.
-10. Remove only these classes from both tables, in this order: other
-    audience, other task, store or platform navigation (for example amazon or
-    reddit), and business conflict. A product brand such as nike is not a
-    store, so keep it. Use the first class that fits. If unsure, keep the
-    word. Never remove by volume or intent. Write one reason for each class.
-11. Call `POST /v3/dataforseo_labs/google/keyword_overview/live` only for the
-    Autocomplete and related search words left in the other sources table.
-    The pool already has the same data from Suggestions and Related. Do not
-    send PAA questions, because Overview has no data for full questions. If
-    no word is left, skip this call. Search volume, KD, intent, other
-    intents, and the peak month come only from these Labs responses. If a
-    value is missing, write `null`, never `0`.
-12. In each group, the spelling with the highest volume is the main keyword.
-    If spellings tie, use the `core_keyword` spelling, or else the first tied
-    spelling in the response. The other spellings are variants.
-13. Fill `${CLAUDE_SKILL_DIR}/templates/keyword-research.md` and save it as
-    `briefs/[slug]-keyword-research.md`.
+Use the Step 1.5 Live SERP response again: PAA questions, related searches, AI
+Overview, featured snippet, and organic titles and URLs. Send the other calls
+with `mcp__dataforseo__api_request`, `noAiMode: true`, `location_code: 2840`,
+and `language_code: "en"`, or the market of the user. If a call fails two
+times, stop and give the reason. Do not use WebSearch.
+
+1. Seeds: the focus keyword, and 1 or 2 other phrases for it from the SERP
+   titles and URLs, with the same subject and audience. If the focus keyword
+   gets a `total_count` of less than 50, add 1 or 2 shorter seeds that keep
+   the core noun and audience.
+2. Get keywords with these calls:
+   - `POST /v3/dataforseo_labs/google/keyword_suggestions/live`: each seed, `limit: 300`
+   - `POST /v3/dataforseo_labs/google/related_keywords/live`: focus keyword, `depth: 2`
+   - `POST /v3/serp/google/autocomplete/live/advanced`: focus keyword, `client: "gws-wiz-serp"`
+3. Remove exact duplicates. Ignore letter case.
+4. Keyword pool: group the Suggestions and Related keywords by `core_keyword`
+   (in `keyword_properties` or `keyword_data.keyword_properties`). A keyword
+   without `core_keyword` is one group with the keywords that point to it.
+   The main keyword is the spelling with the highest volume. If volumes are
+   equal, use the `core_keyword` spelling, or else the first in the response.
+5. Other sources: put the Autocomplete, PAA, and related search words that are
+   not in the pool in a second table. Do not group them.
+6. Remove only these classes from the two tables, in this sequence: other
+   audience, other task, store or platform navigation (amazon, reddit),
+   business conflict. A product brand (nike) is not a store. Use the first class that
+   applies. If you are not sure, keep the keyword. Do not remove for volume or
+   intent. Give one reason for each class.
+7. Call `POST /v3/dataforseo_labs/google/keyword_overview/live` for the words
+   in the second table, but not for PAA questions. If no words stay, do not
+   call it.
+8. Fill `${CLAUDE_SKILL_DIR}/templates/keyword-research.md` and save it as
+   `briefs/[slug]-keyword-research.md`. All data comes from these Labs
+   responses. Write `null` for a missing value, not `0`.
 
 ### Step 2.5: Template Recommendation
 
