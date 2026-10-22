@@ -113,8 +113,8 @@ times, stop and give the reason. Do not use WebSearch.
 
 ### Step 2.5: Template Recommendation
 
-Analyze the topic, search intent, and competitive landscape to recommend one
-of 12 content templates. Load `${CLAUDE_SKILL_DIR}/../blog/references/content-templates.md` for selection
+Recommend one of 12 content templates from the Step 1.5 results and the Step 2
+keyword research. Load `${CLAUDE_SKILL_DIR}/../blog/references/content-templates.md` for selection
 criteria.
 
 **Available templates:**
@@ -134,11 +134,15 @@ criteria.
 | `faq-knowledge` | Question-driven reference content |
 
 **Selection process:**
-1. Match search intent to template strength
-2. Check what format top-ranking competitors use
-3. Consider the user's available assets (data, expertise, tools)
-4. Load the matching template file from `${CLAUDE_SKILL_DIR}/../blog/templates/[type].md`
-5. Include the template name in the brief output
+1. Use the format that most Step 1.5 `blog` titles have: a number of items
+   or "ideas" (`listicle`), "how to" (`how-to-guide`), "vs" (`comparison`),
+   "best" (`roundup`), or a question (`faq-knowledge`). If titles tie or show
+   no format, use the format that more Step 2 keywords show. If neither shows
+   one, ask the user.
+2. Use another format only when the user's assets need it, and say why.
+3. Load the matching template file from `${CLAUDE_SKILL_DIR}/../blog/templates/[type].md`
+4. Include the template name in the brief output, with the title counts as
+   the rationale.
 
 ### Step 3: Competitive Analysis
 
