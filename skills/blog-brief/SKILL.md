@@ -243,6 +243,9 @@ by section, keeping its order. Rules while filling it:
 - **Target Keywords**: copy the focus keyword and its data from the Step 2
   keyword research file, and link to that file. Keep `null` as `null`. Never
   estimate a value.
+- **Content Outline**: cover each kept Step 2 facet in at least one H2.
+  One H2 can cover more than one facet. The facet order does not set the
+  H2 order. Write the facet IDs in each H2.
 - **Experience / E-E-A-T**: include first-hand insight, a case study, or test
   results only when the user supplies supporting methodology, evidence, and
   results; otherwise use differentiated sourced synthesis without implying
