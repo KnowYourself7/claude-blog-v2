@@ -8,9 +8,8 @@
 **Template file**: [absolute path to the chosen file in the blog templates root]
 
 ## Target Keywords
-- **Primary**: [keyword]: [monthly search volume from a named tool and date, or "not measured"; never estimate it]
-- **Secondary**: [keyword 1], [keyword 2], [keyword 3]
-- **Questions**: [question 1], [question 2], [question 3]
+- **Primary**: [focus keyword]: search volume [n or null], KD [n or null], [intent] (DataForSEO Keyword Overview, [YYYY-MM-DD])
+- **All keywords**: `briefs/[slug]-keyword-research.md`
 
 ## Search Intent
 [Informational/Commercial/Transactional]: [1-2 sentence explanation of

@@ -25,9 +25,9 @@ This branch does steps 1 and 2. It removes keywords by relevance only. Intent an
 
 ## 3. Step 2 flow
 
-Step 2 makes its own calls and uses no data from other steps. Every call uses `location_code: 2840` and `language_code: "en"`, unless the user names another market. Every call also sends `noAiMode: true`. The default AI mode cuts results and drops `null` fields. If a call fails two times, stop and tell the user why. Do not fall back to WebSearch.
+Step 2 reuses the Live SERP response of Step 1.5. Live SERP results change from one call to the next, so a second call can show other PAA questions or none. Step 2 makes all other calls itself. Every call uses `location_code: 2840` and `language_code: "en"`, unless the user names another market. Every call also sends `noAiMode: true`. The default AI mode cuts results and drops `null` fields. If a call fails two times, stop and tell the user why. Do not fall back to WebSearch.
 
-1. Call Live SERP on the focus keyword with `depth: 10`. Take the PAA questions, the related searches, the SERP features, and the titles and URLs of the organic results.
+1. Use the Live SERP response of Step 1.5. Take the PAA questions, the related searches, the SERP features, and the organic titles and URLs.
 2. Use the focus keyword as seed 1. From the titles and URLs of step 1, take 1 or 2 other phrasings of the focus keyword, for example "his and hers matching outfits". Each phrasing must name the same thing for the same audience.
 3. Call Keyword Suggestions on each seed with `limit: 300`. If a seed has more than 300 matches, the call returns the 300 with the highest search volume.
 4. If seed 1 has fewer than 50 matches (`total_count`), make 1 or 2 shorter seeds. Each shorter seed must keep the core noun and the audience. Call Keyword Suggestions on each one.
@@ -42,12 +42,12 @@ Step 2 makes its own calls and uses no data from other steps. Every call uses `l
     - Store or platform navigation, for example shein, amazon, or reddit.
     - Business conflict.
 
-    A clothing brand, for example nike, is not a store. Keep it. If a keyword fits more than one class, use the first class. If you are not sure, keep the keyword. Do not remove keywords by search volume or intent. Write one reason for each class of removed keywords.
-11. Call Keyword Overview with every spelling that remains in the keyword pool, and with the Autocomplete and related search words. Do not send PAA questions, because Overview has no data for full questions. Send up to 700 keywords in each call.
-12. In each group, use the spelling with the highest Overview search volume as the main keyword. List the other spellings as variants.
+    A product brand, for example nike, is not a store. Keep it. If a keyword fits more than one class, use the first class. If you are not sure, keep the keyword. Do not remove keywords by search volume or intent. Write one reason for each class of removed keywords.
+11. Call Keyword Overview only for the Autocomplete and related search words that remain in the other sources table. The keyword pool already has its data from Keyword Suggestions and Related Keywords, and Overview returns the same values. Do not send PAA questions, because Overview has no data for full questions. If no word remains, do not call Overview.
+12. In each group, use the spelling with the highest search volume as the main keyword. If spellings tie, use the `core_keyword` spelling. If it is not in the tie, use the first tied spelling in the response order. List the other spellings as variants.
 13. Fill the template and save it.
 
-Search volume, KD, intent, other intents, and the peak month come only from Keyword Overview. If Overview returns no value, write `null`. Do not write `0` for a missing value. If Overview returns a KD of `0`, write `0`. A KD of `0` can also mean that Overview did not calculate KD. For this reason, the next step must not rank keywords by KD alone.
+Search volume, KD, intent, other intents, and the peak month come only from DataForSEO Labs. The keyword pool takes them from Keyword Suggestions and Related Keywords. The other sources table takes them from Keyword Overview. If DataForSEO returns no value, write `null`. Do not write `0` for a missing value. If DataForSEO returns a KD of `0`, write `0`. DataForSEO bases 90% of KD on the backlinks of the ranking pages. A KD of `0` means that the top pages have few backlinks, even on strong sites. For this reason, the next step must not rank keywords by KD alone.
 
 ## 4. Template: keyword-research.md
 
@@ -65,7 +65,7 @@ The new template is skills/blog-brief/templates/keyword-research.md. It has thes
 
 Column definitions:
 
-- Peak month is the month with the highest search volume in `keyword_info.monthly_searches`, with its volume. It shows seasonal keywords, for example Halloween outfits.
+- Peak month is the month with the highest search volume in the last 12 months of `keyword_info.monthly_searches`, for example "Oct 2025: 8100". If months tie, write the most recent one and the number of tied months. It shows seasonal keywords, for example Halloween outfits.
 - Other intents come from `search_intent_info.foreign_intent`.
 - Use the same class names in the skill and the template.
 
@@ -73,7 +73,7 @@ The template has no cost column. The default response mode of the MCP server doe
 
 ## 5. Change list
 
-1. `skills/blog-brief/SKILL.md`: Rewrite Step 2 from section 3. Change the Target Keywords rule in Step 5.
+1. `skills/blog-brief/SKILL.md`: Rewrite Step 2 from section 3. Change the Target Keywords rule in Step 5. Add `noAiMode: true` to the Live SERP call of Step 1.5, because Step 2 reads its response.
 2. skills/blog-brief/templates/keyword-research.md: Add the template from section 4.
 3. `skills/blog-brief/templates/brief-template.md`: In Target Keywords, show the focus keyword with its search volume, KD, and intent. Replace the Secondary and Questions lines with a link to the keyword research file.
 4. `docs/FORK-DEVLOG.md`: Add one entry after the merge.
@@ -97,5 +97,6 @@ Write all skill text with the simple-english skill.
 - DataForSEO Related Keywords: https://docs.dataforseo.com/v3/dataforseo_labs/google/related_keywords/live/
 - DataForSEO Keyword Overview: https://docs.dataforseo.com/v3/dataforseo_labs/google/keyword_overview/live/
 - DataForSEO Labs pricing: https://dataforseo.com/pricing/dataforseo-labs/dataforseo-google-api
+- DataForSEO keyword difficulty method: https://dataforseo.com/help-center/what-is-keyword-difficulty-and-how-is-it-calculated
 - Yudong SEO course, pages 78 and 115: local file 瑜东SEO/sources/瑜东谷歌SEO线下课-结构化.md
 - Design of Step 1.5: `docs/plans/2026-10-17-blog-brief-serp-intent-gate.md`

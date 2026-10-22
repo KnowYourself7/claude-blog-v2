@@ -60,7 +60,7 @@ asked or inferred here; it comes from the live SERP in Step 1.5.
 Plan a blog post only if Google already ranks blog posts for the keyword.
 
 1. Call `mcp__dataforseo__api_request` once: `POST /v3/serp/google/organic/live/advanced`,
-   `depth: 10`, `location_code: 2840`, `language_code: "en"` unless the user
+   `depth: 10`, `noAiMode: true`, `location_code: 2840`, `language_code: "en"` unless the user
    names another market. If the tool is missing or fails twice, stop and say
    why; never fall back to WebSearch.
 2. Label each `organic` item from its URL and title: `blog` (any article
@@ -74,13 +74,55 @@ Plan a blog post only if Google already ranks blog posts for the keyword.
 
 ### Step 2: Keyword Research
 
-Using WebSearch:
-1. Search for the target keyword; analyze what currently ranks
-2. Identify **primary keyword** (exact match target)
-3. Identify **3-5 secondary keywords** (related terms, long-tail)
-4. Identify **3-5 question queries** (People Also Ask style)
-5. Check AI Overviews, AI Mode where available, visible citation/source surfaces, featured snippets, and People Also Ask. Record cited publishers and answer formats when visible; mark surfaces as unavailable when not directly checked.
-6. Describe what searchers want, consistent with the Step 1.5 decision
+Find every keyword that fits the topic, then remove the off-topic ones. Do
+not pick keywords here, because the demand facet step needs the full set.
+Step 2 reuses the Step 1.5 Live SERP response, because Live SERP results
+change between calls. Send each other call with
+`mcp__dataforseo__api_request` and `noAiMode: true`. The default AI mode
+cuts results and drops `null` fields. Use `location_code: 2840` and
+`language_code: "en"` unless the user names another market. If a call fails
+twice, stop and say why. Never use WebSearch.
+
+1. From the Step 1.5 Live SERP response, take the PAA questions, related
+   searches, AI Overview, featured snippet, and the organic titles and URLs.
+2. Seeds: the focus keyword, plus 1 or 2 other phrasings of it from those
+   titles and URLs, for example "his and hers matching outfits". Each one
+   names the same thing for the same audience.
+3. Call `POST /v3/dataforseo_labs/google/keyword_suggestions/live` on each
+   seed, with `limit: 300`. Suggestions only returns terms that contain the
+   seed, so other phrasings find demand that the focus keyword misses.
+4. If the focus keyword has a `total_count` under 50, make 1 or 2 shorter
+   seeds. Each one keeps the core noun and the audience. Call Keyword
+   Suggestions on each one.
+5. Call `POST /v3/dataforseo_labs/google/related_keywords/live` on the focus
+   keyword, with `depth: 2`.
+6. Call `POST /v3/serp/google/autocomplete/live/advanced` on the focus
+   keyword, with `client: "gws-wiz-serp"`.
+7. Remove exact duplicates. Ignore letter case.
+8. Keyword pool: group the Suggestions and Related keywords by `core_keyword`.
+   Read it from `keyword_properties`, or from `keyword_data.keyword_properties`
+   in Related. A keyword with no `core_keyword` and the keywords that point to
+   it form one group. Write one row for each group.
+9. Other sources: put the Autocomplete, PAA, and related search words in a
+   separate table. Do not group them. Drop a word that is already in the
+   pool, ignoring case.
+10. Remove only these classes from both tables, in this order: other
+    audience, other task, store or platform navigation (for example amazon or
+    reddit), and business conflict. A product brand such as nike is not a
+    store, so keep it. Use the first class that fits. If unsure, keep the
+    word. Never remove by volume or intent. Write one reason for each class.
+11. Call `POST /v3/dataforseo_labs/google/keyword_overview/live` only for the
+    Autocomplete and related search words left in the other sources table.
+    The pool already has the same data from Suggestions and Related. Do not
+    send PAA questions, because Overview has no data for full questions. If
+    no word is left, skip this call. Search volume, KD, intent, other
+    intents, and the peak month come only from these Labs responses. If a
+    value is missing, write `null`, never `0`.
+12. In each group, the spelling with the highest volume is the main keyword.
+    If spellings tie, use the `core_keyword` spelling, or else the first tied
+    spelling in the response. The other spellings are variants.
+13. Fill `${CLAUDE_SKILL_DIR}/templates/keyword-research.md` and save it as
+    `briefs/[slug]-keyword-research.md`.
 
 ### Step 2.5: Template Recommendation
 
@@ -143,7 +185,9 @@ by section, keeping its order. Rules while filling it:
 
 - **Template file** line: resolve `${CLAUDE_SKILL_DIR}/../blog/templates/[type].md`
   to an absolute path.
-- **Search volume**: cite a named tool and date, or write "not measured"; never estimate it.
+- **Target Keywords**: copy the focus keyword and its data from the Step 2
+  keyword research file, and link to that file. Keep `null` as `null`. Never
+  estimate a value.
 - **Experience / E-E-A-T**: include first-hand insight, a case study, or test
   results only when the user supplies supporting methodology, evidence, and
   results; otherwise use differentiated sourced synthesis without implying
