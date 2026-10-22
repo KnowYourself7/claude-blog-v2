@@ -248,7 +248,8 @@ This post [one sentence].
 3. 用户 2026-10-22 指出这一步没明说读需求面：第 1 条加读 Kept Facets 表，Opportunity 行改为先按面 ID 列出没覆盖或没答透的面，第 6 条的面 ID 从 Opportunity 行抄；SKILL.md 步骤表的其他文件列补 Step 1.5 和 Step 2 的产物。用户同时指出第 4 条没点名模板：改成每一条都写明填模板的哪一段、哪一列，和 Step 2 的写法一致。
 4. 用户要求按 writing-skills 的最佳实践重排：先列要读的三个文件，再写规则，再写步骤，描述压短（594 词降到约 430 词）；每条只说填模板的哪一段。重排后用同一套模拟数据再跑一次子代理。第二轮结果：竞品和 403 判定不变，但 8 条差距里 6 条都成了 unanswered，原因是「取第一个适用的类型」加上「没答透也算 unanswered」让这一类吃掉其他两类。据此改三种类型的定义为互斥：unanswered 是没有页面覆盖这个面，weak evidence 是覆盖了但没来源或条件，no decision 是覆盖了但读者仍做不了决定。另补：Firecrawl 返回非 2xx 算结果不重试，只有无返回才重试一次；失败页的 Fetch、Reference use 和四行都写 fetch failed，保留段落；Opportunity 行部分覆盖的面标 partial；竞品列用 Competitors 表的 #；模板单元格里的分号改成句号。之后让同一个子代理只重做受影响的三块核对。第三轮：Nordson 1 次调用 5 积分，类型分布 unanswered 2、weak evidence 3、no decision 3，前一轮 7 处疑问全部被文字回答。据此再补两句：weak evidence 和 no decision 都适用时取前者；「覆盖」指页面给了这个面的原因或动作。
 5. 之后按 simple-english 再精简一遍步骤文件：抓取失败单独成一条，四个维度改成祈使句，开头补「gap」的定义。最终文字以步骤文件为准，第 6.1 节是草稿。
-3. 真实跑在 `claude-seo-playground`：`2k dispensing problems`，看 5 页抓取是否成功、Nordson 页面 403 时 `metadata.statusCode` 是否被正确判成 `fetch failed`、Gap List 是否挂到了 Step 2 的 F1 到 F6。预计花费：Live SERP 复用不计，Firecrawl 5 积分。实际花费另记在测试笔记里。
+3. 真实跑结果（2026-10-22，会话「blog-brief Step 3 真实数据测试」，记录在 playground 的 `briefs/what-to-wear-with-linen-pants-a06/`）：`2k dispensing problems` 当天 SERP 只有 8 条、博客 2 条，Step 1.5 按 30% 线停下，换成 `what to wear with linen pants` 跑完 Step 1 到 6。核对 a、b、d 通过，c（非 2xx 页面）没有触发无法核对。Firecrawl 预计 5 积分、实际 5；DataForSEO 0.096 美元，其中 Step 2 占 0.09。Gap List 8 条覆盖 F1 到 F8，Our Difference 从差距推出。发现三处并已改：平局规则改为优先 no decision，weak evidence 收窄为「有声明但无来源或条件」（原规则让穿搭类话题 8 条里 5 条都成了 weak evidence）；Structure 行不列 Cart、Subscribe 这类站点标题；Competitors 列写明是没覆盖或只部分覆盖的竞品。另记两件不在本分支的事：a03 的标签清单不全，测试会话自造了 manual、social、gallery；2k 停线取决于两处标签判断。
+4. 原定真实跑计划：`2k dispensing problems`，看 5 页抓取是否成功、Nordson 页面 403 时 `metadata.statusCode` 是否被正确判成 `fetch failed`、Gap List 是否挂到了 Step 2 的 F1 到 F6。预计花费：Live SERP 复用不计，Firecrawl 5 积分。实际花费另记在测试笔记里。
 
 ## 11. 提交拆分
 
