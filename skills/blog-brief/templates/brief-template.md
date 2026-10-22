@@ -127,7 +127,12 @@ statistic for every section.
 | 4 | [Image: Pixabay] | [Search terms] | H2: Section 3 |
 
 ## Competitive Gaps to Exploit
-1. [What competitors miss that we should cover]
+Sample: [n] `blog` results from Step 1.5[; small sample if fewer than 3]
+
+- **Must cover** (most competitors cover it): [topic] ([keyword or PAA question])
+- **Opportunity** (no competitor covers it, keywords or PAA show demand): [topic] ([keyword or PAA question])
+
+1. [Question competitors do not answer fully, or evidence that is weak]
 2. [Unique angle or original data we can provide]
 3. [Format advantage: charts/visuals competitors lack]
 
