@@ -7,8 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `blog-brief` records the business context in the brief instead of dropping it during intake. Step 1 now resolves five explicit fields (entity, offer, audience, conversion goal, out of scope), and the brief template carries a matching `Business Context` block. The conversion goal, the offer, and the CTA are the fields no existing project-root context file supplies, so they are collected from the user instead of being inferred silently.
+
 ### Changed
 
+- `blog-brief` Step 1 reuses the fenced `BRAND.md` context for the entity, audience, and out-of-scope values instead of asking the user for them again, and marks any inferred value for a single user confirmation before the SERP gate runs. Step 5 also requires the Conclusion CTA to match the recorded primary CTA, and an on-site CTA destination to appear in the internal link plan.
 - Turn off Dependabot version-update PRs (`open-pull-requests-limit: 0`). Hash-locked pip bumps need a maintainer relock, so the PRs only added notifications. Vulnerability alerts stay on.
 - Refresh the Google and audio dependency floors and their hash locks: `google-genai` 2.29.0, `google-auth` 2.61.0, `google-auth-oauthlib` >=1.5.0, `google-auth-httplib2` >=0.4.4. The locks stay on releases at least a week old.
 - Move the reviewed `actions/setup-node` pin to v7.1.0 (`949feb2`).

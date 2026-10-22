@@ -50,10 +50,33 @@ For evidence-led keyword discovery, audience-avatar prompts, and content priorit
 Gather from the user:
 1. **Topic or keyword** (required)
 2. **Target audience** (who reads this?)
-3. **Business context**: What does the company do? What's the CTA?
 
-If only a topic is given, infer the rest from context. Search intent is not
-asked or inferred here; it comes from the live SERP in Step 1.5.
+Then resolve the business context into five explicit fields. Reuse what the
+fenced project-root context already supplies instead of asking again; ask the
+user only for the fields it does not cover.
+
+| Field | Source priority | Notes |
+|-------|-----------------|-------|
+| **Entity**: company or brand name, plus one sentence on what it does | Auto-loaded `BRAND.md` `Official entity name` and `Mission`; else ask | Also record `Homepage` when known |
+| **Offer**: the specific product, service, or offer this post serves | Ask the user; `BRAND.md` has no offer field | Name the one offer, not the whole catalog |
+| **Audience**: who this post serves | Auto-loaded `BRAND.md` `Audience`; else ask | Replaces the standalone audience question above |
+| **Conversion goal**: what the reader should do, with the primary CTA text and the CTA destination, plus any secondary CTA | Ask the user; `BRAND.md` has no conversion field | This is the field no existing project-root file supplies |
+| **Out of scope**: topics this post must not cover | Auto-loaded `BRAND.md` `Topic Scope` `Out of scope`; else ask | Prevents off-brand sections |
+
+Resolution rules:
+
+- Precedence is fixed: fenced project-root context, then what the user stated
+  in this turn, then inference.
+- Never silently infer the conversion goal, the offer, or the CTA. When a value
+  comes from inference, mark it as inferred and put all inferred values in one
+  confirmation list before Step 1.5. The user confirms or corrects that list.
+- The conversion goal may be recorded as "not applicable" for a post with no
+  conversion intent, but it is never left empty.
+- Prefer the entity's real name over a generic descriptor; never write
+  "the company" in the brief.
+
+Search intent is not asked or inferred here; it comes from the live SERP in
+Step 1.5.
 
 ### Step 1.5: SERP Intent Gate
 
@@ -175,6 +198,15 @@ by section, keeping its order. Rules while filling it:
 - **Target Keywords**: copy the focus keyword and its data from the Step 2
   keyword research file, and link to that file. Keep `null` as `null`. Never
   estimate a value.
+- **Business Context**: fill the template's Business Context block from the five
+  Step 1 fields. Write "inferred, confirmed by the user" next to any value the
+  user confirmed rather than supplied directly. If the conversion goal is "not
+  applicable", say so there and keep the CTA line in the Conclusion aligned
+  with it.
+- **CTA consistency**: when the primary CTA destination is an on-site page, the
+  same page must also appear in `Internal Link Architecture` under `Link TO`.
+  If the destination is off-site, link it directly in the Conclusion instead
+  of adding it to `Link TO`.
 - **Experience / E-E-A-T**: include first-hand insight, a case study, or test
   results only when the user supplies supporting methodology, evidence, and
   results; otherwise use differentiated sourced synthesis without implying
