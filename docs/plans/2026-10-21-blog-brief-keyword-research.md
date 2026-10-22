@@ -3,148 +3,93 @@
 | Item | Value |
 |---|---|
 | Date | 2026-10-21 |
-| Status | Approved. Not built yet. |
+| Status | Not built yet. |
 | Branch | feat/blog-brief-keyword-research |
-| Scope | Step 2 and Step 5 of `skills/blog-brief/SKILL.md`, `skills/blog-brief/templates/brief-template.md`, one new template |
 
-## 1. Request
+## 1. Goal
 
-Step 2 of blog-brief uses WebSearch to find keywords. WebSearch gives no Google search volume, no keyword difficulty (KD), and no intent. The brief template asks for a search volume from a named tool, so every brief says "not measured".
+Step 2 of blog-brief uses WebSearch to find keywords. WebSearch gives no search volume, no keyword difficulty (KD), and no intent. The new Step 2 gets this data from DataForSEO. It saves the result in a new file in the user project: `briefs/[slug]-keyword-research.md`.
 
-The user asks for two changes:
+The next branch adds demand facets. A demand facet is one reader question that the post must answer. That branch groups the keywords into facets and ranks them. This branch does not.
 
-1. Replace WebSearch in Step 2 with four DataForSEO sources: Keyword Suggestions, Related Keywords, Live SERP for People Also Ask (PAA), and Keyword Overview for the data.
-2. Save the research result in a new file that comes from a template.
+## 2. Source: Yudong course step A·05
 
-A later branch adds a demand facet step. A demand facet is one reader question that the post must answer. That step groups the keywords into facets and ranks them by business value and search volume.
+The Yudong SEO course (page 115) uses four steps in this order:
 
-## 2. Why the change is necessary
+1. Expand the keywords.
+2. Remove duplicates and off-topic keywords. Filter by intent, then relevance, then search volume (page 78).
+3. Group the keywords by reader question.
+4. Rank the groups.
 
-| Question | Answer |
-|---|---|
-| What is wrong now? | WebSearch gives no search volume, KD, or intent. Secondary keywords come from guesses. |
-| Can an existing step do it? | No. Step 1.5 uses DataForSEO for the SERP, but no step gets keyword data. |
-| Cost for each brief | About 0.11 USD (section 5.4). |
-| Who uses the data later? | The demand facet branch. It needs a full keyword pool with data. |
+This branch does steps 1 and 2. It removes keywords by relevance only. Intent and search volume are recorded, and the ranking step uses them.
 
-## 3. Reference: Yudong course step A·05
+## 3. Step 2 flow
 
-The Yudong SEO course, page 115, turns keywords into demand facets in this order:
+Step 2 makes its own calls and uses no data from other steps. Every call uses `location_code: 2840` and `language_code: "en"`, unless the user names another market. Every call also sends `noAiMode: true`. The default AI mode cuts results and drops `null` fields. If a call fails two times, stop and tell the user why. Do not fall back to WebSearch.
 
-1. Expand from the focus keyword and from more seed keywords. Add autocomplete, related searches, and PAA.
-2. Remove duplicate phrasings. Filter by intent first, then by relevance, then by search volume (page 78).
-3. Group the keywords by reader question. Pick one representative keyword for each facet. Do not stuff keywords into the post.
-4. Combine the demand with business value, and rank the facets.
+1. Call Live SERP on the focus keyword with `depth: 10`. Take the PAA questions, the related searches, the SERP features, and the titles and URLs of the organic results.
+2. Use the focus keyword as seed 1. From the titles and URLs of step 1, take 1 or 2 other phrasings of the focus keyword, for example "his and hers matching outfits". Each phrasing must name the same thing for the same audience.
+3. Call Keyword Suggestions on each seed with `limit: 300`. If a seed has more than 300 matches, the call returns the 300 with the highest search volume.
+4. If seed 1 has fewer than 50 matches (`total_count`), make 1 or 2 shorter seeds. Each shorter seed must keep the core noun and the audience. Call Keyword Suggestions on each one.
+5. Call Related Keywords on the focus keyword with `depth: 2`.
+6. Call Google Autocomplete on the focus keyword with `client: "gws-wiz-serp"`. Take the suggestions from the response.
+7. Remove exact duplicates. Ignore letter case.
+8. Group the keywords from Keyword Suggestions and Related Keywords by `core_keyword`. Read it from `keyword_properties` in Suggestions and from `keyword_data.keyword_properties` in Related Keywords. A keyword with no `core_keyword` and the keywords that point to it form one group. Put one row for each group in the keyword pool.
+9. Put the words from Autocomplete, PAA, and related searches in a separate table after the keyword pool. Do not group them. If the same word, ignoring case, is in the keyword pool, keep it only in the keyword pool.
+10. Remove off-topic keywords from both tables. Remove only these classes, in this order:
+    - Other audience, for example mother and daughter outfits.
+    - Other task, for example outfits for a game avatar.
+    - Store or platform navigation, for example shein, amazon, or reddit.
+    - Business conflict.
 
-The workflow file `a05-demand-facets.md` in the local Yudong project adds two lessons from a real run on 2026-09-21:
+    A clothing brand, for example nike, is not a store. Keep it. If a keyword fits more than one class, use the first class. If you are not sure, keep the keyword. Do not remove keywords by search volume or intent. Write one reason for each class of removed keywords.
+11. Call Keyword Overview with every spelling that remains in the keyword pool, and with the Autocomplete and related search words. Do not send PAA questions, because Overview has no data for full questions. Send up to 700 keywords in each call.
+12. In each group, use the spelling with the highest Overview search volume as the main keyword. List the other spellings as variants.
+13. Fill the template and save it.
 
-- A long seed returns few results. Keyword Suggestions returns only terms that contain the seed. A 6-word seed gave 8 results. Two shorter seeds gave 72 and 91 results.
-- The expand endpoints do not always return KD. Keyword Overview gives all data from one source on one date. Overview also returns no KD for many long-tail keywords, so `null` stays `null`.
+Search volume, KD, intent, other intents, and the peak month come only from Keyword Overview. If Overview returns no value, write `null`. Do not write `0` for a missing value. If Overview returns a KD of `0`, write `0`. A KD of `0` can also mean that Overview did not calculate KD. For this reason, the next step must not rank keywords by KD alone.
 
-This branch does the expand part and the data part of A·05. The next branch does the filter, group, and rank parts.
+## 4. Template: keyword-research.md
 
-## 4. Evaluation of the request
-
-The request matches the first half of A·05. We keep the four sources and the new file. We change four details:
-
-| Item in the request | Change | Reason |
-|---|---|---|
-| Live SERP for PAA | Do not call it again. Read `people_also_ask` and `related_searches` from the Step 1.5 response. | Step 1.5 already called Live SERP for the same keyword. One call costs less, and both steps use the same data. |
-| Keyword Suggestions on the focus keyword | Use the focus keyword and 1 or 2 shorter seeds. | A long seed returns few results (section 3). |
-| Keyword Overview | Send the full pool after duplicates are removed, up to 200 keywords. | All data columns come from one source on one date. The next branch needs no API call. |
-| Filtering | Do not remove keywords in this branch. | Filtering needs business judgment. It belongs with grouping and ranking. |
-
-Step 2 must still give the brief one primary keyword, the secondary keywords, and the questions. Section 5.3 gives a temporary rule for this.
-
-## 5. Design
-
-### 5.1 Step 2 flow
-
-Step 2 uses only DataForSEO. It makes no WebSearch call.
-
-1. Pick the seeds. Seed 1 is the focus keyword.
-2. Make 1 or 2 shorter seeds. Remove the modifiers and keep the reader task. Record each seed and the reason.
-3. Call Keyword Suggestions once for each seed, with `limit: 50`.
-4. Call Related Keywords once on the focus keyword, with `depth: 2`. Depth 2 returns about 72 keywords.
-5. Read `people_also_ask` and `related_searches` from the Step 1.5 Live SERP response.
-6. Merge all keywords and remove exact duplicates. Do not remove other keywords.
-7. If the pool has more than 200 keywords, keep all PAA questions and related searches. Remove the other keywords with the lowest search volume until 200 remain.
-8. Call Keyword Overview once with the full pool and `include_serp_info: true`.
-9. Fill the template (section 5.2). Save it as `briefs/[slug]-keyword-research.md` in the user project.
-
-Every call uses the market from Step 1.5: `location_code: 2840` and `language_code: "en"`, unless the user names another market.
-
-Data rules:
-
-- Search volume, KD, and intent come only from Keyword Overview.
-- If Overview returns no data for a keyword, write `null`. Do not use a value from the expand endpoints. Do not write `0`.
-- Item 5 of the current Step 2 stays. It reads AI Overview, featured snippet, and PAA from the Step 1.5 response. If the response does not include a feature, mark it `unavailable`.
-
-### 5.2 Template: keyword-research.md
-
-The new file is skills/blog-brief/templates/keyword-research.md. It has six sections:
+The new template is skills/blog-brief/templates/keyword-research.md. It has these sections:
 
 | Section | Content |
 |---|---|
-| Data scope | Focus keyword, location, language, date, the path and parameters of each endpoint, and the cost of each call |
-| Seeds | Each seed, how you shortened it, the reason, and the number of results |
-| Keyword pool | One row for each keyword: keyword, search volume, KD, intent, source. Sort by search volume, highest first. Source is one or more of `suggestions`, `related`, `PAA`, and `related search`. |
-| People Also Ask | The questions from the Step 1.5 response, as returned |
-| Not in Overview | The keywords that Overview did not return, with the reason |
-| Picks for the brief | Primary keyword, 3 to 5 secondary keywords, and 3 to 5 questions (section 5.3) |
+| Data scope | Focus keyword, market, date, and the parameters of each call |
+| Seeds | Each seed, where it came from (focus keyword, results page, or shortened), and the number of results |
+| Keyword pool | One row for each group: main keyword, variants, search volume, peak month, KD, intent, other intents, source |
+| Other sources | One row for each word from Autocomplete, PAA, and related searches: keyword, source, search volume, peak month, KD, intent. PAA rows have no data. |
+| Removed keywords | Each removed class, examples, and the reason |
+| Not in Overview | The keywords that Overview did not return |
+| SERP features | AI Overview and the publishers that it cites, featured snippet. Write `none` for a feature that is not on the results page. |
 
-The brief does not copy the keyword pool. The pool can have 200 rows. The `/blog write` command reads the brief, and it does not need every keyword.
+Column definitions:
 
-### 5.3 Picks for the brief (temporary)
+- Peak month is the month with the highest search volume in `keyword_info.monthly_searches`, with its volume. It shows seasonal keywords, for example Halloween outfits.
+- Other intents come from `search_intent_info.foreign_intent`.
+- Use the same class names in the skill and the template.
 
-Until the demand facet branch is merged, Step 2 uses this rule to pick keywords for the brief:
+The template has no cost column. The default response mode of the MCP server does not return the cost.
 
-1. Use the focus keyword as the primary keyword.
-2. Pick 3 to 5 secondary keywords. Filter by intent first, then by topic relevance, then by search volume.
-3. Pick 3 to 5 questions from PAA.
+## 5. Change list
 
-The Target Keywords section of the brief shows each picked keyword with its search volume and KD. It also links to the keyword research file. The demand facet branch replaces this rule.
-
-### 5.4 Errors and cost
-
-If a call fails two times, stop and tell the user the reason. Do not fall back to WebSearch. Step 1.5 uses the same rule.
-
-Each DataForSEO Labs call costs 0.012 USD for the task and 0.00012 USD for each returned item. Overview does not charge for keywords that it does not return.
-
-| Call | Count | Estimated cost (USD) |
-|---|---|---|
-| Keyword Suggestions, 50 results | 2 to 3 | 0.036 to 0.054 |
-| Related Keywords, depth 2 | 1 | about 0.021 |
-| Keyword Overview, 200 keywords | 1 | about 0.036 |
-| Total | 4 to 5 | about 0.09 to 0.11 |
-
-## 6. Change list
-
-1. `skills/blog-brief/SKILL.md`: Rewrite Step 2 in 30 lines or fewer. Change the search volume rule in Step 5 to point to the keyword research file.
-2. skills/blog-brief/templates/keyword-research.md: Add the new template (section 5.2).
-3. `skills/blog-brief/templates/brief-template.md`: Add search volume and KD to Target Keywords. Add a link to the keyword research file.
+1. `skills/blog-brief/SKILL.md`: Rewrite Step 2 from section 3. Change the Target Keywords rule in Step 5.
+2. skills/blog-brief/templates/keyword-research.md: Add the template from section 4.
+3. `skills/blog-brief/templates/brief-template.md`: In Target Keywords, show the focus keyword with its search volume, KD, and intent. Replace the Secondary and Questions lines with a link to the keyword research file.
 4. `docs/FORK-DEVLOG.md`: Add one entry after the merge.
 
 Write all skill text with the simple-english skill.
 
-## 7. Out of scope
+## 6. Out of scope
 
-- Demand facet grouping, ranking, and filtering. The next branch does them.
-- Google Autocomplete. In the 2026-09-21 run, it gave no question phrasings.
-- A script, JSON snapshots, or new tests. The rules are short, and the model can follow them. If a real run shows errors, add a script then.
+- Grouping keywords into demand facets, and ranking them. The next branch does this.
+- Merging spellings that DataForSEO puts in different groups, for example "valentine's" and "valentine's day". The demand facet step does this.
+- A script or new tests.
 
-## 8. How we test
+## 7. Test plan
 
-1. Run the project test and lint commands: `python3 -m pytest tests/`, `python3 scripts/validate_skills.py --root .`, `python3 scripts/lint_prose.py`, and `python3 scripts/consistency_check.py`. The current tests match fixed sentences in blog-brief. This change does not touch those sentences.
-2. This session has no DataForSEO MCP server. A subagent runs Step 2 with sample API responses. Make sure that it shortens the seeds, removes duplicates, uses only Overview data, writes `null` and not `0`, and fills the template.
-3. Before the merge, the user runs one real brief in a session that has DataForSEO connected.
-
-## 9. Notes for the demand facet branch
-
-- Follow A·05. Filter by intent, then by relevance, then by search volume. Write one reason for each removed keyword class.
-- Each facet is one full reader question with one representative keyword and its variants. Do not add the search volumes of the variants together.
-- Keep 5 to 9 facets. If fewer than 3 remain, tell the user that the keyword cannot support a full post.
-- The Yudong gap analysis of 2026-10-20 names one risk. One facet for each section can turn the post into a list of questions with no link between sections.
+1. Run `python3 -m pytest tests/`, `python3 scripts/validate_skills.py --root .`, `python3 scripts/lint_prose.py`, and `python3 scripts/consistency_check.py`.
+2. Open a new session in the claude-seo-playground folder. Run Step 1.5 and Step 2 with real data for "matching outfits for couples".
 
 ## Sources
 
@@ -153,5 +98,4 @@ Write all skill text with the simple-english skill.
 - DataForSEO Keyword Overview: https://docs.dataforseo.com/v3/dataforseo_labs/google/keyword_overview/live/
 - DataForSEO Labs pricing: https://dataforseo.com/pricing/dataforseo-labs/dataforseo-google-api
 - Yudong SEO course, pages 78 and 115: local file 瑜东SEO/sources/瑜东谷歌SEO线下课-结构化.md
-- Yudong workflow stage A·05 and its run log of 2026-09-21: local folder 瑜东SEO/.claude/skills/yudong-blog-workflow
-- Earlier design for Step 1.5: `docs/plans/2026-10-17-blog-brief-serp-intent-gate.md`
+- Design of Step 1.5: `docs/plans/2026-10-17-blog-brief-serp-intent-gate.md`
