@@ -181,9 +181,9 @@ def test_editorial_guidance_has_no_stat_or_length_delivery_quotas() -> None:
 
 
 def test_first_hand_and_retrieval_guidance_remains_evidence_conditional() -> None:
-    brief = (ROOT / "skills" / "blog-brief" / "SKILL.md").read_text(
-        encoding="utf-8"
-    )
+    brief = (
+        ROOT / "skills" / "blog-brief" / "references" / "a10-generate-brief.md"
+    ).read_text(encoding="utf-8")
     reviewer = (ROOT / "agents" / "blog-reviewer.md").read_text(
         encoding="utf-8"
     )
