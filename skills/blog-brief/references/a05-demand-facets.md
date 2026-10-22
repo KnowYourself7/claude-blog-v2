@@ -1,9 +1,9 @@
 ### Step 2: Keywords to Demand Facets
 
 Turn the keywords of the topic into demand facets. A demand facet is one
-part of the reader task. The reader task is what the searcher of the
-focus keyword wants to do or know. Step 5 gives each kept facet at least
-one H2.
+part of the reader task. The reader task is the sentence that Step 1.5
+wrote in `briefs/[slug]-search-intent.md`. Step 5 gives each kept facet
+at least one H2.
 
 In this step, you fill two templates:
 `templates/keyword-research.md` for the keyword
@@ -52,7 +52,7 @@ Do not use WebSearch.
 9. Put the PAA questions and the related searches that are not in the
    Keyword Pool into the Other Sources table.
 10. From both tables, remove the keywords that do not ask about the
-    reader task. The classes are other audience, other task, other
+    reader task of Step 1.5. The classes are other audience, other task, other
     meaning of the same word, store or platform navigation, and business
     conflict. Give each removed keyword the first class that applies, in
     this sequence. A product brand, for example nike, is not a store. If

@@ -14,16 +14,11 @@
 - **Demand facets**: `briefs/[slug]-demand-facets.md`
 
 ## Search Intent
-[Informational/Commercial/Transactional]: [1-2 sentence explanation of
-what the searcher wants]
+**Reader task**: The searcher wants to [one sentence, from the Step 1.5 file]
 
-**SERP check** (Step 1.5): DataForSEO Live SERP, [location] / [language], [YYYY-MM-DD]
+**SERP check** (Step 1.5): `briefs/[slug]-search-intent.md`, DataForSEO Live SERP, [location] / [language], [YYYY-MM-DD]
 
-| Rank | URL | Title | Label |
-|------|-----|-------|-------|
-| [1] | [url] | [title] | [blog/product/category/other kind] |
-
-- **Counts**: blog [n], [label] [n], [label] [n]
+- **Counts**: blog [n]/[organic count], [label] [n], [label] [n]; off topic [n]
 - **Decision**: [continue / stop, user chose to write the blog anyway]
 
 ## Content Parameters
