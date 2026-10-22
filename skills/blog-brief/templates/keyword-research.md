@@ -31,14 +31,12 @@ If seed 1 has 50 or more matches, there are no shorter seeds.
 
 ## Keyword Pool
 
-Keywords from Keyword Suggestions and Related Keywords, one row for each
-`core_keyword` group. The main keyword is the spelling with the highest
-search volume. Sorted by search volume, highest first. `null` means that
-DataForSEO returned no value. Peak month is the month with the highest
-volume in the last 12 months. If months tie, write the most recent one and
-the number of tied months, for example `Oct 2025: 8100 (3 tied)`. KD comes
-mostly from the backlinks of the ranking pages. A KD of `0` means that weak
-pages rank, not that the keyword is easy, so do not rank by KD alone.
+The table has one row for each `core_keyword` group of Suggestions and
+Related keywords, from the highest volume to the lowest. The main keyword has
+the highest volume. Peak month is the highest month of the last 12 months.
+For a tie, give the last month and the tie count, for example
+`Oct 2025: 8100 (3 tied)`. KD comes from the backlinks of the ranking pages,
+so `0` means weak pages rank. Do not sort by KD alone. `null` means no value.
 
 | # | Main keyword | Variants | Search volume | Peak month | KD | Intent | Other intents | Source |
 |---|--------------|----------|---------------|------------|----|--------|---------------|--------|
