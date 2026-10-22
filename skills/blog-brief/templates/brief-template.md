@@ -10,6 +10,7 @@
 ## Target Keywords
 - **Primary**: [focus keyword]: search volume [n or null], KD [n or null], [intent] (DataForSEO Keyword Overview, [YYYY-MM-DD])
 - **All keywords**: `briefs/[slug]-keyword-research.md`
+- **Demand facets**: `briefs/[slug]-demand-facets.md`
 
 ## Search Intent
 [Informational/Commercial/Transactional]: [1-2 sentence explanation of
@@ -67,12 +68,14 @@ Alternative titles:
 - TL;DR box placement (after hook, before first H2)
 
 ### H2: [Intent-Matched Heading]
+- **Facets**: [F1, F3]
 - **Answer-first**: Open with the section's useful conclusion and support it
 - Cover: [subtopic 1], [subtopic 2]
 - **Image**: [Description of recommended image]
 - **Key stat**: [Specific statistic to include]
 
 ### H2: [Intent-Matched Heading]
+- **Facets**: [F1, F3]
 - **Answer-first**: Open with the section's useful conclusion and support it
 - Cover: [subtopic 1], [subtopic 2]
 - **Chart**: [Type] showing [data description]
