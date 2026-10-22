@@ -24,9 +24,11 @@ this step, you fill `templates/search-intent.md` and save it as
    - `other meaning`: the same word with another meaning.
 4. Count each label. Write the blog share as `blog [n]/[organic count]`
    and as a percent.
-5. Write the reader task in one sentence: "The searcher wants to ...".
-   Take it from the `blog` titles and the PAA questions. Step 2 uses
-   this sentence to filter the keywords.
+5. Read the `blog` titles and the PAA questions. Find the task that
+   they answer: what the searcher wants to do or know. When you
+   understand that task, write it in one sentence: "The searcher wants
+   to ...". Do not write the sentence from the keyword alone. Step 2
+   uses this sentence to filter the keywords.
 6. Write `present` or `none` for the AI Overview and for the featured
    snippet. A feature that is `none` does not show low demand or weak
    competition.
