@@ -16,6 +16,10 @@ by section, keeping its order. Rules while filling it:
   results; otherwise use differentiated sourced synthesis without implying
   personal experience.
 - **Statistics**: only those that passed the Step 4 provenance rules.
+- **Competitive Gaps**: copy the Gap List into item 1 and Our
+  Difference into item 2 from the Step 3 file, and link to that file.
+  Take item 3 from the Experience rows of that file; write `none` if no
+  format is missing. Do not add a gap that is not in the file.
 - **Generated SVG covers**: sanitize to remove scripts and event attributes, or
   rasterize to PNG before publishing.
 - **FAQ**: optional, 3-5 items, not a Google rich-result target.

@@ -126,9 +126,16 @@ statistic for every section.
 | 4 | [Image: Pixabay] | [Search terms] | H2: Section 3 |
 
 ## Competitive Gaps to Exploit
-1. [What competitors miss that we should cover]
-2. [Unique angle or original data we can provide]
-3. [Format advantage: charts/visuals competitors lack]
+**Competitor file**: `briefs/[slug]-competitor-gaps.md`
+
+1. **What competitors miss**:
+
+| ID | Type | Gap | Facet |
+|----|------|-----|-------|
+| G1 | [type] | [gap] | [F-ID or -] |
+
+2. **Unique angle**: [Our Difference from the Step 3 file]
+3. **Format advantage**: [a table, step list, or tool that no competitor has, from the Experience rows, or none]
 
 ## Internal Link Architecture
 - **Link TO** (from this new post to existing pages):
