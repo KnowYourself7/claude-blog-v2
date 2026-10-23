@@ -1,4 +1,4 @@
-<!-- Output template for the blog-brief skill (Step 3, items 9 to 17).
+<!-- Output template for the blog-brief skill (Step 3, items 7 to 12).
      Fill every [bracket] and keep the section order. The rules for
      filling it are in ../references/step-3-demand-facets.md. -->
 
@@ -10,7 +10,7 @@
 | Date | [YYYY-MM-DD] |
 | Keyword evidence | `briefs/[slug]-keyword-research.md` |
 | Business scope | `briefs/[slug]-task-brief.md` |
-| Related Keywords | [not called / called in Step 3 item 15] |
+| Related Keywords | [not called / called in Step 3 item 10] |
 
 ## Focus Keyword
 
@@ -18,6 +18,8 @@ Rows that restate the focus keyword: pool [n], [n]. other [n].
 
 ## Kept Facets
 
+Copy this table and the Other Facets table from
+`briefs/[slug]-facet-tables.md`, written by `scripts/keyword_pool.py`.
 Each kept facet goes into at least one H2 of the brief. The table goes
 from the highest evidence count to the lowest. For equal counts, it goes
 from the highest volume to the lowest, with `-` after the volumes. If
