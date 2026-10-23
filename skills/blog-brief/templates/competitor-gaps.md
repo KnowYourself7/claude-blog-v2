@@ -15,20 +15,9 @@
 
 ## Competitors
 
-| # | Rank | URL | Title | Fetch | Reference use |
-|---|------|-----|-------|-------|---------------|
-| 1 | [rank] | [url] | [title] | [ok / fetch failed] | [one sentence] |
-
-## Breakdown
-
-### 1. [domain]
-
-| Dimension | Finding |
-|-----------|---------|
-| Structure | [H2 text: reader question. H2 text: overview only. ...] |
-| Evidence | [sources, conditions, whose claims] |
-| Experience | [tables, steps, images, tools. Answer easy to find or not. Reader can act or not.] |
-| Opportunity | [facets not covered, by ID. Facets covered in part, by ID with partial. Causes and limits not explained. Judgments not supported.] |
+| # | Rank | URL | Title | Fetch | Details |
+|---|------|-----|-------|-------|---------|
+| 1 | [rank] | [url] | [title] | [ok / fetch failed] | `briefs/[slug]-competitor-1.md` |
 
 ## Gap List
 
@@ -39,3 +28,7 @@
 ## Our Difference
 
 This post [one sentence].
+
+## Format Advantage
+
+[A table, step list, or tool that no competitor has, or none.]

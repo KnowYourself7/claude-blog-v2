@@ -58,9 +58,9 @@ Paths in the step files are relative to this skill folder:
 | Step 1.5: SERP Intent Gate | `${CLAUDE_SKILL_DIR}/references/a03-serp-intent-gate.md` | `${CLAUDE_SKILL_DIR}/templates/search-intent.md` |
 | Step 2: Keywords to Demand Facets | `${CLAUDE_SKILL_DIR}/references/a05-demand-facets.md` | `${CLAUDE_SKILL_DIR}/templates/keyword-research.md`, `${CLAUDE_SKILL_DIR}/templates/demand-facets.md` |
 | Step 2.5: Template Recommendation | `${CLAUDE_SKILL_DIR}/references/template-recommendation.md` | `${CLAUDE_SKILL_DIR}/../blog/references/content-templates.md`, `${CLAUDE_SKILL_DIR}/../blog/templates/[type].md` |
-| Step 3: Competitor Gap List | `${CLAUDE_SKILL_DIR}/references/a06-competitive-analysis.md` | `${CLAUDE_SKILL_DIR}/templates/competitor-gaps.md`, the Step 1.5 and Step 2 output files |
+| Step 3: Competitor Gap List | `${CLAUDE_SKILL_DIR}/references/a06-competitive-analysis.md` | `${CLAUDE_SKILL_DIR}/templates/competitor-gaps.md`, `${CLAUDE_SKILL_DIR}/templates/competitor-details.md`, the Step 1.5 and Step 2 output files |
 | Step 4: Statistics Research | `${CLAUDE_SKILL_DIR}/references/a07-statistics-research.md` | None |
-| Step 5: Generate the Brief | `${CLAUDE_SKILL_DIR}/references/a10-generate-brief.md` | `${CLAUDE_SKILL_DIR}/templates/brief-template.md`, `${CLAUDE_SKILL_DIR}/../blog/templates/[type].md` |
+| Step 5: Generate the Brief | `${CLAUDE_SKILL_DIR}/references/a10-generate-brief.md` | `${CLAUDE_SKILL_DIR}/templates/brief-template.md`, the Step 1.5, Step 2, and Step 3 output files |
 
 ### Step 6: Save the Brief
 

@@ -59,7 +59,7 @@ claude-blog/
     blog-brief/                    # Detailed content briefs
       SKILL.md                    # Step order table, shared rules, Step 6
       references/                 # 7 step files, one per brief step
-      templates/                  # 5 output templates (search intent, keyword research, demand facets, competitor gaps, brief)
+      templates/                  # 6 output templates (search intent, keyword research, demand facets, competitor details, competitor gaps, brief)
     blog-outline/SKILL.md         # SERP-informed outlines
     blog-calendar/SKILL.md        # Editorial calendars
     blog-strategy/SKILL.md        # Blog positioning and planning
