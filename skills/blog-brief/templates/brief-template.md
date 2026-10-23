@@ -25,7 +25,7 @@
 - **Word count**: [2,000-2,500] words
 - **Reading level**: Flesch 60-70 (expert-accessible)
 - **Format**: [Markdown/MDX/HTML]
-- **H2 sections**: [6-8]
+- **H2 sections**: [8-10]
 - **Images**: as the topic needs (original assets, product screenshots, diagrams, or licensed stock); no fixed count
 - **Charts**: as the evidence needs, via built-in blog-chart, choosing the clearest chart type; no fixed count
 - **FAQ items**: Optional 3-5 when People Also Ask or user questions warrant them; not a Google rich-result target
@@ -77,7 +77,7 @@ Alternative titles:
 - **Chart**: [Type] showing [data description]
 - **Key stat**: [Specific statistic to include]
 
-[... repeat for 6-8 sections ...]
+[... repeat for 8-10 sections ...]
 
 ### Optional FAQ Section (3-5 items)
 1. [Question]: Answer with [stat + source when factual and relevant]
