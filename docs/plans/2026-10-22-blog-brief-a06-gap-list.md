@@ -7,7 +7,7 @@
 | 分支 | feat/blog-brief-a06-gap-list（从 main 的 44d3c14 开出，a03 已合并为 PR #11） |
 | 依据 | 瑜东 A·06「竞争页面研究计划」，`docs/yudong-blog-workflow-小白讲解/03-需求面与竞品拆解.md`（p.117 到 118，背景 p.51） |
 | 路线图位置 | `docs/plans/2026-10-22-blog-brief-step-files.md` 第 6 节的第 5 个分支 |
-| 改动范围 | `skills/blog-brief/references/a06-competitive-analysis.md`、新建 `skills/blog-brief/templates/competitor-gaps.md`、`skills/blog-brief/templates/brief-template.md` 的 Competitive Gaps 段、`skills/blog-brief/references/a10-generate-brief.md` 加一条、`skills/blog-brief/SKILL.md` 步骤表一行、`CLAUDE.md` 目录树一行 |
+| 改动范围 | `skills/blog-brief/references/step-4-competitor-gaps.md`、新建 `skills/blog-brief/templates/competitor-gaps.md`、`skills/blog-brief/templates/brief-template.md` 的 Competitive Gaps 段、`skills/blog-brief/references/step-7-generate-brief.md` 加一条、`skills/blog-brief/SKILL.md` 步骤表一行、`CLAUDE.md` 目录树一行 |
 
 ## 1. 为什么改
 
@@ -93,7 +93,7 @@ Phase B 的全文深抓（B·11）到时再定范围，这次只抓到能填四�
 
 ## 6. 英文草稿
 
-### 6.1 步骤文件 `skills/blog-brief/references/a06-competitive-analysis.md`
+### 6.1 步骤文件 `skills/blog-brief/references/step-4-competitor-gaps.md`
 
 ```markdown
 ### Step 3: Competitor Gap List
@@ -222,7 +222,7 @@ This post [one sentence].
 
 | 文件 | 改什么 |
 |---|---|
-| `skills/blog-brief/references/a10-generate-brief.md` | 用户 2026-10-22 定：Step 5 只读三个文件，搜索意图（读者任务和判定）、需求面（必须回答的问题）、差距清单（要补的差距）；不读关键词文件、竞品详情文件和内容模板（Step 2.5 已读）。规则先压成九条，用户 2026-10-22 看后指出看不懂、多数没用：逐条对照简报模板，删掉模板里已经写了的五条和没人读的模板路径一条，只留三条真正起约束的（每个面至少一个 H2、差距只能来自差距清单文件、first-hand 内容必须有用户给的方法和证据），并把「Step N 的文件」改成直接写文件名；简报模板里四处「from the Step N file」同样改成文件名。随后按同一标准整篇重读 a06 和两个模板：删掉 a06 第 3 条那张「每段写什么」的表（和详情模板的占位符完全重复）、「Step 5 会抄走 Gap List」一句（不是动作）、开头两条模板说明里重复的保存路径（第 3 条和第 6 条已写）；详情模板删掉注释里的失败页规则（a06 第 2 条已写），Rank 占位符改成文件名。a06 从 673 词降到约 470 词。连带改动：简报模板 Primary 行只留焦点词，数字留在关键词文件里；「格式优势」改由 Step 3 在差距清单文件里写一句 Format Advantage，Step 5 只抄；SKILL.md 步骤表 Step 5 的其他文件列改为模板加三个产物文件。另删掉「Template file 绝对路径」规则和简报模板里那一行：`/blog write` 读简报后在它自己的 Phase 1.5 按模板名重新选模板，不读这个路径，仓库里也没有别的地方和测试用它 |
+| `skills/blog-brief/references/step-7-generate-brief.md` | 用户 2026-10-22 定：Step 5 只读三个文件，搜索意图（读者任务和判定）、需求面（必须回答的问题）、差距清单（要补的差距）；不读关键词文件、竞品详情文件和内容模板（Step 2.5 已读）。规则先压成九条，用户 2026-10-22 看后指出看不懂、多数没用：逐条对照简报模板，删掉模板里已经写了的五条和没人读的模板路径一条，只留三条真正起约束的（每个面至少一个 H2、差距只能来自差距清单文件、first-hand 内容必须有用户给的方法和证据），并把「Step N 的文件」改成直接写文件名；简报模板里四处「from the Step N file」同样改成文件名。随后按同一标准整篇重读 a06 和两个模板：删掉 a06 第 3 条那张「每段写什么」的表（和详情模板的占位符完全重复）、「Step 5 会抄走 Gap List」一句（不是动作）、开头两条模板说明里重复的保存路径（第 3 条和第 6 条已写）；详情模板删掉注释里的失败页规则（a06 第 2 条已写），Rank 占位符改成文件名。a06 从 673 词降到约 470 词。连带改动：简报模板 Primary 行只留焦点词，数字留在关键词文件里；「格式优势」改由 Step 3 在差距清单文件里写一句 Format Advantage，Step 5 只抄；SKILL.md 步骤表 Step 5 的其他文件列改为模板加三个产物文件。另删掉「Template file 绝对路径」规则和简报模板里那一行：`/blog write` 读简报后在它自己的 Phase 1.5 按模板名重新选模板，不读这个路径，仓库里也没有别的地方和测试用它 |
 | `skills/blog-brief/SKILL.md` | 步骤表 Step 3 一行：名字改 "Competitor Gap List"，其他文件列填 `templates/competitor-gaps.md` |
 | `CLAUDE.md` | blog-brief 的 templates 注释，模板数加 1 |
 | `docs/FORK-DEVLOG.md` | 合并后加一条 010 |
@@ -267,3 +267,5 @@ This post [one sentence].
 - 步骤依赖规则：记忆 `no-invented-step-dependencies`
 - Firecrawl MCP 工具与参数：https://github.com/firecrawl/firecrawl-mcp-server （`firecrawl_scrape`，`url`、`formats`、`onlyMainContent`，一个网址调一次）
 - Firecrawl 计费与状态码：https://docs.firecrawl.dev/features/scrape （每次 scrape 1 积分，缓存也计费；`metadata.statusCode` 保存目标页自己的状态码）
+
+> 文件改名说明：步骤文件在 2026-10-22 按 SKILL.md 重排编号（见 `docs/plans/2026-10-22-blog-brief-step-file-format.md`），本文档里的路径已改为新名，正文中的旧步骤号和 a0N 名称保留为历史记录。
