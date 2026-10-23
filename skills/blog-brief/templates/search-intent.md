@@ -1,6 +1,6 @@
-<!-- Output template for the blog-brief skill (Step 1.5). Fill every
+<!-- Output template for the blog-brief skill (Step 2). Fill every
      [bracket] and keep the section order. The rules for filling it are
-     in ../references/a03-serp-intent-gate.md. -->
+     in ../references/step-2-serp-intent-gate.md. -->
 
 # Search Intent: [focus keyword]
 

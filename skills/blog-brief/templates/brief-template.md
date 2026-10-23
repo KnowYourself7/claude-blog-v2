@@ -1,22 +1,21 @@
-<!-- Output template for the blog-brief skill (Step 5). Fill every [bracket];
+<!-- Output template for the blog-brief skill (Step 7). Fill every [bracket];
      keep the section order. Rules for filling it live in
-     ../references/a10-generate-brief.md. -->
+     ../references/step-7-generate-brief.md. -->
 
 # Content Brief: [Title Suggestion]
 
 ## Template
 **Recommended**: [template-name]: [1-sentence rationale]
-**Template file**: [absolute path to the chosen file in the blog templates root]
 
 ## Target Keywords
-- **Primary**: [focus keyword]: search volume [n or null], KD [n or null], [intent] (DataForSEO Keyword Overview, [YYYY-MM-DD])
+- **Primary**: [focus keyword]
 - **All keywords**: `briefs/[slug]-keyword-research.md`
 - **Demand facets**: `briefs/[slug]-demand-facets.md`
 
 ## Search Intent
-**Reader task**: The searcher wants to [one sentence, from the Step 1.5 file]
+**Reader task**: The searcher wants to [one sentence, from the search intent file]
 
-**SERP check** (Step 1.5): `briefs/[slug]-search-intent.md`, DataForSEO Live SERP, [location] / [language], [YYYY-MM-DD]
+**SERP check**: `briefs/[slug]-search-intent.md`, DataForSEO Live SERP, [location] / [language], [YYYY-MM-DD]
 
 - **Counts**: blog [n]/[organic count], [label] [n], [label] [n]; off topic [n]
 - **Decision**: [continue / stop, user chose to write the blog anyway]
@@ -126,9 +125,16 @@ statistic for every section.
 | 4 | [Image: Pixabay] | [Search terms] | H2: Section 3 |
 
 ## Competitive Gaps to Exploit
-1. [What competitors miss that we should cover]
-2. [Unique angle or original data we can provide]
-3. [Format advantage: charts/visuals competitors lack]
+**Competitor file**: `briefs/[slug]-competitor-gaps.md`
+
+1. **What competitors miss**:
+
+| ID | Type | Gap | Facet |
+|----|------|-----|-------|
+| G1 | [type] | [gap] | [F-ID or -] |
+
+2. **Unique angle**: [Our Difference, from the competitor gaps file]
+3. **Format advantage**: [Format Advantage, from the competitor gaps file]
 
 ## Internal Link Architecture
 - **Link TO** (from this new post to existing pages):

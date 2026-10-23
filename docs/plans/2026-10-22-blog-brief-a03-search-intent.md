@@ -6,7 +6,7 @@
 | 状态 | 已确认，实现中 |
 | 分支 | feat/blog-brief-a03-search-intent（从 main 的 2ce4cd1 开出） |
 | 依据 | 瑜东 A·03「搜索意图与页面分流」，`docs/yudong-blog-workflow-小白讲解/02-选题-搜索意图与竞争机会.md`（p.48、p.111 到 112） |
-| 改动范围 | `skills/blog-brief/references/a03-serp-intent-gate.md`、新建 `skills/blog-brief/templates/search-intent.md`、`templates/brief-template.md` 的 Search Intent 段、`references/a05-demand-facets.md` 两处引用、`SKILL.md` 步骤表一行、`CLAUDE.md` 目录树一行 |
+| 改动范围 | `skills/blog-brief/references/step-2-serp-intent-gate.md`、新建 `skills/blog-brief/templates/search-intent.md`、`templates/brief-template.md` 的 Search Intent 段、`references/a05-demand-facets.md` 两处引用、`SKILL.md` 步骤表一行、`CLAUDE.md` 目录树一行 |
 
 ## 1. 为什么改
 
@@ -76,3 +76,5 @@ Step 1.5 产出自己的文件 `briefs/[slug]-search-intent.md`，和 Step 2 的
 - 原型 a03 阶段文件（停止条件、验收）：`/Users/Kai/个人项目/瑜东SEO/.claude/skills/yudong-blog-workflow/stages/a03-search-intent.md`
 - 现行闸门方案：`docs/plans/2026-10-17-blog-brief-serp-intent-gate.md`
 - 路线图与 A·04 暂缓：`docs/plans/2026-10-22-blog-brief-step-files.md` 第 6 节；`docs/plans/2026-10-20-yudong-20-step-gap-analysis.md` P7
+
+> 文件改名说明：步骤文件在 2026-10-22 按 SKILL.md 重排编号（见 `docs/plans/2026-10-22-blog-brief-step-file-format.md`），本文档里的路径已改为新名，正文中的旧步骤号和 a0N 名称保留为历史记录。

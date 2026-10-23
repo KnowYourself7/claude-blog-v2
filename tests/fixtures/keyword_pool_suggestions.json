@@ -1,0 +1,20 @@
+{
+  "cost": 0.0102,
+  "tasks": [
+    {
+      "cost": 0.0102,
+      "result": [
+        {
+          "seed_keyword": "linen pants outfit",
+          "items": [
+            {"keyword": "linen pants outfit", "keyword_info": {"search_volume": 1000, "monthly_searches": [{"year": 2026, "month": 6, "search_volume": 1900}, {"year": 2026, "month": 7, "search_volume": 1900}, {"year": 2026, "month": 8, "search_volume": 1000}]}, "keyword_properties": {"core_keyword": null, "keyword_difficulty": 12}, "search_intent_info": {"main_intent": "informational", "foreign_intent": ["commercial"]}},
+            {"keyword": "linen pant outfit", "keyword_info": {"search_volume": 90, "monthly_searches": [{"year": 2026, "month": 8, "search_volume": 90}]}, "keyword_properties": {"core_keyword": "linen pants outfit", "keyword_difficulty": 10}, "search_intent_info": {"main_intent": "informational", "foreign_intent": null}},
+            {"keyword": "Linen Pants Outfit", "keyword_info": {"search_volume": 1000, "monthly_searches": []}, "keyword_properties": {"core_keyword": null, "keyword_difficulty": 12}, "search_intent_info": {"main_intent": "informational", "foreign_intent": null}},
+            {"keyword": "black linen pants outfit", "keyword_info": {"search_volume": 1000, "monthly_searches": [{"year": 2026, "month": 5, "search_volume": 1300}]}, "keyword_properties": {"core_keyword": null, "keyword_difficulty": 0}, "search_intent_info": {"main_intent": "transactional", "foreign_intent": null}},
+            {"keyword": "outfit with linen pants", "keyword_info": {"search_volume": null, "monthly_searches": null}, "keyword_properties": {"core_keyword": "linen pants outfit", "keyword_difficulty": null}, "search_intent_info": null}
+          ]
+        }
+      ]
+    }
+  ]
+}
