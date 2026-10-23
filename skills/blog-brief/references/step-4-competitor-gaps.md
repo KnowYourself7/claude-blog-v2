@@ -1,4 +1,4 @@
-### Step 5: Competitor Gap List
+### Step 4: Competitor Gap List
 
 #### Goal
 
