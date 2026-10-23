@@ -2,8 +2,9 @@
 
 Turn the keywords of the topic into demand facets. A demand facet is one
 part of the reader task. The reader task is the sentence that Step 2
-wrote in `briefs/[slug]-search-intent.md`. Step 7 gives each kept facet
-at least one H2.
+wrote in `briefs/[slug]-search-intent.md`. The business scope is the
+Business section of `briefs/[slug]-task-brief.md`. Step 7 gives each
+kept facet at least one H2.
 
 In this step, you fill two templates:
 `templates/keyword-research.md` for the keyword
@@ -54,8 +55,10 @@ Do not use WebSearch.
 10. From both tables, remove the keywords that do not ask about the
     reader task of Step 2. The classes are other audience, other task, other
     meaning of the same word, store or platform navigation, and business
-    conflict. Give each removed keyword the first class that applies, in
-    this sequence. A product brand, for example nike, is not a store. If
+    conflict. A business conflict is a keyword that asks for a thing
+    outside the business scope, for example another audience or another
+    product type. Give each removed keyword the first class that applies,
+    in this sequence. A product brand, for example nike, is not a store. If
     you are not sure, keep the keyword. Do not remove a keyword for its
     volume or intent. Give one reason for each class.
 11. Call `POST /v3/dataforseo_labs/google/keyword_overview/live` for the
@@ -87,8 +90,11 @@ Do not use WebSearch.
     the volume of the representative keyword. Put a facet with `-` after
     the facets with a volume. If volumes are also equal, keep the order
     of the keyword file.
-19. Keep the first 9 facets. Put the others in the Other Facets table
-    with the reason "lower rank".
+19. Move a facet outside the business scope to the Other Facets table
+    with the reason "outside business". Keep a facet that matches a
+    product line of the business even if its volume is low or `null`,
+    and say so in Reason kept. Then keep the first 9 facets. Put the
+    others in the Other Facets table with the reason "lower rank".
 20. If you keep fewer than 5 facets, call
     `POST /v3/dataforseo_labs/google/related_keywords/live` for the focus
     keyword with `depth: 2`. Read `core_keyword` from

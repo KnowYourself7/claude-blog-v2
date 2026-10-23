@@ -9,7 +9,7 @@
 | Focus keyword | [keyword] |
 | Date | [YYYY-MM-DD] |
 | Keyword evidence | `briefs/[slug]-keyword-research.md` |
-| Business context | None was used. |
+| Business scope | `briefs/[slug]-task-brief.md` |
 | Related Keywords | [not called / called in Step 3 item 20] |
 
 ## Focus Keyword
@@ -35,7 +35,7 @@ The post does not cover these facets.
 
 | ID | Reader question | Evidence | Rows | Reason not kept |
 |----|-----------------|----------|------|-----------------|
-| F[n] | [one full question] | [evidence numbers, or -] | [rows, or -] | [other page / lower rank] |
+| F[n] | [one full question] | [evidence numbers, or -] | [rows, or -] | [other page / outside business / lower rank] |
 
 ## Keyword Check
 

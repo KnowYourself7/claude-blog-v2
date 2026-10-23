@@ -54,9 +54,9 @@ Paths in the step files are relative to this skill folder:
 
 | Step | Step file | Other files that the step reads |
 |---|---|---|
-| Step 1: Topic Intake | `${CLAUDE_SKILL_DIR}/references/step-1-topic-intake.md` | None |
+| Step 1: Topic Intake | `${CLAUDE_SKILL_DIR}/references/step-1-topic-intake.md` | `${CLAUDE_SKILL_DIR}/templates/task-brief.md` |
 | Step 2: SERP Intent Gate | `${CLAUDE_SKILL_DIR}/references/step-2-serp-intent-gate.md` | `${CLAUDE_SKILL_DIR}/templates/search-intent.md` |
-| Step 3: Keywords to Demand Facets | `${CLAUDE_SKILL_DIR}/references/step-3-demand-facets.md` | `${CLAUDE_SKILL_DIR}/templates/keyword-research.md`, `${CLAUDE_SKILL_DIR}/templates/demand-facets.md` |
+| Step 3: Keywords to Demand Facets | `${CLAUDE_SKILL_DIR}/references/step-3-demand-facets.md` | `${CLAUDE_SKILL_DIR}/templates/keyword-research.md`, `${CLAUDE_SKILL_DIR}/templates/demand-facets.md`, the Step 1 and Step 2 output files |
 | Step 4: Template Recommendation | `${CLAUDE_SKILL_DIR}/references/step-4-template-recommendation.md` | `${CLAUDE_SKILL_DIR}/../blog/references/content-templates.md`, `${CLAUDE_SKILL_DIR}/../blog/templates/[type].md` |
 | Step 5: Competitor Gap List | `${CLAUDE_SKILL_DIR}/references/step-5-competitor-gaps.md` | `${CLAUDE_SKILL_DIR}/templates/competitor-gaps.md`, `${CLAUDE_SKILL_DIR}/templates/competitor-details.md`, the Step 2 and Step 3 output files |
 | Step 6: Statistics Research | `${CLAUDE_SKILL_DIR}/references/step-6-statistics-research.md` | None |
