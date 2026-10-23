@@ -1,6 +1,6 @@
-<!-- Output template for the blog-brief skill (Step 3). Fill every
+<!-- Output template for the blog-brief skill (Step 5). Fill every
      [bracket] and keep the section order. The rules for filling it are
-     in ../references/a06-competitive-analysis.md. -->
+     in ../references/step-5-competitor-gaps.md. -->
 
 # Competitor Gaps: [focus keyword]
 

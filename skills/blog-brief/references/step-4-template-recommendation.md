@@ -1,6 +1,6 @@
-### Step 2.5: Template Recommendation
+### Step 4: Template Recommendation
 
-Recommend one of 12 content templates from the Step 1.5 results and the Step 2
+Recommend one of 12 content templates from the Step 2 results and the Step 3
 keyword research. Load `../blog/references/content-templates.md` for selection
 criteria.
 
@@ -21,10 +21,10 @@ criteria.
 | `faq-knowledge` | Question-driven reference content |
 
 **Selection process:**
-1. Use the format that most Step 1.5 `blog` titles have: a number of items
+1. Use the format that most Step 2 `blog` titles have: a number of items
    or "ideas" (`listicle`), "how to" (`how-to-guide`), "vs" (`comparison`),
    "best" (`roundup`), or a question (`faq-knowledge`). If titles tie or show
-   no format, use the format that more Step 2 keywords show. If neither shows
+   no format, use the format that more Step 3 keywords show. If neither shows
    one, ask the user.
 2. Use another format only when the user's assets need it, and say why.
 3. Load the matching template file from `../blog/templates/[type].md`

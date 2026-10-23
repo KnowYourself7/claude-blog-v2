@@ -1,8 +1,8 @@
-### Step 2: Keywords to Demand Facets
+### Step 3: Keywords to Demand Facets
 
 Turn the keywords of the topic into demand facets. A demand facet is one
-part of the reader task. The reader task is the sentence that Step 1.5
-wrote in `briefs/[slug]-search-intent.md`. Step 5 gives each kept facet
+part of the reader task. The reader task is the sentence that Step 2
+wrote in `briefs/[slug]-search-intent.md`. Step 7 gives each kept facet
 at least one H2.
 
 In this step, you fill two templates:
@@ -12,7 +12,7 @@ facets. Take the volume, KD, and intent only from the DataForSEO Labs
 responses. Write `null` for a missing value, not `0`. Do not add the
 volumes of two keywords.
 
-Use the Step 1.5 Live SERP response again. Send the other calls with
+Use the Step 2 Live SERP response again. Send the other calls with
 `mcp__dataforseo__api_request`. Use `noAiMode: true`, `location_code: 2840`,
 and `language_code: "en"`. If the user names another market, use the codes
 of that market. If a call fails two times, stop. Tell the user the reason.
@@ -21,10 +21,10 @@ Do not use WebSearch.
 #### Evidence and keywords
 
 1. Question evidence is the text that shows what readers ask. Copy four
-   parts of it from the Step 1.5 response into the Question Evidence
+   parts of it from the Step 2 response into the Question Evidence
    section: the AI Overview section titles (`ai_overview_element.title`),
    the PAA questions, the related searches, and the organic titles. Add
-   the Step 1.5 label to each organic title.
+   the Step 2 label to each organic title.
 2. Call `POST /v3/serp/google/autocomplete/live/advanced` one time for
    the focus keyword, with `client: "gws-wiz-serp"`. A modifier is a word
    that narrows the reader task, for example a color or an audience. Add
@@ -52,7 +52,7 @@ Do not use WebSearch.
 9. Put the PAA questions and the related searches that are not in the
    Keyword Pool into the Other Sources table.
 10. From both tables, remove the keywords that do not ask about the
-    reader task of Step 1.5. The classes are other audience, other task, other
+    reader task of Step 2. The classes are other audience, other task, other
     meaning of the same word, store or platform navigation, and business
     conflict. Give each removed keyword the first class that applies, in
     this sequence. A product brand, for example nike, is not a store. If

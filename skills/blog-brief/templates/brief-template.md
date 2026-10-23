@@ -1,6 +1,6 @@
-<!-- Output template for the blog-brief skill (Step 5). Fill every [bracket];
+<!-- Output template for the blog-brief skill (Step 7). Fill every [bracket];
      keep the section order. Rules for filling it live in
-     ../references/a10-generate-brief.md. -->
+     ../references/step-7-generate-brief.md. -->
 
 # Content Brief: [Title Suggestion]
 

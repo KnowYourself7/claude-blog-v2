@@ -226,6 +226,7 @@ This post [one sentence].
 | `skills/blog-brief/SKILL.md` | 步骤表 Step 3 一行：名字改 "Competitor Gap List"，其他文件列填 `templates/competitor-gaps.md` |
 | `CLAUDE.md` | blog-brief 的 templates 注释，模板数加 1 |
 | `docs/FORK-DEVLOG.md` | 合并后加一条 010 |
+| 步骤文件改名 | 用户 2026-10-22 定：编号不再用瑜东的 a01/a03/a05/a06/a07/a10，全部按 SKILL.md 重排成 Step 1 到 8，文件名 `step-N-*.md`，去掉 1.5 和 2.5；步骤文件、模板注释、SKILL.md、测试里的引用一次替换。本文档和之前的计划文档里的旧文件名是历史记录，不改 |
 
 ## 8. 不做
 

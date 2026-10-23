@@ -1,4 +1,4 @@
-### Step 5: Generate the Brief
+### Step 7: Generate the Brief
 
 Read these files first:
 

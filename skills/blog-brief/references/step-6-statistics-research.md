@@ -1,4 +1,4 @@
-### Step 4: Statistics Research
+### Step 6: Statistics Research
 
 Find the statistics the article should include (a pool of about 8-12 candidates is a reasonable start; keep only those you can verify and that the article needs):
 1. Search: `[topic] study 2025 2026 data statistics research`

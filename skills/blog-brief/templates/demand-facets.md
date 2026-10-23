@@ -1,6 +1,6 @@
-<!-- Output template for the blog-brief skill (Step 2, items 13 to 22).
+<!-- Output template for the blog-brief skill (Step 3, items 13 to 22).
      Fill every [bracket] and keep the section order. The rules for
-     filling it are in ../references/a05-demand-facets.md. -->
+     filling it are in ../references/step-3-demand-facets.md. -->
 
 # Demand Facets: [focus keyword]
 
@@ -10,7 +10,7 @@
 | Date | [YYYY-MM-DD] |
 | Keyword evidence | `briefs/[slug]-keyword-research.md` |
 | Business context | None was used. |
-| Related Keywords | [not called / called in Step 2 item 20] |
+| Related Keywords | [not called / called in Step 3 item 20] |
 
 ## Focus Keyword
 

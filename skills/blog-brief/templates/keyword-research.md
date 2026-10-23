@@ -1,6 +1,6 @@
-<!-- Output template for the blog-brief skill (Step 2, items 1 to 12). Fill
+<!-- Output template for the blog-brief skill (Step 3, items 1 to 12). Fill
      every [bracket] and keep the section order. The rules for filling it
-     are in ../references/a05-demand-facets.md. -->
+     are in ../references/step-3-demand-facets.md. -->
 
 # Keyword Research: [focus keyword]
 
@@ -17,7 +17,7 @@ This file is the keyword evidence for `briefs/[slug]-demand-facets.md`.
 
 | Call | Endpoint | Parameters | Results |
 |------|----------|------------|---------|
-| Live SERP | Step 1.5 response, no new call | keyword "[focus keyword]", depth 10 | [n] AI Overview sections, [n] PAA, [n] related searches, [n] organic |
+| Live SERP | Step 2 response, no new call | keyword "[focus keyword]", depth 10 | [n] AI Overview sections, [n] PAA, [n] related searches, [n] organic |
 | Google Autocomplete | `autocomplete/live/advanced` | keyword "[focus keyword]", client "gws-wiz-serp" | [n], [n] kept as evidence |
 | Keyword Suggestions, seed [n] | `keyword_suggestions/live` | keyword "[seed]", limit 300 | [n] of [total_count] |
 | Keyword Overview | `keyword_overview/live` | [n] related searches, or not called | [n] |
@@ -29,7 +29,7 @@ Copy the text as it is. If a part has no items, write one row with `none`.
 
 | # | Part | Text | Label |
 |---|------|------|-------|
-| 1 | [AI Overview / PAA / related search / organic title / Autocomplete] | [text] | [Step 1.5 label for an organic title, or -] |
+| 1 | [AI Overview / PAA / related search / organic title / Autocomplete] | [text] | [Step 2 label for an organic title, or -] |
 
 ## Seeds
 

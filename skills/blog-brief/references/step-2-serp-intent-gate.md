@@ -1,4 +1,4 @@
-### Step 1.5: SERP Intent Gate
+### Step 2: SERP Intent Gate
 
 Plan a blog post only if Google ranks blog posts for the keyword. In
 this step, you fill `templates/search-intent.md` and save it as
@@ -27,7 +27,7 @@ this step, you fill `templates/search-intent.md` and save it as
 5. Read the `blog` titles and the PAA questions. Find the task that
    they answer: what the searcher wants to do or know. When you
    understand that task, write it in one sentence: "The searcher wants
-   to ...". Do not write the sentence from the keyword alone. Step 2
+   to ...". Do not write the sentence from the keyword alone. Step 3
    uses this sentence to filter the keywords.
 6. Write `present` or `none` for the AI Overview and for the featured
    snippet. A feature that is `none` does not show low demand or weak
@@ -42,5 +42,5 @@ this step, you fill `templates/search-intent.md` and save it as
    to another keyword. Ask the user to write anyway, try another
    keyword, or end. Do not choose for the user. Write `pending` in the
    file until the user answers.
-9. Save the file. Step 5 copies the reader task, the counts, and the
+9. Save the file. Step 7 copies the reader task, the counts, and the
    decision into the Search Intent section of the brief.
