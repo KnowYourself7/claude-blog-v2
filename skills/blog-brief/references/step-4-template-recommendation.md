@@ -1,10 +1,33 @@
 ### Step 4: Template Recommendation
 
-Recommend one of 12 content templates from the Step 2 results and the Step 3
-keyword research. Load `../blog/references/content-templates.md` for selection
-criteria.
+#### Goal
 
-**Available templates:**
+Choose one of the 12 content templates for this post.
+
+#### Inputs
+
+- `../blog/references/content-templates.md`: the selection criteria.
+- `briefs/[slug]-search-intent.md`: the `blog` titles.
+- `briefs/[slug]-keyword-research.md`: the keywords, for a tie.
+
+#### Rules
+
+- Choose one template. Use another format only when the assets of the
+  user need it, and say why.
+- If neither the titles nor the keywords show a format, ask the user.
+
+#### Steps
+
+1. Count the formats of the `blog` titles: a number of items or
+   "ideas" is `listicle`, "how to" is `how-to-guide`, "vs" is
+   `comparison`, "best" is `roundup`, and a question is
+   `faq-knowledge`.
+2. Take the format with the most titles. On a tie, or when no title
+   shows a format, take the format that more Step 3 keywords show.
+3. Read `../blog/templates/[type].md` for the chosen template.
+
+The 12 templates:
+
 | Template | Best For |
 |----------|----------|
 | `how-to-guide` | Step-by-step instructional content |
@@ -20,13 +43,13 @@ criteria.
 | `data-research` | Original data, survey results, benchmark findings |
 | `faq-knowledge` | Question-driven reference content |
 
-**Selection process:**
-1. Use the format that most Step 2 `blog` titles have: a number of items
-   or "ideas" (`listicle`), "how to" (`how-to-guide`), "vs" (`comparison`),
-   "best" (`roundup`), or a question (`faq-knowledge`). If titles tie or show
-   no format, use the format that more Step 3 keywords show. If neither shows
-   one, ask the user.
-2. Use another format only when the user's assets need it, and say why.
-3. Load the matching template file from `../blog/templates/[type].md`
-4. Include the template name in the brief output, with the title counts as
-   the rationale.
+#### Outputs
+
+- No file. The template name and the title counts go into the
+  Template section of the brief in Step 7.
+
+#### Check
+
+- One template is chosen, with the counts that decided it.
+- The name and the counts are ready for the Template section of the
+  brief.

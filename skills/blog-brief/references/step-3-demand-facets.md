@@ -1,19 +1,18 @@
 ### Step 3: Keywords to Demand Facets
 
-Read these files first:
+#### Goal
 
-- `templates/keyword-research.md` is the keyword evidence. Save it as
-  `briefs/[slug]-keyword-research.md`.
-- `templates/demand-facets.md` is the facets. Save it as
-  `briefs/[slug]-demand-facets.md`.
-- `briefs/[slug]-search-intent.md` gives the reader task.
-- `briefs/[slug]-task-brief.md` gives the market and the business
-  scope.
+Turn the keywords of the topic into demand facets. A demand facet is
+one part of the reader task: one question that the post must answer.
 
-A demand facet is one part of the reader task: one question that the
-post must answer.
+#### Inputs
 
-Rules:
+- `templates/keyword-research.md`: the keyword evidence.
+- `templates/demand-facets.md`: the facets.
+- `briefs/[slug]-search-intent.md`: the reader task.
+- `briefs/[slug]-task-brief.md`: the market and the business scope.
+
+#### Rules
 
 - Volume, KD, and intent come only from DataForSEO Labs responses.
   Write `null` for a missing value, never `0`. Do not add the volumes
@@ -22,6 +21,8 @@ Rules:
   and the `location_code` and `language_code` of the task brief. If a
   call fails two times, stop and say why. Do not use WebSearch.
 - Reuse the Step 2 Live SERP response. Do not call the SERP again.
+
+#### Steps
 
 Keywords, in `keyword-research.md`:
 
@@ -90,4 +91,18 @@ Facets, in `demand-facets.md`:
 16. If fewer than 3 facets are kept after that, stop. Tell the user
     that the keyword is possibly too narrow for one post. Ask the user
     to write anyway, try another keyword, or end.
-17. Save the facets file.
+
+#### Outputs
+
+- `briefs/[slug]-keyword-research.md`
+- `briefs/[slug]-demand-facets.md`
+
+#### Check
+
+- 3 to 9 facets are kept, or you stopped and asked the user.
+- Every kept facet has a reader question, evidence or rows, and a
+  reason.
+- No missing value is written as `0`.
+- Every one of the first 50 pool rows and all Other Sources rows is
+  attached, on the focus keyword, or `other page`.
+- Every removed keyword has a class and a reason.
