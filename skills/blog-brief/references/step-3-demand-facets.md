@@ -1,108 +1,93 @@
 ### Step 3: Keywords to Demand Facets
 
-Turn the keywords of the topic into demand facets. A demand facet is one
-part of the reader task. The reader task is the sentence that Step 2
-wrote in `briefs/[slug]-search-intent.md`. The business scope is the
-Business section of `briefs/[slug]-task-brief.md`. Step 7 gives each
-kept facet at least one H2.
+Read these files first:
 
-In this step, you fill two templates:
-`templates/keyword-research.md` for the keyword
-evidence, and `templates/demand-facets.md` for the
-facets. Take the volume, KD, and intent only from the DataForSEO Labs
-responses. Write `null` for a missing value, not `0`. Do not add the
-volumes of two keywords.
+- `templates/keyword-research.md` is the keyword evidence. Save it as
+  `briefs/[slug]-keyword-research.md`.
+- `templates/demand-facets.md` is the facets. Save it as
+  `briefs/[slug]-demand-facets.md`.
+- `briefs/[slug]-search-intent.md` gives the reader task.
+- `briefs/[slug]-task-brief.md` gives the market and the business
+  scope.
 
-Use the Step 2 Live SERP response again. Send the other calls with
-`mcp__dataforseo__api_request`. Use `noAiMode: true`, `location_code: 2840`,
-and `language_code: "en"`. If the user names another market, use the codes
-of that market. If a call fails two times, stop. Tell the user the reason.
-Do not use WebSearch.
+A demand facet is one part of the reader task: one question that the
+post must answer.
 
-#### Evidence and keywords
+Rules:
 
-1. Question evidence is the text that shows what readers ask. Copy four
-   parts of it from the Step 2 response into the Question Evidence
-   section: the AI Overview section titles (`ai_overview_element.title`),
-   the PAA questions, the related searches, and the organic titles. Add
-   the Step 2 label to each organic title.
-2. Call `POST /v3/serp/google/autocomplete/live/advanced` one time for
-   the focus keyword, with `client: "gws-wiz-serp"`. A modifier is a word
-   that narrows the reader task, for example a color or an audience. Add
-   these suggestions to the question evidence, as its fifth part: the
-   questions, and the suggestions that add a modifier. Do not use the
-   suggestions for volume.
-3. Make two or three seeds. A seed is a keyword that you send to Keyword
-   Suggestions. Seed 1 is the focus keyword. For seed 2, remove the
-   modifiers from the focus keyword. If the focus keyword has no
-   modifier, do not make seed 2. For seed 3, write another phrase for the
-   same reader task. It must be shorter than the focus keyword. In the
-   Seeds section, write how and why you made each seed.
-4. Call `POST /v3/dataforseo_labs/google/keyword_suggestions/live` one
-   time for each seed, with `limit: 300`.
-5. Remove exact duplicates from the results. Ignore letter case.
-6. Group the keywords by `core_keyword`, from `keyword_properties`. A
-   keyword without `core_keyword` forms one group with the keywords that
-   point to it. Each group is one row of the Keyword Pool.
-7. In each row, the main keyword is the spelling with the highest volume.
-   If volumes are equal, use the `core_keyword` spelling. If that spelling
-   is not in the row, use the first spelling in the call order: seed 1,
-   seed 2, seed 3.
-8. Sort the rows of the Keyword Pool from the highest volume to the
-   lowest. If volumes are equal, keep the call order.
-9. Put the PAA questions and the related searches that are not in the
-   Keyword Pool into the Other Sources table.
-10. From both tables, remove the keywords that do not ask about the
-    reader task of Step 2. The classes are other audience, other task, other
-    meaning of the same word, store or platform navigation, and business
-    conflict. A business conflict is a keyword that asks for a thing
-    outside the business scope, for example another audience or another
-    product type. Give each removed keyword the first class that applies,
-    in this sequence. A product brand, for example nike, is not a store. If
-    you are not sure, keep the keyword. Do not remove a keyword for its
-    volume or intent. Give one reason for each class.
-11. Call `POST /v3/dataforseo_labs/google/keyword_overview/live` for the
-    related searches in the Other Sources table. If no related search
-    stays in the table, do not call it.
-12. Save the filled keyword template as
-    `briefs/[slug]-keyword-research.md`.
+- Volume, KD, and intent come only from DataForSEO Labs responses.
+  Write `null` for a missing value, never `0`. Do not add the volumes
+  of two keywords.
+- Send calls with `mcp__dataforseo__api_request`, with `noAiMode: true`
+  and the `location_code` and `language_code` of the task brief. If a
+  call fails two times, stop and say why. Do not use WebSearch.
+- Reuse the Step 2 Live SERP response. Do not call the SERP again.
 
-#### Facets
+Keywords, in `keyword-research.md`:
 
-13. List each item of the Question Evidence section.
-14. Merge the items into facets. If two items differ only in one value,
-    put them in one facet. For example, black and white linen pants
-    differ only in the color. List the values in the facet.
-15. If an item asks about another task, put it in the Other Facets table.
-    Give the reason "other page".
-16. Read the first 50 rows of the Keyword Pool and all rows of Other
-    Sources. If a row restates the focus keyword, attach it to the focus
-    keyword. If a row answers a facet, attach it to that facet. If a row
-    names a new part of the reader task, add a facet for it. If a row
-    fits no facet, mark it "other page".
-17. For each facet, use the attached keyword with the highest volume as
-    the representative keyword. If volumes are equal, use the row that
-    comes first in the keyword file. Copy its volume, KD, and intent. If
-    a facet has no attached keyword, write `-`.
-18. Count the evidence types of each facet. There are six types: the five
-    parts of Question Evidence, and the attached keyword rows. Sort the
-    facets by this count, from high to low. If counts are equal, sort by
-    the volume of the representative keyword. Put a facet with `-` after
-    the facets with a volume. If volumes are also equal, keep the order
-    of the keyword file.
-19. Move a facet outside the business scope to the Other Facets table
-    with the reason "outside business". Keep a facet that matches a
-    product line of the business even if its volume is low or `null`,
-    and say so in Reason kept. Then keep the first 9 facets. Put the
-    others in the Other Facets table with the reason "lower rank".
-20. If you keep fewer than 5 facets, call
-    `POST /v3/dataforseo_labs/google/related_keywords/live` for the focus
-    keyword with `depth: 2`. Read `core_keyword` from
+1. Question Evidence: copy four parts from the Step 2 response. They
+   are the AI Overview section titles, the PAA questions, the related
+   searches, and the organic titles. Add the Step 2 label to each
+   organic title.
+2. Autocomplete: call `serp/google/autocomplete/live/advanced` once for
+   the focus keyword, with `client: "gws-wiz-serp"`. A modifier is a
+   word that narrows the reader task, such as a color or an audience.
+   Add the questions, and the suggestions that add a new modifier, as
+   the fifth part. Do not use them for volume.
+3. Seeds: seed 1 is the focus keyword. Seed 2 is the focus keyword
+   without its modifiers. Skip seed 2 if there is no modifier. Seed 3
+   is a shorter phrase for the same reader task. Write how you made
+   each seed.
+4. Keyword Suggestions: call
+   `dataforseo_labs/google/keyword_suggestions/live` once for each
+   seed, with `limit: 300`. Fill the Keyword Pool as the template
+   says.
+5. Other Sources: the PAA questions and the related searches that are
+   not in the pool.
+6. Removed Keywords: from both tables, remove the keywords that do not
+   ask about the reader task. Give each one the first class that
+   applies, in this order: other audience, other task, other meaning
+   of the same word, store or platform navigation, business conflict.
+   A product brand, such as nike, is not a store. A business conflict
+   asks for a thing outside the business scope, such as another
+   audience or another product type. Keep a keyword when you are not
+   sure. Never remove a keyword for its volume or intent. Give one
+   reason for each class.
+7. Keyword Overview: call `dataforseo_labs/google/keyword_overview/live`
+   once for the related searches that stay in Other Sources. Skip the
+   call if none stays.
+8. Save the keyword file.
+
+Facets, in `demand-facets.md`:
+
+9. Make facets from the Question Evidence items. Items that differ in
+   one value only form one facet, with the values listed. For example,
+   black and white linen pants differ only in the color. An item about
+   another task goes to Other Facets with the reason `other page`.
+10. Read the first 50 Keyword Pool rows and all Other Sources rows.
+    A row that restates the focus keyword goes to the focus keyword.
+    A row that answers a facet goes to that facet. A row that names a
+    new part of the reader task becomes a new facet. A row that fits
+    nothing is `other page`.
+11. Representative keyword: the attached keyword with the highest
+    volume. On a tie, the first in the keyword file. Copy its volume,
+    KD, and intent, or `-` if the facet has no keyword.
+12. Sort the facets as the template says. The six evidence types are
+    the five parts of Question Evidence and the attached rows.
+13. Business scope: move a facet outside the scope to Other Facets
+    with the reason `outside business`. Keep a facet that matches a
+    product line even at low or `null` volume, and say so in Reason
+    kept.
+14. Then keep the first 9 facets. The rest go to Other Facets with
+    the reason `lower rank`.
+15. If fewer than 5 facets are kept, call
+    `dataforseo_labs/google/related_keywords/live` once for the focus
+    keyword, with `depth: 2`. Its `core_keyword` is under
     `keyword_data.keyword_properties`. Add the keywords to the Keyword
-    Pool with items 5 to 8 and 10. Record the call in the Data Scope
-    table. Save the keyword file again. Then do items 16 to 19 again. Do
-    this item only one time.
-21. If you keep fewer than 3 facets after item 20, stop. Tell the user
-    that this keyword is possibly too narrow for one post. Ask the user
+    Pool and the Removed Keywords tables as items 4 and 6 say, with no
+    new Suggestions call. Record the call and save the keyword file
+    again. Then do items 10 to 14 again. Do this item once.
+16. If fewer than 3 facets are kept after that, stop. Tell the user
+    that the keyword is possibly too narrow for one post. Ask the user
     to write anyway, try another keyword, or end.
-22. Save the filled facet template as `briefs/[slug]-demand-facets.md`.
+17. Save the facets file.

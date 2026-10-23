@@ -1,4 +1,4 @@
-<!-- Output template for the blog-brief skill (Step 3, items 1 to 12). Fill
+<!-- Output template for the blog-brief skill (Step 3, items 1 to 8). Fill
      every [bracket] and keep the section order. The rules for filling it
      are in ../references/step-3-demand-facets.md. -->
 
@@ -41,9 +41,15 @@ Copy the text as it is. If a part has no items, write one row with `none`.
 
 ## Keyword Pool
 
-The table has one row for each `core_keyword` group. The rows go from
-the highest volume to the lowest. If volumes are equal, the call order
-stays. The main keyword has the highest volume. Peak month is the highest
+Remove exact duplicates first; two spellings that differ only in
+letter case are one keyword. The table has one row for each
+`core_keyword` group, from `keyword_properties`. A keyword without
+`core_keyword` forms one group with the keywords that point to it. The
+rows go from the highest volume to the lowest. If volumes are equal,
+the call order stays. The main keyword has the highest volume. If
+volumes are equal, it is the `core_keyword` spelling, or else the
+first spelling in the call order: seed 1, seed 2, seed 3. Peak month is
+the highest
 month of the last 12 months. For a tie, give the last month and the tie
 count, for example `Oct 2025: 8100 (3 tied)`. KD comes from the backlinks
 of the ranking pages, so `0` means weak pages rank. Do not sort by KD
