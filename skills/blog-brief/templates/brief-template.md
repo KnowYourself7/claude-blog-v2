@@ -87,6 +87,8 @@ Alternative titles:
 
 ## Statistics to Include
 
+Take each row from an `adopted` source of `briefs/[slug]-evidence-plan.md`.
+
 | # | Statistic | Source | Year | Section |
 |---|-----------|--------|------|---------|
 | 1 | [stat] | [source + URL] | 2025 | H2: Section 1 |
@@ -114,6 +116,8 @@ statistic for every section.
 | Dimensions | 1200x630 (OG-compatible) |
 
 ## Visual Element Plan
+
+Take each chart from a source with `yes` in Chart in `briefs/[slug]-evidence-plan.md`.
 
 | # | Type | Data | Section |
 |---|------|------|---------|

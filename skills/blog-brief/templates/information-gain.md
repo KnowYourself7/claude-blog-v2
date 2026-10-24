@@ -16,7 +16,7 @@ post adds about the reader and the topic, with no page, rank, or gap ID.
 
 | ID | Facet | From gap | The ranking pages give | This post adds | Evidence |
 |----|-------|----------|------------------------|----------------|----------|
-| I1 | [F-ID or -] | [G-IDs, format, or DISCOURSE.md] | [what the reader gets from the pages now] | [what the reader can understand, decide, or do] | [publisher and title of the statistic, or none: the narrower claim] |
+| I1 | [F-ID or -] | [G-IDs, format, or DISCOURSE.md] | [what the reader gets from the pages now] | [what the reader can understand, decide, or do] | [source # in the evidence plan, publisher and title, or none: the narrower claim] |
 
 ## First-Party Evidence
 
