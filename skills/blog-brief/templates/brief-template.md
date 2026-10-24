@@ -48,10 +48,6 @@ Alternative titles:
 ## Information Gain Opportunities
 **Gains file**: `briefs/[slug]-information-gain.md`
 
-- **Main gain**: [Main Gain, from the gains file]
-- **[I1]**: [This post adds, from the gains file]. Evidence: [Evidence, from the gains file]
-- **First-party evidence**: [First-Party Evidence, from the gains file]
-
 ## Content Outline
 
 ### Introduction
@@ -62,6 +58,7 @@ Alternative titles:
 
 ### H2: [Intent-Matched Heading]
 - **Facets**: [F1, F3]
+- **Gains**: [I1, I3, or -]
 - **Answer-first**: Open with the section's useful conclusion and support it
 - Cover: [subtopic 1], [subtopic 2]
 - **Image**: [Description of recommended image]
@@ -69,6 +66,7 @@ Alternative titles:
 
 ### H2: [Intent-Matched Heading]
 - **Facets**: [F1, F3]
+- **Gains**: [I1, I3, or -]
 - **Answer-first**: Open with the section's useful conclusion and support it
 - Cover: [subtopic 1], [subtopic 2]
 - **Chart**: [Type] showing [data description]
