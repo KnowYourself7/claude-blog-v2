@@ -112,7 +112,7 @@ Paths in the step files are relative to this skill folder:
 | 3 | feat/blog-brief-a01-task-brief | Step 1 换成任务单：业务边界、支撑的商业页、客户事实和缺失项 | 01 |
 | 4 | feat/blog-brief-a05-business-fit | 需求面读任务单，按业务相关性筛选和定去留 | 05 |
 | 5 | feat/blog-brief-a06-gap-list | Step 3 换成竞品差距清单 | 06 |
-| 6 | feat/blog-brief-a07-evidence-table | Step 4 换成证据表：问题对证据、原文摘句、采用状态；加信息增量最小版 | 07、08 |
+| 6 | feat/blog-brief-a07-evidence-table | Step 4 换成证据表：问题对证据、原文摘句、采用状态；加信息增量最小版（2026-10-23 拆分：信息增量先在 feat/blog-brief-a08-information-gain 单独做，见 `docs/plans/2026-10-23-blog-brief-a08-information-gain.md`） | 07、08 |
 | 7 | feat/blog-brief-a10-outline | Step 5 换成大纲 v1、自审、v2；决定 Step 2.5 的去留 | 10 |
 | 8 | feat/blog-brief-gate-a-to-b | 动笔前的 A→B 阶段门 | 阶段门 |
 | 9 | feat/blog-write-use-brief | `/blog write` 直接用大纲和证据表，不再重做研究和大纲 | 路线二第三段 |
