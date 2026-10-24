@@ -30,8 +30,9 @@ verify each one.
 
 #### Outputs
 
-- No file. The statistics go into the Statistics to Include table of
-  the brief in Step 7.
+- No file. Step 7, Information Gain, uses the statistics as evidence
+  for the gains. Step 8 puts them into the Statistics to Include table
+  of the brief.
 
 #### Check
 
