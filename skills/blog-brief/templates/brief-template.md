@@ -1,6 +1,6 @@
-<!-- Output template for the blog-brief skill (Step 7). Fill every [bracket];
+<!-- Output template for the blog-brief skill (Step 8). Fill every [bracket];
      keep the section order. Rules for filling it live in
-     ../references/step-7-generate-brief.md. -->
+     ../references/step-8-generate-brief.md. -->
 
 # Content Brief: [Title Suggestion]
 
@@ -46,13 +46,11 @@ Alternative titles:
 > core value of the article.]
 
 ## Information Gain Opportunities
-- **[ORIGINAL DATA]**: [Suggestion for proprietary data, survey, experiment,
-  or benchmark the author can produce to differentiate this post]
-- **[PERSONAL EXPERIENCE]**: [Include only when the author supplies the actual
-  methodology, evidence, and results. Otherwise omit this marker and propose a
-  sourced analysis or unique insight without a first-hand claim.]
-- **[UNIQUE INSIGHT]**: [Suggestion for contrarian take, novel analysis,
-  or non-obvious connection that competitors have not covered]
+**Gains file**: `briefs/[slug]-information-gain.md`
+
+- **Main gain**: [Main Gain, from the gains file]
+- **[I1]**: [This post adds, from the gains file]. Evidence: [Evidence, from the gains file]
+- **First-party evidence**: [First-Party Evidence, from the gains file]
 
 ## Content Outline
 
@@ -123,18 +121,6 @@ statistic for every section.
 | 2 | [Donut chart] | [Data description] | H2: Section 4 |
 | 3 | [Image: Pixabay] | [Search terms] | H2: Section 1 |
 | 4 | [Image: Pixabay] | [Search terms] | H2: Section 3 |
-
-## Competitive Gaps to Exploit
-**Competitor file**: `briefs/[slug]-competitor-gaps.md`
-
-1. **What competitors miss**:
-
-| ID | Type | Gap | Facet |
-|----|------|-----|-------|
-| G1 | [type] | [gap] | [F-ID or -] |
-
-2. **Unique angle**: [Our Difference, from the competitor gaps file]
-3. **Format advantage**: [Format Advantage, from the competitor gaps file]
 
 ## Internal Link Architecture
 - **Link TO** (from this new post to existing pages):
