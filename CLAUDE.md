@@ -57,9 +57,9 @@ claude-blog/
     blog-rewrite/SKILL.md         # Optimize existing blog posts
     blog-analyze/SKILL.md         # 5-category 100-point scoring
     blog-brief/                    # Detailed content briefs
-      SKILL.md                    # Step order table, shared rules, Step 6
+      SKILL.md                    # Step order table, shared rules, Step 9
       references/                 # 8 step files, one per brief step
-      templates/                  # 8 output templates (task brief, search intent, keyword research, demand facets, competitor details, competitor gaps, information gain, brief)
+      templates/                  # 9 output templates (task brief, search intent, keyword research, demand facets, competitor details, competitor gaps, evidence plan, information gain, brief)
       scripts/                    # keyword_pool.py: Step 3 pool building and facet ranking over the DataForSEO REST API
     blog-outline/SKILL.md         # SERP-informed outlines
     blog-calendar/SKILL.md        # Editorial calendars

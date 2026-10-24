@@ -11,6 +11,8 @@ Turn the research into the brief that `/blog write` reads.
 - `briefs/[slug]-search-intent.md`: the reader task and the decision.
 - `briefs/[slug]-demand-facets.md`: the kept facets, the questions
   that the post must answer.
+- `briefs/[slug]-evidence-plan.md`: the adopted sources, for
+  Statistics to Include and the charts of the Visual Element Plan.
 - `briefs/[slug]-information-gain.md`: the gains, and the evidence for
   each gain.
 
