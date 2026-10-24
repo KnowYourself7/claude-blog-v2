@@ -61,44 +61,27 @@ Ebestron 的 4 条，每条都是一样东西：一张表、一个排查顺序�
 | 输入 | 拿它做什么 |
 |---|---|
 | `templates/information-gain.md` | 要填的表 |
-| `briefs/[slug]-competitor-gaps.md` | Gap List 和 Format Advantage：排名页面现在给了什么、缺什么 |
+| `briefs/[slug]-competitor-gaps.md` | Our Difference：主增量从它来；Gap List 和 Format Advantage：还缺什么 |
 | `briefs/[slug]-evidence-plan.md` | 采用的材料：每条增量的证据和归属 |
 | `briefs/[slug]-task-brief.md` | 只读 Does not sell or claim 一行：哪些增量不能写 |
 
 任务单是唯一留下的卡片外输入。留下的原因：「不能说的话」目前只有 Step 7 在查。Step 3 读任务单只为筛掉业务范围外的词。去掉后，整个 blog-brief 不再检查客户不让说的话。它对应第 01 课的业务边界（p.107，例子是「不能冒称生产胶水配方」），不是新编的规则。
 
-不再读 Our Difference。它原来只用来写 Main Gain。
+Our Difference 要读。Ebestron 的本篇差异是「把跨部件的诊断组织成表」（p.118），增量单第一条 7-Symptom Fault Finder 正是这张表（p.122）。增量就是把本篇差异变成读者能用的东西。
 
 ### 4.2 处理步骤
 
-1. 读 Gap List 和 Format Advantage，按下面三类规划增量。每一类可以有零条，也可以有几条。
-
-   | 类别 | 意思（p.121） | 课程里的例子 |
-   |---|---|---|
-   | 因素怎么相互影响 | 排名页面只列了影响因素，这篇说明因素怎么一起起作用 | 课程没给具体例子 |
-   | 带条件的比较 | 排名页面只给通用定义，这篇给一张写明条件的比较表 | 7-Symptom Fault Finder：症状 → 可能原因 → 动作 → 部件 |
-   | 读者能照做的检查步骤 | 排名页面只给宽泛建议，这篇给一套能照做的步骤 | 60-Second Triage：观察 → 排查 → 核对 → 部件；铝件询价准备清单 |
-
-   Ebestron 第 4 条 Pot-Life Clock 区分几个和操作时间有关的概念，课程没说它属于哪一类。本方案把它算作带条件的比较：几个概念并排，写明各自的条件。
-
-2. 每条增量写一行：类别、来自哪些差距、排名页面现在给了什么、这篇多给什么。一条差距可以进几条增量。「这篇多给什么」用一两句写这样东西的结构和作用，例如表格有哪几列、步骤按什么顺序，不复述证据计划里的结论和数字。
-3. 写证据要求：用到证据计划里哪几份采用的材料，每份是谁的数据（归属），每个数字是实测、推算还是示例。归属指做出数据的人或公司；数据是别的网站转载的，两个都写。增量整条或其中一部分没有采用的材料支持，就给那一部分写 none 和收窄后的说法。
+1. 读 Our Difference，先规划把它落地的那一条或几条增量。
+2. 读 Gap List 和 Format Advantage。读者能因此多理解、多判断或多完成什么，才再加一条增量。p.121「三列思路」的三行是例子，不是分类：说明因素怎么相互影响、带条件的比较表、读者能照做的检查步骤。Ebestron 的时间概念卡就不属于这三样。
+3. 每条增量写一行。中间三列照 Ebestron 增量单（p.122）：增量是什么东西（速查表、索引、排查顺序、概念卡）、名称、作用。作用用一行写结构，最后落到读者能理解、判断或完成什么，例如「症状 → 可能原因 → 动作 → 要检查的部件」，不复述证据计划里的结论和数字。前面加一列「排名页面现在给了什么」，一行就够，对应卡片标题的「已有内容给了什么」。
+4. 最后一列是证据要求，这是卡片动作 2 要求的。用一两句写：证据计划里的哪几份材料，数据是谁的（归属），数字是实测、推算还是示例。每行都写清归属，不写「来源同 I2」。缺证据的部分再写收窄后的说法。
    - 实测：有人测出来或数出来的数，例如实验、调查、产品规格里的数。
    - 推算：从别的数或模型算出来的数。
    - 示例：为了说明而编的数。
-4. 不是每条差距都要变成一行。写不出读者能用的东西的差距，例如 G10，不写行。没变成增量的「没回答」「没给判断」差距也不会丢：它们挂在需求面上，Step 8 要求每个保留的需求面至少有一个 H2。
-5. 第一方证据照旧：只写用户给的方法、证据和结果，没有就写 none supplied。
+5. 有 `DISCOURSE.md` 时，它的主题也是增量的来源。这一条原来只写在 SKILL.md 里，Step 7 没提。
+6. 第一方证据照旧：只写用户给的方法、证据和结果，没有就写 none supplied。Ebestron 增量单最后一行也是这一项。
 
 规则沿用现在的五条，都有出处：多写、多抓、换说法不算增量（p.53）；给框架起名字不等于证明有效（p.122）；外部实验不写成客户的（p.121）；缺证据就缩小结论，不保留说法再加免责（卡片红线）；不写任务单禁止的增量（p.107）。
-
-按新规则，亚麻衬衫那 11 行大致会合成 4 行左右。这是我的推测，要真实跑确认：
-
-| 类别 | 增量 | 合并的差距 |
-|---|---|---|
-| 带条件的比较 | 一张表：单品、面料克重、要加的层、合适的室内温度 | G1、G2、G3、G5、G6、格式优势 |
-| 因素怎么相互影响 | 亚麻本身为什么不保暖，暖和来自外层，风会抵消静止空气的条件 | G4、G8 |
-| 读者能照做的检查步骤 | 看商品页的克重和混纺比例，对照单品范围 | G9 |
-| 因素怎么相互影响 | 颜色、阳光、风怎么一起影响冷暖 | G7 |
 
 ### 4.3 输出
 
@@ -106,35 +89,35 @@ Ebestron 的 4 条，每条都是一样东西：一张表、一个排查顺序�
 
 | 段或列 | 写什么 | 进不进简报 |
 |---|---|---|
-| Gains 表 ID | I1、I2 这样的编号 | 进：大纲每个 H2 写它兑现哪几个 ID |
-| Kind | factor interaction、conditional comparison、check steps 三选一 | 不进 |
-| From gap | 差距编号，或 format、DISCOURSE.md | 不进 |
-| The ranking pages give | 排名页面现在给了什么 | 不进 |
-| This post adds | 一两句：这样东西的结构和作用，读者能多理解、多判断或多完成什么；不写证据计划的结论和数字 | 不原样抄。Step 8 在对应 H2 的 Cover 行用自己的话写这样东西 |
-| Evidence requirement | 证据计划里的材料编号、归属、每个数字的类型；没有支持的部分写 none 加收窄说法 | 只进两样：收窄后的说法、推算或示例的标记。Step 8 写进对应 H2 的 Cover 行 |
+| ID | I1、I2 这样的编号 | 进：大纲每个 H2 写它兑现哪几个 ID |
+| The ranking pages give | 一行：排名页面现在给了读者什么 | 不进 |
+| Gain | 增量是什么东西：速查表、索引、排查顺序、概念卡等 | 不原样抄。Step 8 在对应 H2 的 Cover 行用自己的话写 |
+| Name | 短名称，例如 7-Symptom Fault Finder | 同上 |
+| Use | 一行结构，例如「症状 → 可能原因 → 动作 → 部件」 | 同上 |
+| Evidence requirement | 一两句：材料编号、归属、实测或推算或示例；缺证据时写收窄说法 | 只进两样：收窄后的说法、推算或示例的标记。Step 8 写进对应 H2 的 Cover 行 |
 | First-Party Evidence 段 | 用户给的方法、证据和结果，或 none supplied | 不进。Step 8 读它，判断能不能写第一手经验 |
-| Main Gain 段 | 删掉：卡片里没有，内容和差距清单的 Our Difference 重复 | 原来进，以后不进 |
-| Facet 列 | 删掉：差距清单里每条差距已经写了需求面，按 From gap 能查到 | 原来不进 |
+
+删掉的：Main Gain 段（卡片里没有，内容就是 Our Difference）；Facet 列；以及本分支第一版加的 Kind、From gap 两列（课程的增量单里没有）。
 
 ### 4.4 下游怎么变
 
 - Step 8 生成简报，原规则让大纲抄 This post adds 和 Evidence 两列。改成三条规则：
   1. 把每条增量放进兑现它的 H2，在这些 H2 的 Gains 行写 ID。
   2. Cover 行用自己的话写这一节为这条增量做什么，不抄增量清单的格子。
-  3. 证据要求里有 none，就把收窄后的说法写进 Cover；有推算或示例的数字，也在 Cover 里说明。
+  3. 证据要求里有收窄后的说法，就写进 Cover。有推算或示例的数字，也在 Cover 里说明。
 - Step 8 的检查：原来要求每条增量都出现在增量段，改成每个增量 ID 至少出现在一个 H2 的 Gains 行。Step 8 的输入说明加上 First-Party Evidence。
 - 简报模板：Information Gain Opportunities 段只留增量文件路径一行；大纲每个 H2 在 Facets 行下面加一行 `Gains: [I1, I3, or -]`。
-- SKILL.md：DISCOURSE.md 那句把主题当作「more gains」，和「每条增量属于三类之一」冲突。改成「more sources of gains」：主题可以引出增量，但也要归进三类。
+- SKILL.md：DISCOURSE.md 那句把主题直接当作增量，改成「more sources of gains」：主题可以引出增量，但也要照增量单的格式写。删掉「From gap 那一格写 DISCOURSE.md」那句，因为没有这一列了。
 
 ### 4.5 改动文件
 
 | 文件 | 改什么 |
 |---|---|
-| `skills/blog-brief/references/step-7-information-gain.md` | 重写 Goal、Steps、Check；Inputs 删掉 Our Difference |
-| `skills/blog-brief/templates/information-gain.md` | 删 Main Gain 段和 Facet 列；加 Kind 列；Evidence 改成 Evidence requirement，一份材料一行，用 `<br>` 分行 |
+| `skills/blog-brief/references/step-7-information-gain.md` | 重写 Goal、Steps、Check |
+| `skills/blog-brief/templates/information-gain.md` | 删 Main Gain 段；表格换成 ID、The ranking pages give、Gain、Name、Use、Evidence requirement 六列 |
 | `skills/blog-brief/references/step-8-generate-brief.md` | 改一条输入说明、一条检查；一条规则换成三条 |
 | `skills/blog-brief/templates/brief-template.md` | Information Gain Opportunities 段只留路径；H2 加 Gains 行 |
-| `skills/blog-brief/SKILL.md` | DISCOURSE.md 那句改一个词组 |
+| `skills/blog-brief/SKILL.md` | DISCOURSE.md 那句改一个词组，删一句 |
 | `docs/plans/2026-10-23-blog-brief-a08-information-gain.md` | 状态改成「已合并（#14），Step 7 的表格由修正文档取代」 |
 
 ## 5. 考虑过、没选的方案
@@ -144,7 +127,7 @@ Ebestron 的 4 条，每条都是一样东西：一张表、一个排查顺序�
 | 只改简报：增量段只留路径，Step 7 不动 | 增量清单本身仍是一条差距一行、抄数字，和证据计划重复；不符合卡片动作 1 和动作 2 |
 | 保留「每条差距一行」，只把 Evidence 改成证据要求 | 行数还跟着差距数走；G10 这种写不出读者收益的差距还会被硬写成一行 |
 | 按卡片去掉任务单输入 | Does not sell or claim 这一行只有 Step 7 在读，去掉后 blog-brief 不再检查客户不让说的话 |
-| 加「名称」列，像 7-Symptom Fault Finder | 卡片的动作和产物都没要求起名，还警示起名不等于证明有效；大纲引用增量用 ID 就够了 |
+| 本分支第一版：每条增量必须属于三类之一，表格六列（Kind、From gap、The ranking pages give、This post adds、Evidence requirement 加 ID），证据要求逐份列出来源 | 用户对照讲解追问后放弃。三类是 p.121 的例子，不是分类；Ebestron 增量单只有增量、名称、作用三列；逐份列来源又把证据计划抄了一遍，真实跑里 I1 一格就有 6 行 |
 | 简报增量段每条留一句短话 | 大纲 Cover 行已经写了每样东西怎么写，这一段只会重复；短话还要和清单保持一致，改一处漏一处 |
 
 ## 6. 验证
@@ -157,13 +140,18 @@ Ebestron 的 4 条，每条都是一样东西：一张表、一个排查顺序�
 | 模拟跑（子代理，2k dispensing problems 的模拟输入） | 5 行增量。和这次改动有关、已修的：部分有证据的增量怎么写；厂商规格填哪种类型；一条差距能不能进两条增量 |
 | 真实跑第 1 次（改前的文件，输出在 `rerun-2026-10-23-gain-list/`） | 4 行增量，G10 没有行。但温度那一节写成「把室内范围当户外参考，不当规则」，正是红线禁止的「保留说法加免责」。原因是部分有证据时没有地方写收窄说法 |
 | 真实跑第 2 次（修后的文件，输出在 `rerun-2026-10-23-gain-list-2/`） | 五项核对全部通过：4 行都有类别；This post adds 只写结构和用途，没有证据计划的数字；每份材料写了归属和类型，缺证据的部分写了 none 和收窄说法；简报增量段只有路径；I1 到 I4 都在 H2 的 Gains 行。温度那一节改成按「要加哪一层」分档，室内舒适区只作锚点。91.34 在简报里从 6 次降到 2 次 |
+| 用户对照讲解复查（第一版提交之后） | 发现第一版还不符合：三类写成了封闭分类；表格六列，证据一格最多 6 行；删了名称列；不读 Our Difference。按 4.2 和 4.3 改成增量单的样子 |
+| 真实跑第 3 次（新表格，输出在 `rerun-2026-10-24-gain-list-3/`） | 3 行，形状对了：增量、名称、一行作用、两句证据要求。但子代理把「Plan one more gain only if」读成最多再加一条，颜色对比被丢掉。已改成「Plan more gains from them」 |
+| 真实跑第 4 次（改措辞后，输出在 `rerun-2026-10-24-gain-list-4/`） | 5 行：单品对温度的表、克重检查清单、面料特性卡、什么时候别穿的清单、颜色卡。I1 和 I2 落地 Our Difference。G10 没有写成增量。I1 到 I5 都在 H2 的 Gains 行，简报增量段只有路径。两个步骤文件的 Check 全部通过 |
+| 两版对照（子代理，只按讲解评判） | 新版更符合瑜东：读本篇差异，表格和增量单一致。找出 4 处退步，都已修：作用没落到读者能判断什么；证据要求可以写「来源同 I2」；删了「已有内容给了什么」；Step 7 没提 DISCOURSE.md |
+| 真实跑第 5 次（修 4 处后，输出在 `rerun-2026-10-24-gain-list-5/`） | 6 行：单品对温度的表、克重检查清单、面料概念卡、加层阶梯、颜色规则、什么时候别穿。每行的作用都以「他决定、检查或明白什么」结尾，每行都写了归属，没有「同 I2」。I1 到 I6 都在 H2 的 Gains 行。简报 `TL;DR` 里不再有「只能在室内 70-77°F 单穿」那句。两个步骤文件的 Check 全部通过 |
 
 真实跑发现、留给后面分支的问题：
 
 - Cover 行的「Narrower claim」里仍有写给写手的话，例如「No source gives a check for weave density」，有一句还写成「a guide ..., not a measured rule」，接近免责句。留给路线图第 7 个分支重做大纲时处理。
 - Step 8 没有任务单输入，内链、CTA、作者、分发计划只能编。留给路线图第 7 个分支。
 - 证据计划不记录数字是实测、推算还是示例，Step 7 要自己判断。例如 ASHRAE 舒适区，子代理凭自己的知识标成推算。
-- 差距清单的 Our Difference 现在没有步骤读。以后再定是删掉还是给 Step 8 写引言用。
+- 模拟跑只对第一版做过。
 
 ## 7. 提交拆分
 
