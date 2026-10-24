@@ -2,18 +2,18 @@
 
 #### Goal
 
-Turn the competitor gaps into gains for the reader. A gain is a thing
-that the reader can understand, decide, or do after this post, and not
-after the ranking pages.
+Plan the gains of this post. A gain is a thing that the reader can
+understand, decide, or do after this post, and not after the ranking
+pages.
 
 #### Inputs
 
 - `templates/information-gain.md`: the output template.
-- `briefs/[slug]-competitor-gaps.md`: the Gap List, Our Difference, and
-  Format Advantage.
+- `briefs/[slug]-competitor-gaps.md`: the Gap List and Format
+  Advantage, what the ranking pages give and what they miss.
 - `briefs/[slug]-task-brief.md`: the Does not sell or claim row.
 - `briefs/[slug]-evidence-plan.md`: the adopted sources and the weak
-  questions.
+  questions, the evidence for each gain.
 
 #### Rules
 
@@ -27,13 +27,37 @@ after the ranking pages.
 
 #### Steps
 
-1. Write Main Gain in one sentence, from Our Difference.
-2. For each gap in the Gap List, fill one row of the Gains table. If two
-   gaps lead to the same gain, put both gap IDs in one row.
-3. If Format Advantage is not none, fill one more row for it. Write
-   `format` in From gap.
-4. In Evidence, write the adopted source that supports the gain. If no
-   adopted source supports it, write `none` and the narrower claim.
+1. Read the Gap List and Format Advantage. Plan the gains in the kinds
+   of this table. A kind can have no gain, one gain, or more.
+
+   | Kind | The ranking pages give | This post adds |
+   |------|------------------------|----------------|
+   | `factor interaction` | A list of factors. | How the factors act together. |
+   | `conditional comparison` | A general definition or rule. | A comparison of the options or the concepts, with the conditions of each. |
+   | `check steps` | Broad advice. | Steps that the reader can do. |
+
+2. Fill one row of the Gains table for each gain. In From gap, write
+   all gap IDs that lead to the gain. Write `format` for a gain from
+   Format Advantage. A gap can lead to more than one gain. If a gap
+   leads to no gain, do not write a row for it.
+3. In This post adds, describe the thing by its structure, for example
+   the columns of a table or the order of the steps. Then write what
+   the reader can understand, decide, or do with it. Do not restate a
+   finding or write a number from the evidence plan. Do not name a
+   ranking page, a rank, or a gap ID.
+4. In Evidence requirement, write each adopted source that the gain
+   needs: the source #, the owner of the data, and the type of each
+   number. The owner is the person or the company that made the data.
+   If another site shows the data, name both. If no adopted source
+   supports the gain or a part of it, write `none` and the narrower
+   claim for that part.
+
+   | Type | Meaning |
+   |------|---------|
+   | `measured` | Someone measured or counted it, for example in a test, a survey, or a product specification. |
+   | `estimated` | Someone calculated it from other numbers or from a model. |
+   | `example` | Someone made it up to show an idea. |
+
 5. In First-Party Evidence, write the method, the evidence, and the
    results that the user supplied. If the user supplied none, write
    `none supplied`.
@@ -44,12 +68,12 @@ after the ranking pages.
 
 #### Check
 
-- Every gap ID of the Gap List is in the From gap column.
+- Every row has one kind of the table in step 1.
 - Every This post adds cell says what the reader can understand,
-  decide, or do.
-- No This post adds cell and no Main Gain names a ranking page, a rank,
-  or a gap ID.
-- Every Evidence cell has an adopted source, or `none` and a narrower
-  claim.
+  decide, or do. It names no ranking page, rank, or gap ID, and it
+  has no finding or number from the evidence plan.
+- Every Evidence requirement cell gives the source # and the owner of
+  each source, and the type of each number. Every part of a gain
+  without an adopted source has `none` and a narrower claim.
 - First-Party Evidence names what the user supplied, or says
   `none supplied`.
