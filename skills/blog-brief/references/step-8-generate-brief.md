@@ -26,9 +26,9 @@ Turn the research into the brief that `/blog write` reads.
   in the Gains line of each of them.
 - In Cover, write in your own words what the section builds for the
   gain. Do not copy the cells of the Gains table.
-- If the Evidence requirement of a gain has `none`, write its narrower
-  claim in Cover. If it has an `estimated` or `example` number, say so
-  in Cover.
+- If the Evidence requirement of a gain has a narrower claim, write it
+  in Cover. If it has an `estimated` or `example` number, say so in
+  Cover.
 - Do not name a ranking page, a rank, or a gap in the Content Outline.
 - Include first-hand insight, a case study, or test results
   only when the user supplies supporting methodology, evidence, and
