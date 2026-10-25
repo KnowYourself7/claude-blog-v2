@@ -61,9 +61,10 @@ Paths in the step files are relative to this skill folder:
 | Step 5: Template Recommendation | `${CLAUDE_SKILL_DIR}/references/step-5-template-recommendation.md` | `${CLAUDE_SKILL_DIR}/../blog/references/content-templates.md`, the Step 4 competitor details files, `${CLAUDE_SKILL_DIR}/../blog/templates/[type].md` |
 | Step 6: Evidence Plan | `${CLAUDE_SKILL_DIR}/references/step-6-evidence-plan.md` | `${CLAUDE_SKILL_DIR}/templates/evidence-plan.md`, the Step 3 and Step 4 output files |
 | Step 7: Information Gain | `${CLAUDE_SKILL_DIR}/references/step-7-information-gain.md` | `${CLAUDE_SKILL_DIR}/templates/information-gain.md`, the Step 1, Step 4, and Step 6 output files |
-| Step 8: Generate the Brief | `${CLAUDE_SKILL_DIR}/references/step-8-generate-brief.md` | `${CLAUDE_SKILL_DIR}/templates/brief-template.md`, the Step 2, Step 3, Step 6, and Step 7 output files |
+| Step 8: Outline | `${CLAUDE_SKILL_DIR}/references/step-8-outline.md` | `${CLAUDE_SKILL_DIR}/templates/outline.md`, the Step 1, Step 2, Step 3, Step 6, and Step 7 output files |
+| Step 9: Generate the Brief | `${CLAUDE_SKILL_DIR}/references/step-9-generate-brief.md` | `${CLAUDE_SKILL_DIR}/templates/brief-template.md`, the Step 1, Step 2, Step 6, Step 7, and Step 8 output files |
 
-### Step 9: Save the Brief
+### Step 10: Save the Brief
 
 Save to the user's project as `briefs/[slug]-brief.md` or to a location
 they specify. Create the `briefs/` directory if it does not exist. Confirm the brief is ready for `/blog write`.

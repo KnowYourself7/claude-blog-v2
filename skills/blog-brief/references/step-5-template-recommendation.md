@@ -29,7 +29,7 @@ Choose one of the 12 content templates for this post.
 #### Outputs
 
 - No file. The template name and the reason go into the Template
-  section of the brief in Step 8.
+  section of the brief in Step 9.
 
 #### Check
 
