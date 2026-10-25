@@ -4,19 +4,11 @@
 
 # Information Gain: [focus keyword]
 
-## Main Gain
-
-After this post, the reader can [one sentence about the reader and the
-topic].
-
 ## Gains
 
-Write The ranking pages give about the content of the pages. Write This
-post adds about the reader and the topic, with no page, rank, or gap ID.
-
-| ID | Facet | From gap | The ranking pages give | This post adds | Evidence |
-|----|-------|----------|------------------------|----------------|----------|
-| I1 | [F-ID or -] | [G-IDs, format, or DISCOURSE.md] | [what the reader gets from the pages now] | [what the reader can understand, decide, or do] | [source # in the evidence plan, publisher and title, or none: the narrower claim] |
+| ID | The ranking pages give | Gain | Name | Use | Evidence requirement |
+|----|------------------------|------|------|-----|----------------------|
+| I1 | [one line: what the reader gets from the pages now] | [the thing, for example a fault table, an index, a check order, or a concept card] | [a short name] | [the structure in one line, ending with what the reader can understand, decide, or do] | [source #, the owner of the data, measured / estimated / example. For missing evidence: the narrower claim] |
 
 ## First-Party Evidence
 

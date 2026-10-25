@@ -2,18 +2,20 @@
 
 #### Goal
 
-Turn the competitor gaps into gains for the reader. A gain is a thing
-that the reader can understand, decide, or do after this post, and not
-after the ranking pages.
+Plan the gains of this post. A gain is a thing that the reader can
+understand, decide, or do after this post, and not after the ranking
+pages.
 
 #### Inputs
 
 - `templates/information-gain.md`: the output template.
-- `briefs/[slug]-competitor-gaps.md`: the Gap List, Our Difference, and
-  Format Advantage.
+- `briefs/[slug]-competitor-gaps.md`: Our Difference, the Gap List,
+  and Format Advantage.
 - `briefs/[slug]-task-brief.md`: the Does not sell or claim row.
-- `briefs/[slug]-evidence-plan.md`: the adopted sources and the weak
-  questions.
+- `briefs/[slug]-evidence-plan.md`: the adopted sources, the evidence
+  for each gain, and the weak questions, where evidence is missing.
+- The themes of `DISCOURSE.md` that SKILL.md loaded: more sources of
+  gains. Without `DISCOURSE.md`, skip this input.
 
 #### Rules
 
@@ -27,13 +29,32 @@ after the ranking pages.
 
 #### Steps
 
-1. Write Main Gain in one sentence, from Our Difference.
-2. For each gap in the Gap List, fill one row of the Gains table. If two
-   gaps lead to the same gain, put both gap IDs in one row.
-3. If Format Advantage is not none, fill one more row for it. Write
-   `format` in From gap.
-4. In Evidence, write the adopted source that supports the gain. If no
-   adopted source supports it, write `none` and the narrower claim.
+1. Read Our Difference. Plan the gain or the gains that make it real
+   for the reader. For example, Our Difference "a diagnosis across
+   parts" becomes the gain "a fault table across parts".
+2. Read the Gap List and Format Advantage. Plan more gains from them.
+   Each gain must let the reader understand, decide, or do more. For
+   example, it shows how factors act together, it compares options
+   with their conditions, or it gives steps that the reader can do.
+3. Fill one row of the Gains table for each gain. In The ranking pages
+   give, write in one line what the ranking pages give the reader now.
+   In Use, write the structure of the gain in one line. End it with
+   what the reader can understand, decide, or do, for example
+   `symptom → cause → action → the part to check`. Do not restate a
+   Finding of the evidence plan.
+4. In Evidence requirement, write in one or two sentences the source #
+   of the evidence plan, the owner of the data, and the type of the
+   numbers. The owner is the person or the company that made the data.
+   Name the owners in every row. Do not point to the sources of another
+   row. If evidence is missing for the gain or a part of it, also write
+   the narrower claim.
+
+   | Type | Meaning |
+   |------|---------|
+   | `measured` | Someone measured or counted it, for example in a test, a survey, or a product specification. |
+   | `estimated` | Someone calculated it from other numbers or from a model. |
+   | `example` | Someone made it up to show an idea. |
+
 5. In First-Party Evidence, write the method, the evidence, and the
    results that the user supplied. If the user supplied none, write
    `none supplied`.
@@ -44,12 +65,12 @@ after the ranking pages.
 
 #### Check
 
-- Every gap ID of the Gap List is in the From gap column.
-- Every This post adds cell says what the reader can understand,
-  decide, or do.
-- No This post adds cell and no Main Gain names a ranking page, a rank,
-  or a gap ID.
-- Every Evidence cell has an adopted source, or `none` and a narrower
-  claim.
+- At least one gain makes Our Difference real.
+- Every row names a thing that the reader can use. Its Use ends with
+  what the reader can understand, decide, or do.
+- No cell names one ranking page, a rank, or a gap ID, or restates a
+  Finding of the evidence plan.
+- Every Evidence requirement names the owner and the type of each
+  source. Where evidence is missing, it also has a narrower claim.
 - First-Party Evidence names what the user supplied, or says
   `none supplied`.
