@@ -19,8 +19,8 @@ Turn Outline V2 and the research files into the brief that
   Internal Link Architecture.
 - `briefs/[slug]-information-gain.md`: First-Party Evidence, for the
   Experience line of E-E-A-T Signals.
-- The template and the reason from Step 5, Template Recommendation:
-  for the Template section.
+- `briefs/[slug]-state.json`: the note of Step 5, the template and the
+  reason, for the Template section.
 
 #### Rules
 
