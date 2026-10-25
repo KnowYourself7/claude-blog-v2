@@ -10,6 +10,7 @@
 | Item | Value |
 |------|-------|
 | Focus keyword | [keyword] |
+| Slug | [slug] |
 | Market | [location_code] / [language_code], [given / default] |
 | Reader decision | [what the reader is deciding] |
 
