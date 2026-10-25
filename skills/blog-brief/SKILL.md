@@ -63,13 +63,38 @@ Brief Progress:
 - [ ] Step 2: SERP Intent Gate. Read step-2-serp-intent-gate.md. Uses Step 1. Output: search-intent.md. Can stop.
 - [ ] Step 3: Keywords to Demand Facets. Read step-3-demand-facets.md. Uses Step 1, Step 2. Output: keyword-research.md, demand-facets.md, and the work files that the step file lists. Can stop.
 - [ ] Step 4: Competitor Gap List. Read step-4-competitor-gaps.md. Uses Step 2, Step 3. Output: competitor-gaps.md, competitor-[n].md.
-- [ ] Step 5: Template Recommendation. Read step-5-template-recommendation.md. Uses Step 2, Step 4. Output: no file. Keep the template and the reason for Step 9.
+- [ ] Step 5: Template Recommendation. Read step-5-template-recommendation.md. Uses Step 2, Step 4. Output: no file.
 - [ ] Step 6: Evidence Plan. Read step-6-evidence-plan.md. Uses Step 3, Step 4. Output: evidence-plan.md.
 - [ ] Step 7: Information Gain. Read step-7-information-gain.md. Uses Step 1, Step 4, Step 6. Output: information-gain.md.
 - [ ] Step 8: Outline. Read step-8-outline.md. Uses Step 1, Step 2, Step 3, Step 6, Step 7. Output: outline.md.
 - [ ] Step 9: Generate the Brief. Read step-9-generate-brief.md. Uses Step 1, Step 2, Step 5, Step 6, Step 7, Step 8. Output: the filled brief, no file.
 - [ ] Step 10: Save the Brief. Read the Step 10 section below. Uses Step 9. Output: brief.md.
 ```
+
+### State File
+
+`${CLAUDE_SKILL_DIR}/scripts/brief_state.py` keeps the progress of the
+run in `briefs/[slug]-state.json`. A new session uses the file to
+continue the run. Run the script with `python3` from the project root.
+
+1. Before you write the first file of Step 1, run
+   `init --slug [slug] --focus "[focus keyword]"`. To continue a run,
+   find its state file in `briefs/`, and run `init` with the slug and
+   the `focus_keyword` in it.
+   Start at `next_step`. If `stopped` lists a step, ask its question
+   again.
+2. Before you start a step, run
+   `set --slug [slug] --step [n] --status in_progress`.
+3. When every item of the Check is true, run the same command with
+   `--status done`. For Step 5, add `--note` with the template and the
+   reason. If you save the brief in another place, add `--file` with
+   its path.
+4. When a step stops, run it with `--status stopped --note "[the question]"`.
+   When the user answers, run it with
+   `--status in_progress --note "[the answer]"`.
+
+If the script prints an error, fix the cause. Do not start the next
+step before `set` accepts `done`.
 
 ### Step 10: Save the Brief
 

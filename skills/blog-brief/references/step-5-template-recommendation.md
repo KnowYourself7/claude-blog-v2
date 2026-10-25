@@ -28,8 +28,9 @@ Choose one of the 12 content templates for this post.
 
 #### Outputs
 
-- No file. The template name and the reason go into the Template
-  section of the brief in Step 9.
+- No file. Write the template name and the reason in the note of
+  Step 5 in `briefs/[slug]-state.json`. Step 9 copies them into the
+  Template section of the brief.
 
 #### Check
 

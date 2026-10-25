@@ -108,7 +108,7 @@ Paths in the step files are relative to this skill folder:
 | 顺序 | 分支（暂定名） | 做什么 | 瑜东步骤 |
 |---|---|---|---|
 | 1 | refactor/blog-brief-step-files | 本分支：拆文件，不改行为 | 无 |
-| 2 | feat/blog-brief-run-folder | 每篇简报一个文件夹 `briefs/<slug>/`，每步结果存进去，加进度文件，中断后能续跑 | 阶段门要求的"产物落盘" |
+| 2 | feat/blog-brief-run-state | 加状态文件 `briefs/[slug]-state.json`，记每步进度，中断后能续跑。2026-10-25 改：不换成每篇一个文件夹，见 `docs/plans/2026-10-25-blog-brief-run-state-and-gate.md` | 阶段门要求的"产物落盘" |
 | 3 | feat/blog-brief-a01-task-brief | Step 1 换成任务单：业务边界、支撑的商业页、客户事实和缺失项 | 01 |
 | 4 | feat/blog-brief-a05-business-fit | 需求面读任务单，按业务相关性筛选和定去留 | 05 |
 | 5 | feat/blog-brief-a06-gap-list | Step 3 换成竞品差距清单 | 06 |

@@ -60,7 +60,7 @@ claude-blog/
       SKILL.md                    # Step checklist, shared rules, Step 10
       references/                 # 9 step files, one per brief step
       templates/                  # 10 output templates (task brief, search intent, keyword research, demand facets, competitor details, competitor gaps, evidence plan, information gain, outline, brief)
-      scripts/                    # keyword_pool.py: Step 3 pool building and facet ranking over the DataForSEO REST API
+      scripts/                    # keyword_pool.py: Step 3 pool building and facet ranking over the DataForSEO REST API; brief_state.py: step progress and resume
     blog-outline/SKILL.md         # SERP-informed outlines
     blog-calendar/SKILL.md        # Editorial calendars
     blog-strategy/SKILL.md        # Blog positioning and planning
