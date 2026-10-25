@@ -1,0 +1,166 @@
+# 开发文档：blog-brief 加 Step 11，A→B 阶段门
+
+| 项目 | 内容 |
+|---|---|
+| 日期 | 2026-10-25 |
+| 状态 | 实施中 |
+| 分支 | feat/blog-brief-gate-a-to-b，从 `main` 的 10ea95d 开 |
+| 依据 | 第 05 课 A→B 阶段门三项检查、产物落盘、检查不等于人工确认（p.127）；第 00 课每一步有输入、产物和验收（p.106），质量门要说清「哪一步有问题、为什么、怎么修」（p.29）；Anthropic 官方 Skill authoring best practices「Create verifiable intermediate outputs」：中间产物用脚本校验，出错信息指明具体问题，https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices |
+| 上一份文档 | `docs/plans/2026-10-25-blog-brief-run-state-and-gate.md`：状态文件和阶段门的总方案，2026-10-25 用户确认。本文件是其中第二个分支的细化，背景和原因只摘要，详见那份文档第 3 节 |
+| 路线图 | `docs/plans/2026-10-22-blog-brief-step-files.md` 第 6 节第 8 行 |
+
+## 1. 目标
+
+跑完 blog-brief 的 10 步后，脚本做一次 A→B 阶段门（阶段门：一个阶段结束时的集中检查，过了才进下一阶段），告诉用户简报能不能交给 `/blog write`；不能的话，写明哪一项没过、要从哪一步重做；能的话，把还没解决的事列成一张清单。
+
+## 2. 不做什么
+
+| 不做的事 | 去向 |
+|---|---|
+| A·04 竞争机会、A·09 语义基线的检查 | 这两步还没做。阶段门对它们写 `not built`，不算失败。各自单独开分支 |
+| 判断类检查：收窄说法是否真的更窄、核心答案是否回答了问题、内链是否合适 | 不做。由 Step 8 的 Check 管，脚本判断不了 |
+| 预算上限和余额检查（p.109） | 随 A·02「先复用，再补研究」的分支一起定。阶段门只报告 Step 4 和 Step 6 文件里已经写下的积分数 |
+| 让 `/blog write` 读阶段门结果，没过就不写 | 路线图第 9 个分支 `feat/blog-write-use-brief` |
+| 把阶段门插在 Step 9 之前 | 不做，见第 5 节 |
+| 用真实客户产物当测试数据 | 不做。单元测试的简报文件自己编；Coofandy 产物只在 scratchpad 里跑一次，不进仓库 |
+
+## 3. 原因
+
+现在 blog-brief 做完 Step 10 就结束。Step 10 最后一句让 Claude 告诉用户简报可以交给 `/blog write`（`skills/blog-brief/SKILL.md` 第 102 行）。这句话没有任何检查撑着：
+
+1. 方向、结构、证据三样是否都清楚（p.127），没有一处一起看。每步的 Check 只看自己的产物。
+2. 重跑或手改之后，没人回头查下游。真实例子：Coofandy「can you wear linen in winter」测试里，Step 7 重跑 7 次、Step 8 重跑 2 次。状态文件（#19）会把下游改回 `pending`，但用户直接手改大纲时，状态文件不知道。大纲里引用的材料号如果在证据计划里已经改成 `rejected`，现在没有任何一步会发现。
+3. 步骤的 Check 是 Claude 自己判断自己。可以机械核对的跨文件关系（面、增量、材料号是否对得上），交给脚本更可靠。课程的阶段门也是脚本检查（p.127）。
+4. 没有一条记录写着「这次简报过了没有」，也没有一处把待办事项（Still Open、证据薄弱的问题、缺失的支撑页）一次摆给用户。
+
+上一份文档 3.2 节用 Coofandy 第 2 次大纲真实跑手工模拟过：正常跑一遍时，阶段门挑不出新错（13 个材料号全是 `adopted`，9 个面、6 个增量全进了第二版）。所以阶段门做小：只做脚本能查的跨文件检查，加一张待办清单。
+
+## 4. 方案
+
+### 4.1 输入
+
+| 输入 | 拿它做什么 |
+|---|---|
+| `briefs/[slug]-state.json` | Step 1 到 Step 10 的状态和产出文件路径。阶段门从这里找每个文件，不自己拼路径，所以 `--file` 存到别处的简报也能找到 |
+| `[slug]-task-brief.md` | Page this post supports |
+| `[slug]-search-intent.md` | Decision 和 User choice |
+| `[slug]-demand-facets.md` | Kept Facets 表的 ID |
+| `[slug]-competitor-gaps.md` | Data Scope 的 Fetch 行里的积分 |
+| `[slug]-evidence-plan.md` | Questions 表的 Weak 列；Sources 表的 # 和 Status；Search Plan 的 Total 行 Actual credits |
+| `[slug]-information-gain.md` | Gains 表的 ID |
+| `[slug]-outline.md` | 第一版的 Calculator 行；第二版每个 H2 的 Facets、Evidence、Gains 行，FAQ 的 Evidence，Still Open |
+| `[slug]-brief.md` | Content Outline 一节 |
+
+### 4.2 处理步骤
+
+`brief_state.py` 加子命令 `gate`。SKILL.md 清单加一行 Step 11，步骤文件 `references/step-11-a-to-b-gate.md`。
+
+1. Claude 跑 `set --step 11 --status in_progress`。状态文件已经保证 Step 1 到 Step 10 全是 `done`。
+2. Claude 跑 `gate --slug [slug]`。Step 11 不是 `in_progress`，脚本报错。
+3. 脚本逐项检查（检查项见 4.3），每项给 `pass`、`fail`、`warn` 或 `not built`。`fail` 项写明要重做的步骤。
+4. 脚本按结果改 Step 11 的状态：
+   - 没有 `fail`：Step 11 改成 `done`，note 写「Gate: pass」或「Gate: warn」。
+   - 有 `fail`，而上一次阶段门不是 `fail`：Step 11 保持 `in_progress`。输出 `redo_from`，即所有 `fail` 项里最早要重做的步骤。
+   - 有 `fail`，上一次也是 `fail`：Step 11 改成 `stopped`，note 列出 `fail` 项。连续两次就停是本项目的规则，课程没写，为了不让 Claude 在同一个错上来回重做。
+5. Claude 按结果做：
+   - `done`：把 `warn` 项和待办清单摆给用户，说明简报可以交给 `/blog write`。原 Step 10 最后一句挪到这里。
+   - `in_progress` 加 `redo_from`：对那一步跑 `set --status in_progress`（下游自动改回 `pending`，Step 11 也是），从那一步重做，回到 Step 11 再跑 `gate`。
+   - `stopped`：把 `fail` 项摆给用户，等回答。用户要接受现状，Claude 跑 `set --step 11 --status in_progress --note "[用户的选择]"`，再跑 `set --step 11 --status done`；用户要改，就按用户说的步骤重做。
+
+为什么让脚本改 Step 11 的状态：要不要停、连续几次，每次结果都该一样，交给脚本，Claude 少记一条规则。
+
+### 4.3 检查项
+
+| 门（p.127） | 检查 | 不过时 | 重做 |
+|---|---|---|---|
+| 落盘 | Step 1 到 Step 10 记录的产出文件都还在 | fail | 第一个缺文件的步骤 |
+| 方向 | 搜索意图的 Decision 是 `continue`，或 User choice 是 `write anyway` | fail | Step 2 |
+| 方向 | 任务单的 Page this post supports 不是 `missing` | warn | - |
+| 方向 | 竞争机会 | not built | - |
+| 结构 | 每个保留面都在第二版某个 H2 的 Facets 行；Facets 行没有保留面以外的 ID | fail | Step 8 |
+| 结构 | 增量文件的每个 ID 都在第二版某个 Gains 行；Gains 行没有增量文件以外的 ID | fail | Step 8 |
+| 结构 | 第一版的 Calculator 行已填写，不是空的或方括号 | fail | Step 8 |
+| 结构 | 简报的 Content Outline 和第二版一致（去掉 Title 行、空行、行尾空格后比较） | fail | Step 9 |
+| 证据 | 第二版 H2 和 FAQ 的 Evidence 引用的材料号，在证据计划 Sources 表里都是 `adopted` | fail | Step 8 |
+| 证据 | 第二版每个 H2 有材料号，或者 Narrower claim 不是 `-` | fail | Step 8 |
+| 证据 | 证据计划里 Weak 为 `yes` 的问题 | 有就 warn，列出 ID 和问题 | - |
+| 证据 | 第二版的 Still Open | 不是 `none` 就 warn，列出内容 | - |
+| 证据 | 语义基线 | not built | - |
+
+补充两条规则：
+
+- FAQ 的 Evidence 也查材料号。这是比上一份文档多的一处。课程的结构清楚一项写了「常见问题」（p.127），FAQ 的答案同样会进正文。
+- 文件里找不到要解析的段落或表时，该项 `fail`，重做产出这个文件的步骤。例子：大纲没有 Outline V2 一节。
+
+### 4.4 输出
+
+状态文件加一段 `gate`，同时打印同样的 JSON：
+
+```json
+"gate": {
+  "result": "warn",
+  "checked": "2026-10-25T10:02:00Z",
+  "attempt": 1,
+  "redo_from": null,
+  "credits": {"step_4": 5, "step_6": 43},
+  "items": [
+    {"gate": "evidence", "check": "Still Open", "result": "warn",
+     "detail": "H2 1: the cold-band cells rest on no adopted comfort range", "redo": null}
+  ]
+}
+```
+
+- `result`：有 `fail` 就是 `fail`，否则有 `warn` 就是 `warn`，否则 `pass`。`not built` 不影响结果。
+- `attempt`：连续 `fail` 的次数。上一次不是 `fail` 时从 1 开始。
+- `credits`：文件里找不到数字就写 `null`，不写 0。
+- 重跑前面的步骤时，`set` 只把 Step 11 改回 `pending`，`gate` 段留着，下一次 `gate` 靠它数连续次数。`gate` 段只在 Step 11 是 `done` 时代表当前简报。
+
+### 4.5 下游怎么变
+
+- SKILL.md 清单加 Step 11 一行，标 Can stop；Step 10 去掉最后一句。
+- 以后 `feat/blog-write-use-brief` 可以读 `gate.result` 和 Step 11 的状态，决定能不能写。这次不改 `/blog write`。
+
+### 4.6 改动文件
+
+| 文件 | 改什么 |
+|---|---|
+| `skills/blog-brief/scripts/brief_state.py` | 加 `gate` 子命令和各项检查；docstring 加说明 |
+| `skills/blog-brief/references/step-11-a-to-b-gate.md` | 新建，六段格式 |
+| `skills/blog-brief/SKILL.md` | 清单加 Step 11；Step 10 去掉最后一句 |
+| `tests/test_brief_state.py` | 步骤数改成 11；加阶段门测试 |
+| `tests/test_blog_brief_workflow.py` | 步骤数改成 11 |
+| `CLAUDE.md` | blog-brief 步骤文件数改成 10，脚本说明加阶段门 |
+| `docs/plans/2026-10-25-blog-brief-run-state-and-gate.md` | 状态行写明第二个分支见本文件 |
+| 本文件 | 第 6 节填实际结果 |
+
+## 5. 考虑过、没选的方案
+
+| 方案 | 为什么没选 |
+|---|---|
+| 阶段门插在 Step 9 之前 | 能少生成一次简报，但 Step 9、Step 10 要改编号，所有提到它们的文件、测试和旧开发文档都要跟着改。上一份文档已定放在最后 |
+| 阶段门由 Claude 按清单逐项判断，不写脚本 | 和各步骤的 Check 重复，又是 Claude 自己判断自己。课程的阶段门由脚本检查（p.127） |
+| `gate` 只写结果，Step 11 的状态由 Claude 用 `set` 改 | 上一份文档的写法。要在步骤文件里多写「连续两次 fail 就停」的规则让 Claude 照做；脚本已经知道上一次结果，自己改更稳 |
+| 阶段门结果单独存一个 `[slug]-gate.md` 文件 | 多一个模板和一个文件。结果是给脚本和下游读的，放进状态文件就够；摆给用户的部分由 Claude 从 JSON 转述 |
+| 检查 Content Outline 时逐字比较，不去空行 | Step 9 抄写时多一个空行就会误报，空行不影响写作 |
+
+## 6. 验证
+
+| 验证项 | 打算怎么验 |
+|---|---|
+| 先看到失败 | 先写阶段门测试，`gate` 还不存在时测试失败 |
+| 脚本单元测试 | 一份自己编的全过的简报；每类 `fail` 至少一个用例，故意弄坏一处，看它是否指对要重做的步骤；`warn`；连续两次 `fail` 停下；Step 11 不是 `in_progress` 时报错 |
+| 仓库检查 | `pytest`、`validate_skills.py`、`consistency_check.py`（看 errors）、`lint_prose.py` |
+| 整篇重读 | 每个改过的文件从头读，每句问谁需要、删了坏什么、别处是否已写 |
+| 模拟跑 | 子代理只读 SKILL.md 和 Step 11 步骤文件，给它一份 `fail` 的阶段门输出，看它是否知道下一步做什么 |
+| 真实产物跑 | 把 Coofandy 第 2 次大纲真实跑的文件拼成一套放进 scratchpad，跑 `gate`，预期没有 `fail`；再把大纲里一个材料号改成证据计划里不是 `adopted` 的号，预期 `fail` 指向 Step 8 |
+| 对照瑜东（提交前评估） | 逐项列第 05 课阶段门的要求、现在怎么做、结论 |
+| 对照上游原版（提交前评估） | `git show 3544423:skills/blog-brief/SKILL.md` 看原版，列增益和代价 |
+
+## 7. 提交拆分
+
+```
+docs(blog-brief): add design for the A-to-B gate as Step 11
+feat(blog-brief): add the A-to-B gate as Step 11
+```
+
+第一个提交只有本文件和上一份文档的状态行。第二个提交是代码、步骤文件、测试和本文件第 6 节的结果。
