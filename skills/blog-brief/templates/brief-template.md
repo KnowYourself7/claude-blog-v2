@@ -1,6 +1,6 @@
-<!-- Output template for the blog-brief skill (Step 8). Fill every [bracket];
+<!-- Output template for the blog-brief skill (Step 9). Fill every [bracket];
      keep the section order. Rules for filling it live in
-     ../references/step-8-generate-brief.md. -->
+     ../references/step-9-generate-brief.md. -->
 
 # Content Brief: [Title Suggestion]
 
@@ -24,13 +24,13 @@
 - **Word count**: [2,000-2,500] words
 - **Reading level**: Flesch 60-70 (expert-accessible)
 - **Format**: [Markdown/MDX/HTML]
-- **H2 sections**: [6-8]
+- **H2 sections**: [the number of H2 sections in Outline V2]
 - **Images**: as the topic needs (original assets, product screenshots, diagrams, or licensed stock); no fixed count
 - **Charts**: as the evidence needs, via built-in blog-chart, choosing the clearest chart type; no fixed count
 - **FAQ items**: Optional 3-5 when People Also Ask or user questions warrant them; not a Google rich-result target
 
 ## Recommended Title
-[Clear title that identifies the page and matches search intent]
+[The title of Outline V2]
 
 Alternative titles:
 1. [Option 2]
@@ -49,61 +49,18 @@ Alternative titles:
 **Gains file**: `briefs/[slug]-information-gain.md`
 
 ## Content Outline
+**Outline file**: `briefs/[slug]-outline.md`
 
-### Introduction
-- Hook: [Specific reader problem, useful finding, or supported evidence]
-- Problem: [What challenge does the reader face?]
-- Promise: [What will they learn?]
-- TL;DR box placement (after hook, before first H2)
-
-### H2: [Intent-Matched Heading]
-- **Facets**: [F1, F3]
-- **Gains**: [I1, I3, or -]
-- **Answer-first**: Open with the section's useful conclusion and support it
-- Cover: [subtopic 1], [subtopic 2]
-- **Image**: [Description of recommended image]
-- **Key stat**: [Specific statistic to include]
-
-### H2: [Intent-Matched Heading]
-- **Facets**: [F1, F3]
-- **Gains**: [I1, I3, or -]
-- **Answer-first**: Open with the section's useful conclusion and support it
-- Cover: [subtopic 1], [subtopic 2]
-- **Chart**: [Type] showing [data description]
-- **Key stat**: [Specific statistic to include]
-
-[... repeat for 6-8 sections ...]
-
-### Optional FAQ Section (3-5 items)
-1. [Question]: Answer with [stat + source when factual and relevant]
-2. [Question]: Answer with [stat + source when factual and relevant]
-3. [Question]: Answer with [stat + source when factual and relevant]
-
-### Conclusion (100-150 words)
-- Key takeaways (bulleted)
-- Call to action: [What should the reader do next?]
+[Outline V2 of the outline file, without its Title line]
 
 ## Statistics to Include
 
-Take each row from an `adopted` source of `briefs/[slug]-evidence-plan.md`.
+One row for each `adopted` source of `briefs/[slug]-evidence-plan.md` that
+the Content Outline cites. # is the source # of the evidence plan.
 
-| # | Statistic | Source | Year | Section |
-|---|-----------|--------|------|---------|
-| 1 | [stat] | [source + URL] | 2025 | H2: Section 1 |
-| 2 | [stat] | [source + URL] | 2026 | H2: Section 2 |
-| ... | ... | ... | ... | ... |
-
-## Evidence-Backed Section Plan
-For important claims, plan a self-contained explanation with enough context
-and verified support to stand alone. Do not prescribe a word band or require a
-statistic for every section.
-
-| Section | Claim Focus | Supporting Evidence | Source |
-|---------|--------------|----------|--------|
-| H2: [Section 1] | [Core claim this section makes] | [stat] | [source] |
-| H2: [Section 2] | [Core claim this section makes] | [stat] | [source] |
-| H2: [Section 3] | [Core claim this section makes] | [stat] | [source] |
-| ... | ... | ... | ... |
+| # | Statistic | Source | Year |
+|---|-----------|--------|------|
+| [source #] | [the words or the number of its Finding] | [source + URL] | [year, or undated] |
 
 ## Cover Image
 
@@ -113,32 +70,13 @@ statistic for every section.
 | Generated SVG | [Text-on-gradient concept with key stat, if data-heavy topic; sanitize to remove scripts and event attributes, or rasterize to PNG before publishing] |
 | Dimensions | 1200x630 (OG-compatible) |
 
-## Visual Element Plan
-
-Take each chart from a source with `yes` in Chart in `briefs/[slug]-evidence-plan.md`.
-
-| # | Type | Data | Section |
-|---|------|------|---------|
-| 1 | [Bar chart] | [Data description] | H2: Section 2 |
-| 2 | [Donut chart] | [Data description] | H2: Section 4 |
-| 3 | [Image: Pixabay] | [Search terms] | H2: Section 1 |
-| 4 | [Image: Pixabay] | [Search terms] | H2: Section 3 |
-
 ## Internal Link Architecture
 - **Link TO** (from this new post to existing pages):
-  1. [Page title/URL] - anchor text: "[descriptive anchor]"
-  2. [Page title/URL] - anchor text: "[descriptive anchor]"
-  3. [Page title/URL] - anchor text: "[descriptive anchor]"
-  4. [Page title/URL] - anchor text: "[descriptive anchor]"
-  5. [Page title/URL] - anchor text: "[descriptive anchor]"
-- **Link FROM** (update these existing pages to link to this new post):
-  1. [Page title/URL] - anchor text: "[descriptive anchor]"
-  2. [Page title/URL] - anchor text: "[descriptive anchor]"
-  3. [Page title/URL] - anchor text: "[descriptive anchor]"
-  4. [Page title/URL] - anchor text: "[descriptive anchor]"
-  5. [Page title/URL] - anchor text: "[descriptive anchor]"
-- **Pillar connection**: [Which pillar page this belongs to, if applicable]
-- **Cluster position**: [Hub / Spoke / Standalone]
+  1. [Page this post supports and a descriptive anchor text, or missing]
+  2. Other pages: missing
+- **Link FROM** (update these existing pages to link to this new post): missing
+- **Pillar connection**: missing
+- **Cluster position**: missing
 
 ## E-E-A-T Signals to Include
 - **Experience**: [Ask for and include first-hand insight, a case study, or test

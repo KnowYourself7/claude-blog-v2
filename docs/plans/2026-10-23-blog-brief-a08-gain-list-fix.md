@@ -115,7 +115,7 @@ Our Difference 要读。Ebestron 的本篇差异是「把跨部件的诊断组�
 |---|---|
 | `skills/blog-brief/references/step-7-information-gain.md` | 重写 Goal、Steps、Check |
 | `skills/blog-brief/templates/information-gain.md` | 删 Main Gain 段；表格换成 ID、The ranking pages give、Gain、Name、Use、Evidence requirement 六列 |
-| `skills/blog-brief/references/step-8-generate-brief.md` | 改一条输入说明、一条检查；一条规则换成三条 |
+| `skills/blog-brief/references/step-9-generate-brief.md` | 改一条输入说明、一条检查；一条规则换成三条 |
 | `skills/blog-brief/templates/brief-template.md` | Information Gain Opportunities 段只留路径；H2 加 Gains 行 |
 | `skills/blog-brief/SKILL.md` | DISCOURSE.md 那句改一个词组，删一句 |
 | `docs/plans/2026-10-23-blog-brief-a08-information-gain.md` | 状态改成「已合并（#14），Step 7 的表格由修正文档取代」 |

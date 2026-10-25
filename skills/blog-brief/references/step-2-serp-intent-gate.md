@@ -65,7 +65,7 @@ blog posts for it.
 
 #### Outputs
 
-- `briefs/[slug]-search-intent.md`. Step 8 copies the reader task,
+- `briefs/[slug]-search-intent.md`. Step 9 copies the reader task,
   the counts, and the decision from it.
 
 #### Check

@@ -78,7 +78,7 @@
 |---|---|
 | `skills/blog-brief/references/step-7-information-gain.md` | 新建 |
 | `skills/blog-brief/templates/information-gain.md` | 新建 |
-| `skills/blog-brief/references/step-8-generate-brief.md` | 由原 Step 7 改名，输入和规则改成读增量文件 |
+| `skills/blog-brief/references/step-9-generate-brief.md` | 由原 Step 7 改名，输入和规则改成读增量文件 |
 | `skills/blog-brief/templates/brief-template.md` | 删一段，改一段 |
 | `skills/blog-brief/SKILL.md` | 步骤表加一行，DISCOURSE.md 那句改指向 |
 | Step 2、5、6 三个步骤文件 | 「Step 7」改成「Step 8」 |

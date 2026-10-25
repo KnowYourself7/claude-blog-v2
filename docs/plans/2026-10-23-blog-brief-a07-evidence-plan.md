@@ -113,7 +113,7 @@ Step 6 改名为「Evidence Plan」，步骤文件改名为 `step-6-evidence-pla
 | `skills/blog-brief/references/step-4-competitor-gaps.md` | 规则里「Step 6 确认后才算事实」改成「Step 6 采用了来源」 |
 | `skills/blog-brief/templates/evidence-plan.md` | 新建 |
 | `skills/blog-brief/references/step-7-information-gain.md` | 输入和 Evidence 的填法 |
-| `skills/blog-brief/references/step-8-generate-brief.md` | Statistics to Include 的来源 |
+| `skills/blog-brief/references/step-9-generate-brief.md` | Statistics to Include 的来源 |
 | `skills/blog-brief/templates/brief-template.md` | Statistics to Include 表的来源说明 |
 | `skills/blog-brief/SKILL.md` | 步骤表 Step 6、7、8 三行的「其他文件」；第 40 行 DISCOURSE.md 里的数字改为交给 Step 6 当问题 |
 | `CLAUDE.md` | 目录树里的模板数量；SKILL.md 那行的「Step 6」改成「Step 9」（上个分支漏改） |
