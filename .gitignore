@@ -69,7 +69,7 @@ demo-output/
 definitive-resesarch-blueprint-for-claude-blog.md
 .github-audit/
 # Personal course notes; their source file lives outside this repo and they fail lint_prose
-/docs/yudong-blog-workflow-小白讲解/
+/docs/yudong/
 
 # Obsidian vault metadata (root only, not nested .obsidian dirs in skills)
 /.obsidian/
