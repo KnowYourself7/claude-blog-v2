@@ -44,9 +44,9 @@ is the research and the outline.
    the user each `fail` item, its detail, and its `redo` step. Wait for
    the answer.
 5. If the user accepts the brief as it is, run
-   `set --step 11 --status in_progress --note "[the answer]"`. Then run
-   `set --step 11 --status done`. If the user asks for a change, do the
-   step of that change again.
+   `set --step 11 --status in_progress`. Then run
+   `set --step 11 --status done --note "[the answer]"`. If the user asks
+   for a change, do the step of that change again.
 
 #### Outputs
 
@@ -55,6 +55,6 @@ is the research and the outline.
 
 #### Check
 
-- `gate` ran after the last change to a brief file.
+- After each change to a brief file, `gate` ran again.
 - Step 11 is `done`, or the user answered a stopped gate.
 - The user saw every `warn` item and every `not built` item.

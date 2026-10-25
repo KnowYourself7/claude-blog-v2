@@ -65,7 +65,9 @@
 5. Claude 按结果做：
    - `done`：把 `warn` 项和待办清单摆给用户，说明简报可以交给 `/blog write`。原 Step 10 最后一句挪到这里。
    - `in_progress` 加 `redo_from`：先把 `fail` 项和要重做的步骤告诉用户，再对那一步跑 `set --status in_progress`（下游自动改回 `pending`，Step 11 也是），从那一步重做，回到 Step 11 再跑 `gate`。
-   - `stopped`：把 `fail` 项摆给用户，等回答。用户要接受现状，Claude 跑 `set --step 11 --status in_progress --note "[用户的选择]"`，再跑 `set --step 11 --status done`；用户要改，就按用户说的步骤重做。
+   - `stopped`：把 `fail` 项摆给用户，等回答。用户要接受现状，Claude 跑 `set --step 11 --status in_progress`，再跑 `set --step 11 --status done --note "[用户的回答]"`；用户要改，就按用户说的步骤重做。
+
+   手动把 Step 11 设成 `done` 有两个条件，由脚本把关：状态文件里要有比 Step 1 到 Step 10 最后一次改动更新的阶段门结果，并且带 `--note` 写用户的回答。这样不跑 `gate` 就绕不过去。接受之后 `gate` 段记 `accepted`，下一次 `fail` 重新从 1 数。
 
 为什么让脚本改 Step 11 的状态：要不要停、连续几次，每次结果都该一样，交给脚本，Claude 少记一条规则。
 
@@ -87,10 +89,13 @@
 | 证据 | 第二版的 Still Open | 不是 `none` 就 warn，列出内容 | - |
 | 证据 | 语义基线 | not built | - |
 
-补充两条规则：
+补充规则：
 
 - FAQ 的 Evidence 也查材料号。这是比上一份文档多的一处。课程的结构清楚一项写了「常见问题」（p.127），FAQ 的答案同样会进正文。
 - 文件里找不到要解析的段落或表时，该项 `fail`，重做产出这个文件的步骤。例子：大纲没有 Outline V2 一节。
+- 材料号只取 Evidence 里每个逗号项开头的数字，括号里的字不算。例子：`1, 3 (estimated, 2019)` 只取 1 和 3。表格里转义的竖线 `\|` 不拆格。
+- 几处写法放宽：Weak 列不分大小写；支撑页以 `missing` 开头就算缺；Still Open 写 `- none` 也算没有。Still Open 还留着方括号时 `fail`，重做 Step 8。
+- Introduction 的 Hook 和各 H2 的 Components 里的材料号不查。那里是自由文字，数字不一定是材料号（例子：「12 rows」），脚本分不清。这两处仍由 Step 8 的 Check 管。
 
 ### 4.4 输出
 
@@ -113,7 +118,7 @@
 - `result`：有 `fail` 就是 `fail`，否则有 `warn` 就是 `warn`，否则 `pass`。`not built` 不影响结果。
 - `attempt`：连续 `fail` 的次数。上一次不是 `fail` 时从 1 开始；这次没有 `fail` 时是 0。
 - `credits`：文件里找不到数字就写 `null`，不写 0。
-- 重跑前面的步骤时，`set` 只把 Step 11 改回 `pending`，`gate` 段留着，下一次 `gate` 靠它数连续次数。`gate` 段只在 Step 11 是 `done` 时代表当前简报。
+- 重跑前面的步骤时，`set` 只把 Step 11 改回 `pending`，`gate` 段留着，下一次 `gate` 靠它数连续次数。用户接受后，`gate` 段多一个 `accepted: true`。`gate` 段只在 Step 11 是 `done` 时代表当前简报。
 
 ### 4.5 下游怎么变
 
@@ -150,11 +155,12 @@
 | 验证项 | 结果 |
 |---|---|
 | 先看到失败 | 先写 19 项阶段门测试，`gate` 还不存在时全部失败；写完脚本后有 1 项仍失败，原因是测试本身只改了大纲的 Still Open、没改简报，阶段门正确地报了 Content Outline 不一致。补上简报后全过 |
-| 脚本单元测试 | `tests/test_brief_state.py` 共 33 项，新加 19 项：Step 11 不是 `in_progress` 时报错；全过；`warn` 三项；11 种 `fail` 各指对重做的步骤；连续两次 `fail` 停下；重做后 Step 11 改回 `pending`、`gate` 段保留、下一次能过；用户接受停下的阶段门 |
+| 脚本单元测试 | `tests/test_brief_state.py` 共 39 项（参数化用例逐个算），比 `main` 的 13 项多 26 项。第一次提交时是 30 项，之前写成「33 项，新加 19 项」，是数错了，审查时发现。内容：Step 11 不是 `in_progress` 时报错；全过；`warn` 三项；11 种 `fail` 各指对重做的步骤；连续两次 `fail` 停下；重做后 Step 11 改回 `pending`、`gate` 段保留、下一次能过；用户接受停下的阶段门。审查后加 9 项：转义竖线、3 种 Evidence 写法、宽松写法、Still Open 没填、没有阶段门结果不能设 `done`、手动 `done` 要 `--note`、接受后重新计数 |
 | 仓库检查 | 见 6.4 |
 | 整篇重读 | 脚本：赋值给变量的 lambda 改成函数，嵌套三元表达式拆成 if/elif，Content Outline 不一致时改为直接列出两边不同的那一行（原来报「第几行」，数的是去掉空行后的行号，用户对不上文件），删掉 `cmd_gate` 里没用的 `load_steps()`。步骤文件：没删句子 |
 | 模拟跑（子代理，Haiku，只读 SKILL.md 和 Step 11 步骤文件） | 三个场景（第一次 `fail`、第二次 `fail` 后用户说照写、`warn`）命令全部走对。提了 9 处疑问，补了 4 处：SKILL.md 写「gate 设状态」和步骤文件第 5 条手动 `set done` 冲突，改成「Step 11 照它的步骤文件做」；第一次 `fail` 时先告诉用户；重做「一直做到这一步」；加一条规则：`warn` 不挡简报，由用户决定。没补的 5 处：重做是否要问积分（各步骤自己管）、`fail` 还在时用户照写怎么办（就是用户的决定，note 记下）、`set done` 会不会被接受（会，Step 11 没有产出文件）、stopped 的 note 谁写（脚本写，Claude 只需转述）、重做时 Step 11 的状态（脚本自动改回 `pending`） |
 | 真实产物跑 | Coofandy「can you wear linen in winter」：Step 1 到 4 用主目录的文件，证据计划用 `rerun-2026-10-23-evidence-plan`，增量用 `rerun-2026-10-24-gain-list-5`，大纲和简报用 `rerun-2026-10-24-outline-2`，拼在 scratchpad 里，不进仓库。结果 `warn`：9 个面、6 个增量、13 个材料号全对上，和上一份文档的手工模拟一致；两条 `warn` 是支撑页 `missing` 和 Still Open 一条；Step 4 积分 5，Step 6 积分 `null`（那版证据计划还没有 Actual credits 列）。然后把大纲里一处 Evidence 加上材料 2（证据计划里是 `reference`）：第一次 `fail`，`redo_from` 8，同时报 Content Outline 不一致（重做 Step 9），第二次 `fail` 后 Step 11 变成 `stopped` |
+| 对照瑜东审查（子代理，独立，只给课程和代码） | 课程 p.127 的要求都落实了或在 6.2 写明。挑出 2 处必须改、5 处建议改、1 组可不改，全部核实属实。改了：转义竖线 `\|` 被拆格，标题带竖线的已采用材料被误报（必须改）；开发文档测试数写错（必须改）；Evidence 行里年份、小写 narrower claim 后面的数字被当成材料号；接受停下的阶段门后连续次数不清零，下一次第一次 `fail` 就停；不跑 `gate` 也能手动把 Step 11 设成 `done`；Weak 大写、`missing (…)`、`- none`、Still Open 留方括号几种写法；Check 里「gate 在最后一次改动之后跑过」Claude 没法核对，改成「每次改动后再跑一次」。没改：Hook 和 Components 的材料号不查，理由见 4.3；6.2 那一行改成部分符合。真实产物复跑：接受后重做 Step 8，新一轮 `attempt` 从 0 开始，结果 `warn` |
 | 对照瑜东（提交前评估） | 见 6.2 |
 | 对照上游原版（提交前评估） | 见 6.3 |
 
@@ -168,7 +174,7 @@
 | 结构清楚：需求面与第二版大纲 | 保留面和第二版 Facets 行双向核对 | 符合 |
 | 结构清楚：章节、常见问题、内链 | 章节有材料号或收窄说法；FAQ 的材料号也查；简报和第二版一致。内链只由 Step 8 的 Check 管 | 部分符合：内链要判断，脚本不查 |
 | 结构清楚：计算器候选的取舍 | 第一版 Calculator 行必须填写 | 符合 |
-| 证据清楚：研究计划与来源线索 | 引用的材料号都是 `adopted`；薄弱问题 `warn` | 符合 |
+| 证据清楚：研究计划与来源线索 | H2 和 FAQ 引用的材料号都是 `adopted`；薄弱问题 `warn` | 部分符合：Hook 和 Components 里的材料号是自由文字，脚本不查，由 Step 8 的 Check 管 |
 | 证据清楚：待验证声明和信息增量 | Still Open `warn`；每个增量进第二版 | 符合 |
 | 证据清楚：语义基线、状态与预算 | 语义基线 `not built`；状态来自状态文件；积分只报告 | 部分符合：A·09 没做，预算上限随 A·02 再定 |
 | 产物落盘 | Step 1 到 Step 10 记录的产出文件都要在 | 符合 |
@@ -201,6 +207,7 @@
 ```
 docs(blog-brief): add design for the A-to-B gate as Step 11
 feat(blog-brief): add the A-to-B gate as Step 11
+fix(blog-brief): fix gate parsing and acceptance found in review
 ```
 
-第一个提交只有本文件和上一份文档的状态行。第二个提交是代码、步骤文件、测试和本文件第 6 节的结果。
+第一个提交只有本文件和上一份文档的状态行。第二个提交是代码、步骤文件、测试和本文件第 6 节的结果。第三个提交是审查后的修改。

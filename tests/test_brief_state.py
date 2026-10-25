@@ -520,9 +520,83 @@ def test_the_user_can_accept_a_stopped_gate(out_dir, capsys):
     _cite_rejected(out_dir)
     _gate(capsys, out_dir)
     _gate(capsys, out_dir)
-    code, _ = _run(capsys, out_dir, "set", "--step", "11", "--status", "in_progress",
-                   "--note", "Write anyway. Source 2 stays.")
+    code, _ = _run(capsys, out_dir, "set", "--step", "11", "--status", "in_progress")
     assert code == 0
-    code, result = _run(capsys, out_dir, "set", "--step", "11", "--status", "done")
+    code, result = _run(capsys, out_dir, "set", "--step", "11", "--status", "done",
+                        "--note", "Write anyway. Source 2 stays.")
     assert code == 0
     assert _state(out_dir)["steps"]["11"]["note"] == "Write anyway. Source 2 stays."
+
+
+def test_gate_reads_an_escaped_pipe_in_a_table_cell(out_dir, capsys):
+    _start_gate(capsys, out_dir)
+    _edit(out_dir, "evidence-plan.md", "| 3 | E1 | A lab test |", "| 3 | E1 | Linen Lab \\| Fabric Test |")
+    assert _gate(capsys, out_dir)["gate"]["result"] == "pass"
+
+
+@pytest.mark.parametrize(
+    "evidence",
+    [
+        "- Evidence: 1, 3 (estimated, 2019). Narrower claim: -",
+        "- Evidence: 1, 3 estimated. narrower claim: Only 20 of the shirts.",
+        "- Evidence: 1, 3 estimated. Narrower claim: Only 20 of the shirts.",
+    ],
+)
+def test_gate_takes_only_the_source_numbers_of_an_evidence_line(out_dir, capsys, evidence):
+    _start_gate(capsys, out_dir)
+    for name in ("outline.md", "brief.md"):
+        _edit(out_dir, name, "- Evidence: 1, 3 estimated. Narrower claim: -", evidence)
+    result = _gate(capsys, out_dir)
+    assert result["gate"]["result"] == "pass", result["gate"]["items"]
+
+
+def test_gate_reads_loose_spellings_of_none_missing_and_yes(out_dir, capsys):
+    _start_gate(capsys, out_dir)
+    _edit(out_dir, "task-brief.md", "https://example.com/linen-shirts", "missing (no product page yet)")
+    _edit(out_dir, "evidence-plan.md", "| a band | no |", "| a band | Yes |")
+    for name in ("outline.md", "brief.md"):
+        _edit(out_dir, name, "### Still Open\nnone", "### Still Open\n- None.")
+    result = _gate(capsys, out_dir)
+    assert {item["check"] for item in _items(result, "warn")} == {"Page this post supports", "Weak questions"}
+
+
+def test_gate_fails_an_unfilled_still_open(out_dir, capsys):
+    _start_gate(capsys, out_dir)
+    for name in ("outline.md", "brief.md"):
+        _edit(out_dir, name, "### Still Open\nnone", "### Still Open\n[Each claim of V2, or none.]")
+    result = _gate(capsys, out_dir)
+    assert {item["check"]: item["redo"] for item in _items(result, "fail")} == {"Still Open": 8}
+
+
+def test_step_11_cannot_be_done_without_a_current_gate(out_dir, capsys):
+    _start_gate(capsys, out_dir)
+    code, result = _run(capsys, out_dir, "set", "--step", "11", "--status", "done", "--note", "skip")
+    assert code == 1
+    assert "gate" in result["error"]
+
+
+def test_step_11_done_by_hand_needs_the_answer_of_the_user(out_dir, capsys):
+    _start_gate(capsys, out_dir)
+    _cite_rejected(out_dir)
+    _gate(capsys, out_dir)
+    _gate(capsys, out_dir)
+    _run(capsys, out_dir, "set", "--step", "11", "--status", "in_progress")
+    code, result = _run(capsys, out_dir, "set", "--step", "11", "--status", "done")
+    assert code == 1
+    assert "--note" in result["error"]
+
+
+def test_an_accepted_gate_starts_a_new_count_of_fails(out_dir, capsys):
+    _start_gate(capsys, out_dir)
+    _cite_rejected(out_dir)
+    _gate(capsys, out_dir)
+    _gate(capsys, out_dir)
+    _run(capsys, out_dir, "set", "--step", "11", "--status", "in_progress")
+    _run(capsys, out_dir, "set", "--step", "11", "--status", "done", "--note", "Write anyway.")
+    for step in (8, 9, 10, 11):
+        _run(capsys, out_dir, "set", "--step", str(step), "--status", "in_progress")
+        if step != 11:
+            _run(capsys, out_dir, "set", "--step", str(step), "--status", "done")
+    result = _gate(capsys, out_dir)
+    assert result["gate"]["attempt"] == 1
+    assert _state(out_dir)["steps"]["11"]["status"] == "in_progress"

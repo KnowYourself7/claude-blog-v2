@@ -24,7 +24,9 @@ Subcommands:
           the files of Step 1 to Step 10 against each other, and write the
           result into the "gate" section of the state file. With no fail,
           Step 11 becomes done. With a fail, redo_from names the earliest
-          step to do again. A second fail in a row stops Step 11.
+          step to do again. A second fail in a row stops Step 11. To accept
+          the brief after a gate, set Step 11 to done with --note and the
+          answer of the user. That starts a new count of fails.
 
 Every subcommand prints a JSON summary on stdout. Errors are JSON
 {"error": ...} on stdout with exit code 1.
@@ -218,6 +220,9 @@ def cmd_set(args: argparse.Namespace) -> dict:
     if args.status == "stopped" and not args.note:
         raise StateError("stopped needs --note with the question to the user")
 
+    if args.status == "done" and args.step == GATE_STEP:
+        accept_gate(state, steps, args.note)
+
     if args.status == "done":
         if args.file:
             missing = [f for f in args.file if not Path(f).is_file()]
@@ -240,6 +245,7 @@ def cmd_set(args: argparse.Namespace) -> dict:
 
 GATE_STEP = 11
 GATE_STOP_AFTER = 2  # fails in a row. A project rule, not a rule of the course.
+NARROWER_CLAIM = re.compile(r"narrower claim:", re.I)
 
 
 class GateFail(Exception):
@@ -288,7 +294,9 @@ def table_rows(text: str) -> list[dict[str, str]]:
 
 
 def table_cells(line: str) -> list[str]:
-    return [cell.strip() for cell in line.strip().strip("|").split("|")]
+    """Split a table row at each `|` that is not escaped as `\\|`."""
+    cells = re.split(r"(?<!\\)\|", line.strip().strip("|"))
+    return [cell.replace("\\|", "|").strip() for cell in cells]
 
 
 def line_value(text: str, label: str) -> str | None:
@@ -298,7 +306,14 @@ def line_value(text: str, label: str) -> str | None:
 
 
 def source_numbers(evidence: str) -> set[int]:
-    return {int(n) for n in re.findall(r"\b\d+\b", evidence)}
+    """Return the number at the start of each comma item. Text in brackets is not a source #."""
+    without_brackets = re.sub(r"\([^)]*\)", "", evidence)
+    numbers = set()
+    for item in without_brackets.split(","):
+        match = re.match(r"\s*(\d+)\b", item)
+        if match:
+            numbers.add(int(match.group(1)))
+    return numbers
 
 
 def outline_v2_blocks(outline_v2: str) -> tuple[list[dict], str, str]:
@@ -309,7 +324,7 @@ def outline_v2_blocks(outline_v2: str) -> tuple[list[dict], str, str]:
         title = block.splitlines()[0] if block.strip() else ""
         if title.startswith("### H2:"):
             evidence_line = line_value(block, "Evidence") or ""
-            evidence, _, claim = evidence_line.partition("Narrower claim:")
+            evidence, _, claim = NARROWER_CLAIM.sub("Narrower claim:", evidence_line).partition("Narrower claim:")
             h2_blocks.append({
                 "heading": title.removeprefix("### H2:").strip(),
                 "facets": set(re.findall(r"\bF\d+\b", line_value(block, "Facets") or "")),
@@ -375,7 +390,7 @@ def gate_checks(state: dict) -> tuple[list[dict], dict]:
         page = next((row.get("Value", "") for row in rows if row.get("Item") == "Page this post supports"), None)
         if page is None:
             raise GateFail(1, "task-brief.md has no Page this post supports row")
-        if page == "missing":
+        if page.lower().startswith("missing"):
             return "warn", "No page to link to. The post has no internal link."
         return "pass", page
 
@@ -454,14 +469,17 @@ def gate_checks(state: dict) -> tuple[list[dict], dict]:
 
     def weak_questions():
         rows = table_rows(section(read(6, "-evidence-plan.md"), "## Questions", 6, "evidence-plan.md"))
-        weak = [f"{row.get('ID')}: {row.get('Question')}" for row in rows if row.get("Weak") == "yes"]
+        weak = [f"{row.get('ID')}: {row.get('Question')}" for row in rows if row.get("Weak", "").lower() == "yes"]
         return ("warn", "; ".join(weak)) if weak else ("pass", "")
 
     def still_open():
         _, _, open_text = outline_v2_blocks(outline_v2())
-        if open_text.lower().rstrip(".") in ("", "none"):
+        claims = [line.strip().lstrip("-").strip() for line in open_text.splitlines() if line.strip()]
+        if "[" in open_text:
+            return "fail", f"Still Open is not filled: {' '.join(claims)}"
+        if all(claim.lower().rstrip(".") == "none" for claim in claims):
             return "pass", ""
-        return "warn", " ".join(line.lstrip("- ").strip() for line in open_text.splitlines() if line.strip())
+        return "warn", " ".join(claims)
 
     check("evidence", "Adopted sources", 8, adopted_sources)
     check("evidence", "Evidence or narrower claim", 8, evidence_or_claim)
@@ -492,6 +510,17 @@ def step_6_credits(state: dict) -> int | None:
     return int(value) if value.isdigit() else None
 
 
+def accept_gate(state: dict, steps: dict[int, list[str]], answer: str | None) -> None:
+    """Let the user accept the brief after a gate. The gate must be newer than Step 1 to Step 10."""
+    gate = state.get("gate")
+    last_change = max(state["steps"][str(n)]["updated"] for n in steps if n < GATE_STEP)
+    if not gate or gate["checked"] < last_change:
+        raise StateError(f"Step {GATE_STEP} has no gate result for the current files. Run gate first")
+    if not answer:
+        raise StateError(f"Step {GATE_STEP} done by hand needs --note with the answer of the user")
+    gate["accepted"] = True
+
+
 def cmd_gate(args: argparse.Namespace) -> dict:
     path = state_path(Path(args.out), args.slug)
     if not path.exists():
@@ -508,7 +537,7 @@ def cmd_gate(args: argparse.Namespace) -> dict:
     previous = state.get("gate") or {}
     if not failed:
         attempt = 0
-    elif previous.get("result") == "fail":
+    elif previous.get("result") == "fail" and not previous.get("accepted"):
         attempt = previous.get("attempt", 0) + 1
     else:
         attempt = 1
