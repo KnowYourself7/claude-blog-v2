@@ -45,24 +45,31 @@ For evidence-led keyword discovery, audience-avatar prompts, and content priorit
 
 ## Workflow
 
-Do the steps in the order of the table. Before you start a step, read
-its step file completely. Do not read a step file before you start
-that step.
+Copy this progress list into your reply. Do the steps in this order.
+Before you start a step, read its step file completely. Do not read a
+step file before you start that step. When every item in the `Check`
+section of a step is true, mark the step as done. Do not start the
+next step before that.
 
-Paths in the step files are relative to this skill folder:
-`${CLAUDE_SKILL_DIR}`.
+Step files are in `${CLAUDE_SKILL_DIR}/references/`. Paths in the step
+files are relative to `${CLAUDE_SKILL_DIR}`. Output files are in
+`briefs/` and start with `[slug]-`. "Uses" names the steps whose output
+the step reads. "Can stop" means that the step can stop and ask the
+user a question. If it stops, wait for the answer.
 
-| Step | Step file | Other files that the step reads |
-|---|---|---|
-| Step 1: Topic Intake | `${CLAUDE_SKILL_DIR}/references/step-1-topic-intake.md` | `${CLAUDE_SKILL_DIR}/templates/task-brief.md` |
-| Step 2: SERP Intent Gate | `${CLAUDE_SKILL_DIR}/references/step-2-serp-intent-gate.md` | `${CLAUDE_SKILL_DIR}/templates/search-intent.md` |
-| Step 3: Keywords to Demand Facets | `${CLAUDE_SKILL_DIR}/references/step-3-demand-facets.md` | `${CLAUDE_SKILL_DIR}/templates/keyword-research.md`, `${CLAUDE_SKILL_DIR}/templates/demand-facets.md`, `${CLAUDE_SKILL_DIR}/scripts/keyword_pool.py`, the Step 1 and Step 2 output files |
-| Step 4: Competitor Gap List | `${CLAUDE_SKILL_DIR}/references/step-4-competitor-gaps.md` | `${CLAUDE_SKILL_DIR}/templates/competitor-gaps.md`, `${CLAUDE_SKILL_DIR}/templates/competitor-details.md`, the Step 2 and Step 3 output files |
-| Step 5: Template Recommendation | `${CLAUDE_SKILL_DIR}/references/step-5-template-recommendation.md` | `${CLAUDE_SKILL_DIR}/../blog/references/content-templates.md`, the Step 4 competitor details files, `${CLAUDE_SKILL_DIR}/../blog/templates/[type].md` |
-| Step 6: Evidence Plan | `${CLAUDE_SKILL_DIR}/references/step-6-evidence-plan.md` | `${CLAUDE_SKILL_DIR}/templates/evidence-plan.md`, the Step 3 and Step 4 output files |
-| Step 7: Information Gain | `${CLAUDE_SKILL_DIR}/references/step-7-information-gain.md` | `${CLAUDE_SKILL_DIR}/templates/information-gain.md`, the Step 1, Step 4, and Step 6 output files |
-| Step 8: Outline | `${CLAUDE_SKILL_DIR}/references/step-8-outline.md` | `${CLAUDE_SKILL_DIR}/templates/outline.md`, the Step 1, Step 2, Step 3, Step 6, and Step 7 output files |
-| Step 9: Generate the Brief | `${CLAUDE_SKILL_DIR}/references/step-9-generate-brief.md` | `${CLAUDE_SKILL_DIR}/templates/brief-template.md`, the Step 1, Step 2, Step 6, Step 7, and Step 8 output files |
+```
+Brief Progress:
+- [ ] Step 1: Topic Intake. Read step-1-topic-intake.md. Output: task-brief.md.
+- [ ] Step 2: SERP Intent Gate. Read step-2-serp-intent-gate.md. Uses Step 1. Output: search-intent.md. Can stop.
+- [ ] Step 3: Keywords to Demand Facets. Read step-3-demand-facets.md. Uses Step 1, Step 2. Output: keyword-research.md, demand-facets.md, and the work files that the step file lists. Can stop.
+- [ ] Step 4: Competitor Gap List. Read step-4-competitor-gaps.md. Uses Step 2, Step 3. Output: competitor-gaps.md, competitor-[n].md.
+- [ ] Step 5: Template Recommendation. Read step-5-template-recommendation.md. Uses Step 2, Step 4. Output: no file. Keep the template and the reason for Step 9.
+- [ ] Step 6: Evidence Plan. Read step-6-evidence-plan.md. Uses Step 3, Step 4. Output: evidence-plan.md.
+- [ ] Step 7: Information Gain. Read step-7-information-gain.md. Uses Step 1, Step 4, Step 6. Output: information-gain.md.
+- [ ] Step 8: Outline. Read step-8-outline.md. Uses Step 1, Step 2, Step 3, Step 6, Step 7. Output: outline.md.
+- [ ] Step 9: Generate the Brief. Read step-9-generate-brief.md. Uses Step 1, Step 2, Step 5, Step 6, Step 7, Step 8. Output: the filled brief, no file.
+- [ ] Step 10: Save the Brief. Read the Step 10 section below. Uses Step 9. Output: brief.md.
+```
 
 ### Step 10: Save the Brief
 
