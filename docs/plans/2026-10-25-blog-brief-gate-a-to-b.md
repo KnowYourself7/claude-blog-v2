@@ -3,7 +3,7 @@
 | 项目 | 内容 |
 |---|---|
 | 日期 | 2026-10-25 |
-| 状态 | 实施中 |
+| 状态 | 已实施，等合并 |
 | 分支 | feat/blog-brief-gate-a-to-b，从 `main` 的 10ea95d 开 |
 | 依据 | 第 05 课 A→B 阶段门三项检查、产物落盘、检查不等于人工确认（p.127）；第 00 课每一步有输入、产物和验收（p.106），质量门要说清「哪一步有问题、为什么、怎么修」（p.29）；Anthropic 官方 Skill authoring best practices「Create verifiable intermediate outputs」：中间产物用脚本校验，出错信息指明具体问题，https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices |
 | 上一份文档 | `docs/plans/2026-10-25-blog-brief-run-state-and-gate.md`：状态文件和阶段门的总方案，2026-10-25 用户确认。本文件是其中第二个分支的细化，背景和原因只摘要，详见那份文档第 3 节 |
@@ -64,7 +64,7 @@
    - 有 `fail`，上一次也是 `fail`：Step 11 改成 `stopped`，note 列出 `fail` 项。连续两次就停是本项目的规则，课程没写，为了不让 Claude 在同一个错上来回重做。
 5. Claude 按结果做：
    - `done`：把 `warn` 项和待办清单摆给用户，说明简报可以交给 `/blog write`。原 Step 10 最后一句挪到这里。
-   - `in_progress` 加 `redo_from`：对那一步跑 `set --status in_progress`（下游自动改回 `pending`，Step 11 也是），从那一步重做，回到 Step 11 再跑 `gate`。
+   - `in_progress` 加 `redo_from`：先把 `fail` 项和要重做的步骤告诉用户，再对那一步跑 `set --status in_progress`（下游自动改回 `pending`，Step 11 也是），从那一步重做，回到 Step 11 再跑 `gate`。
    - `stopped`：把 `fail` 项摆给用户，等回答。用户要接受现状，Claude 跑 `set --step 11 --status in_progress --note "[用户的选择]"`，再跑 `set --step 11 --status done`；用户要改，就按用户说的步骤重做。
 
 为什么让脚本改 Step 11 的状态：要不要停、连续几次，每次结果都该一样，交给脚本，Claude 少记一条规则。
@@ -111,7 +111,7 @@
 ```
 
 - `result`：有 `fail` 就是 `fail`，否则有 `warn` 就是 `warn`，否则 `pass`。`not built` 不影响结果。
-- `attempt`：连续 `fail` 的次数。上一次不是 `fail` 时从 1 开始。
+- `attempt`：连续 `fail` 的次数。上一次不是 `fail` 时从 1 开始；这次没有 `fail` 时是 0。
 - `credits`：文件里找不到数字就写 `null`，不写 0。
 - 重跑前面的步骤时，`set` 只把 Step 11 改回 `pending`，`gate` 段留着，下一次 `gate` 靠它数连续次数。`gate` 段只在 Step 11 是 `done` 时代表当前简报。
 
@@ -126,7 +126,7 @@
 |---|---|
 | `skills/blog-brief/scripts/brief_state.py` | 加 `gate` 子命令和各项检查；docstring 加说明 |
 | `skills/blog-brief/references/step-11-a-to-b-gate.md` | 新建，六段格式 |
-| `skills/blog-brief/SKILL.md` | 清单加 Step 11；Step 10 去掉最后一句 |
+| `skills/blog-brief/SKILL.md` | 清单加 Step 11；Step 10 去掉最后一句；State File 第 3 条加一句：Step 11 照它的步骤文件做 |
 | `tests/test_brief_state.py` | 步骤数改成 11；加阶段门测试 |
 | `tests/test_blog_brief_workflow.py` | 步骤数改成 11 |
 | `CLAUDE.md` | blog-brief 步骤文件数改成 10，脚本说明加阶段门 |
@@ -145,16 +145,56 @@
 
 ## 6. 验证
 
-| 验证项 | 打算怎么验 |
+### 6.1 结果
+
+| 验证项 | 结果 |
 |---|---|
-| 先看到失败 | 先写阶段门测试，`gate` 还不存在时测试失败 |
-| 脚本单元测试 | 一份自己编的全过的简报；每类 `fail` 至少一个用例，故意弄坏一处，看它是否指对要重做的步骤；`warn`；连续两次 `fail` 停下；Step 11 不是 `in_progress` 时报错 |
-| 仓库检查 | `pytest`、`validate_skills.py`、`consistency_check.py`（看 errors）、`lint_prose.py` |
-| 整篇重读 | 每个改过的文件从头读，每句问谁需要、删了坏什么、别处是否已写 |
-| 模拟跑 | 子代理只读 SKILL.md 和 Step 11 步骤文件，给它一份 `fail` 的阶段门输出，看它是否知道下一步做什么 |
-| 真实产物跑 | 把 Coofandy 第 2 次大纲真实跑的文件拼成一套放进 scratchpad，跑 `gate`，预期没有 `fail`；再把大纲里一个材料号改成证据计划里不是 `adopted` 的号，预期 `fail` 指向 Step 8 |
-| 对照瑜东（提交前评估） | 逐项列第 05 课阶段门的要求、现在怎么做、结论 |
-| 对照上游原版（提交前评估） | `git show 3544423:skills/blog-brief/SKILL.md` 看原版，列增益和代价 |
+| 先看到失败 | 先写 19 项阶段门测试，`gate` 还不存在时全部失败；写完脚本后有 1 项仍失败，原因是测试本身只改了大纲的 Still Open、没改简报，阶段门正确地报了 Content Outline 不一致。补上简报后全过 |
+| 脚本单元测试 | `tests/test_brief_state.py` 共 33 项，新加 19 项：Step 11 不是 `in_progress` 时报错；全过；`warn` 三项；11 种 `fail` 各指对重做的步骤；连续两次 `fail` 停下；重做后 Step 11 改回 `pending`、`gate` 段保留、下一次能过；用户接受停下的阶段门 |
+| 仓库检查 | 见 6.4 |
+| 整篇重读 | 脚本：赋值给变量的 lambda 改成函数，嵌套三元表达式拆成 if/elif，Content Outline 不一致时改为直接列出两边不同的那一行（原来报「第几行」，数的是去掉空行后的行号，用户对不上文件），删掉 `cmd_gate` 里没用的 `load_steps()`。步骤文件：没删句子 |
+| 模拟跑（子代理，Haiku，只读 SKILL.md 和 Step 11 步骤文件） | 三个场景（第一次 `fail`、第二次 `fail` 后用户说照写、`warn`）命令全部走对。提了 9 处疑问，补了 4 处：SKILL.md 写「gate 设状态」和步骤文件第 5 条手动 `set done` 冲突，改成「Step 11 照它的步骤文件做」；第一次 `fail` 时先告诉用户；重做「一直做到这一步」；加一条规则：`warn` 不挡简报，由用户决定。没补的 5 处：重做是否要问积分（各步骤自己管）、`fail` 还在时用户照写怎么办（就是用户的决定，note 记下）、`set done` 会不会被接受（会，Step 11 没有产出文件）、stopped 的 note 谁写（脚本写，Claude 只需转述）、重做时 Step 11 的状态（脚本自动改回 `pending`） |
+| 真实产物跑 | Coofandy「can you wear linen in winter」：Step 1 到 4 用主目录的文件，证据计划用 `rerun-2026-10-23-evidence-plan`，增量用 `rerun-2026-10-24-gain-list-5`，大纲和简报用 `rerun-2026-10-24-outline-2`，拼在 scratchpad 里，不进仓库。结果 `warn`：9 个面、6 个增量、13 个材料号全对上，和上一份文档的手工模拟一致；两条 `warn` 是支撑页 `missing` 和 Still Open 一条；Step 4 积分 5，Step 6 积分 `null`（那版证据计划还没有 Actual credits 列）。然后把大纲里一处 Evidence 加上材料 2（证据计划里是 `reference`）：第一次 `fail`，`redo_from` 8，同时报 Content Outline 不一致（重做 Step 9），第二次 `fail` 后 Step 11 变成 `stopped` |
+| 对照瑜东（提交前评估） | 见 6.2 |
+| 对照上游原版（提交前评估） | 见 6.3 |
+
+### 6.2 对照瑜东第 05 课 A→B 阶段门（p.127）
+
+| 课程要求 | 现在 | 结论 |
+|---|---|---|
+| 方向清楚：关键词与搜索意图 | SERP 判定必须是 `continue` 或用户选了照写 | 符合 |
+| 方向清楚：读者任务和页面职责 | 支撑页 `missing` 时 `warn`；读者任务由 Step 2 的 Check 管 | 部分符合：读者任务写得好不好要判断，脚本不查 |
+| 方向清楚：竞争机会与风险处置 | `not built` | 不符合，A·04 还没做，按路线图暂缓 |
+| 结构清楚：需求面与第二版大纲 | 保留面和第二版 Facets 行双向核对 | 符合 |
+| 结构清楚：章节、常见问题、内链 | 章节有材料号或收窄说法；FAQ 的材料号也查；简报和第二版一致。内链只由 Step 8 的 Check 管 | 部分符合：内链要判断，脚本不查 |
+| 结构清楚：计算器候选的取舍 | 第一版 Calculator 行必须填写 | 符合 |
+| 证据清楚：研究计划与来源线索 | 引用的材料号都是 `adopted`；薄弱问题 `warn` | 符合 |
+| 证据清楚：待验证声明和信息增量 | Still Open `warn`；每个增量进第二版 | 符合 |
+| 证据清楚：语义基线、状态与预算 | 语义基线 `not built`；状态来自状态文件；积分只报告 | 部分符合：A·09 没做，预算上限随 A·02 再定 |
+| 产物落盘 | Step 1 到 Step 10 记录的产出文件都要在 | 符合 |
+| 检查不等于每阶段都要人工确认 | 没有 `fail` 就直接 `done`，只把 `warn` 告诉用户，不停下 | 符合 |
+| 阶段门由脚本检查 | `brief_state.py gate` | 符合。课程没展示脚本，检查项是我们按三项检查自己定的 |
+
+课程里没有、我们自己加的：连续两次 `fail` 就停（为了不在同一个错上来回重做）；`fail` 时写明从哪一步重做（依据第 00 课 p.29「哪一步有问题、为什么、怎么修」）。
+
+### 6.3 对照上游原版
+
+上游 `3544423` 的 blog-brief 最后一句是「Confirm the brief is ready for `/blog write`」（原版 SKILL.md 第 290 行），之前没有任何跨文件检查，也没有中间文件可查。
+
+| | 内容 |
+|---|---|
+| 增益 | 简报交出前，面、增量、材料号、简报和大纲是否对得上，由脚本核对，不靠 Claude 自评；重跑或手改后，引用了没采用的材料会被拦下并指明从 Step 8 重做；待办（支撑页缺失、Still Open、薄弱问题、没做的 A·04 和 A·09）一次摆给用户 |
+| 代价 | 多一步：两次脚本调用，输出约 80 行 JSON；SKILL.md 多 1 行，步骤文件 60 行，脚本多约 300 行 |
+| 证据 | 单元测试、一次模拟跑、一次真实产物跑（含一次故意弄坏）。正常跑时它挑不出新错，增益主要在重跑和手改之后；真实会话里从 Step 1 跑到 Step 11 还没做过 |
+
+### 6.4 仓库检查
+
+| 检查 | 结果 |
+|---|---|
+| `pytest tests/` | 1580 通过、6 跳过（4 分 15 秒）。之后改了步骤文件措辞和脚本写法，复跑 `test_brief_state.py`、`test_blog_brief_workflow.py`、`test_editorial_contracts.py` 全过 |
+| `validate_skills.py --root .` | 通过 |
+| `consistency_check.py --root .` | errors 为空。工作区里还没提交的 blog-write 开发文档会报 6 个 errors，那份文件不在这个分支里 |
+| `lint_prose.py` | 本分支的文件 0 处。报出的 43 处都在 `.gitignore` 忽略的课程笔记文件夹里 |
 
 ## 7. 提交拆分
 

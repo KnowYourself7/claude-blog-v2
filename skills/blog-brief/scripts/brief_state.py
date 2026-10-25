@@ -20,6 +20,11 @@ Subcommands:
           step before it is done. Starting a step again sets every later step
           back to pending. Done needs the output files that the checklist
           lists, or the files given with --file.
+    gate  The A-to-B gate (Step 11). Step 11 must be in_progress. Check
+          the files of Step 1 to Step 10 against each other, and write the
+          result into the "gate" section of the state file. With no fail,
+          Step 11 becomes done. With a fail, redo_from names the earliest
+          step to do again. A second fail in a row stops Step 11.
 
 Every subcommand prints a JSON summary on stdout. Errors are JSON
 {"error": ...} on stdout with exit code 1.
@@ -29,6 +34,7 @@ Usage:
     python3 brief_state.py set --slug linen-winter --step 2 --status in_progress --out briefs
     python3 brief_state.py set --slug linen-winter --step 2 --status stopped --note "Blog share is 20%. Write anyway, try another keyword, or end?" --out briefs
     python3 brief_state.py set --slug linen-winter --step 5 --status done --note "Template: how-to-guide. Reason: ..." --out briefs
+    python3 brief_state.py gate --slug linen-winter --out briefs
 """
 
 from __future__ import annotations
@@ -40,6 +46,7 @@ import re
 import sys
 import tempfile
 from datetime import datetime, timezone
+from itertools import zip_longest
 from pathlib import Path
 
 SKILL_FILE = Path(__file__).resolve().parent.parent / "SKILL.md"
@@ -229,6 +236,301 @@ def cmd_set(args: argparse.Namespace) -> dict:
     return summary(state, path, step=args.step, status=args.status, reset=reset)
 
 
+# The A-to-B gate (Step 11).
+
+GATE_STEP = 11
+GATE_STOP_AFTER = 2  # fails in a row. A project rule, not a rule of the course.
+
+
+class GateFail(Exception):
+    """A file of the brief that the gate cannot read. `step` made the file."""
+
+    def __init__(self, step: int, message: str) -> None:
+        super().__init__(message)
+        self.step = step
+
+
+def output_file(state: dict, step: int, suffix: str = "") -> Path:
+    """Return the output file of `step` that ends with `suffix`, from the state file."""
+    for name in state["steps"][str(step)]["outputs"]:
+        if name.endswith(suffix):
+            path = Path(name)
+            if not path.is_file():
+                raise GateFail(step, f"{path} does not exist")
+            return path
+    raise GateFail(step, f"Step {step} recorded no output file{' ending with ' + suffix if suffix else ''}")
+
+
+def section(text: str, heading: str, step: int, file_name: str) -> str:
+    """Return the text under `heading`, up to the next heading of the same or a higher level."""
+    level = len(heading) - len(heading.lstrip("#"))
+    lines = text.splitlines()
+    try:
+        start = lines.index(heading) + 1
+    except ValueError:
+        raise GateFail(step, f"{file_name} has no {heading!r} section") from None
+    end = len(lines)
+    for index in range(start, len(lines)):
+        hashes = len(lines[index]) - len(lines[index].lstrip("#"))
+        if 0 < hashes <= level and lines[index][hashes:hashes + 1] == " ":
+            end = index
+            break
+    return "\n".join(lines[start:end])
+
+
+def table_rows(text: str) -> list[dict[str, str]]:
+    """Read the first Markdown table in `text` as rows of {column: cell}."""
+    rows = [line for line in text.splitlines() if line.startswith("|")]
+    if len(rows) < 2:
+        return []
+    header = table_cells(rows[0])
+    return [dict(zip(header, table_cells(line))) for line in rows[2:]]
+
+
+def table_cells(line: str) -> list[str]:
+    return [cell.strip() for cell in line.strip().strip("|").split("|")]
+
+
+def line_value(text: str, label: str) -> str | None:
+    """Return the value of the first line `- label: value`."""
+    match = re.search(rf"^- {re.escape(label)}:[ \t]*(.*)$", text, re.M)
+    return match.group(1).strip() if match else None
+
+
+def source_numbers(evidence: str) -> set[int]:
+    return {int(n) for n in re.findall(r"\b\d+\b", evidence)}
+
+
+def outline_v2_blocks(outline_v2: str) -> tuple[list[dict], str, str]:
+    """Return (the H2 blocks, the FAQ text, the Still Open text) of Outline V2."""
+    h2_blocks: list[dict] = []
+    named: dict[str, str] = {}
+    for block in re.split(r"^(?=### )", outline_v2, flags=re.M):
+        title = block.splitlines()[0] if block.strip() else ""
+        if title.startswith("### H2:"):
+            evidence_line = line_value(block, "Evidence") or ""
+            evidence, _, claim = evidence_line.partition("Narrower claim:")
+            h2_blocks.append({
+                "heading": title.removeprefix("### H2:").strip(),
+                "facets": set(re.findall(r"\bF\d+\b", line_value(block, "Facets") or "")),
+                "gains": set(re.findall(r"\bI\d+\b", line_value(block, "Gains") or "")),
+                "sources": source_numbers(evidence),
+                "claim": claim.strip().rstrip(".").strip(),
+            })
+        elif title.startswith("### "):
+            named[title[4:].strip()] = block.split("\n", 1)[1] if "\n" in block else ""
+    return h2_blocks, named.get("FAQ", ""), named.get("Still Open", "").strip()
+
+
+def comparable(text: str) -> list[str]:
+    """Lines of an outline without the Title line, blank lines, and trailing spaces."""
+    return [line.rstrip() for line in text.splitlines() if line.strip() and not line.startswith("Title:")]
+
+
+def gate_checks(state: dict) -> tuple[list[dict], dict]:
+    """Run every check of the gate. Return (items, credits)."""
+    items: list[dict] = []
+    files: dict[str, str] = {}
+
+    def item(gate: str, check: str, result: str, detail: str = "", redo: int | None = None) -> None:
+        items.append({"gate": gate, "check": check, "result": result, "detail": detail, "redo": redo})
+
+    def read(step: int, suffix: str) -> str:
+        if suffix not in files:
+            files[suffix] = output_file(state, step, suffix).read_text(encoding="utf-8")
+        return files[suffix]
+
+    def check(gate: str, name: str, redo: int, run) -> None:
+        """Run one check. run() returns (result, detail). A GateFail is a fail."""
+        try:
+            result, detail = run()
+        except GateFail as exc:
+            item(gate, name, "fail", str(exc), exc.step)
+            return
+        item(gate, name, result, detail, redo if result == "fail" else None)
+
+    # Files on disk.
+    missing = [
+        (int(key), path)
+        for key, step in sorted(state["steps"].items(), key=lambda pair: int(pair[0]))
+        if int(key) < GATE_STEP
+        for path in step["outputs"]
+        if not Path(path).is_file()
+    ]
+    if missing:
+        item("files", "Output files", "fail", ", ".join(path for _, path in missing), missing[0][0])
+    else:
+        item("files", "Output files", "pass")
+
+    # Direction.
+    def serp_decision():
+        text = read(2, "-search-intent.md")
+        decision, choice = line_value(text, "Decision"), line_value(text, "User choice")
+        if decision == "continue" or choice == "write anyway":
+            return "pass", f"Decision: {decision}. User choice: {choice}."
+        return "fail", f"Decision: {decision}. User choice: {choice}."
+
+    def supported_page():
+        rows = table_rows(section(read(1, "-task-brief.md"), "## Page", 1, "task-brief.md"))
+        page = next((row.get("Value", "") for row in rows if row.get("Item") == "Page this post supports"), None)
+        if page is None:
+            raise GateFail(1, "task-brief.md has no Page this post supports row")
+        if page == "missing":
+            return "warn", "No page to link to. The post has no internal link."
+        return "pass", page
+
+    check("direction", "SERP decision", 2, serp_decision)
+    check("direction", "Page this post supports", 1, supported_page)
+    item("direction", "Competitive opportunity", "not built", "A-04 is not built yet.")
+
+    # Structure and evidence read Outline V2.
+    def outline_v2() -> str:
+        return section(read(8, "-outline.md"), "## Outline V2", 8, "outline.md")
+
+    def kept_facets():
+        rows = table_rows(section(read(3, "-demand-facets.md"), "## Kept Facets", 3, "demand-facets.md"))
+        kept = {row["ID"] for row in rows if row.get("ID")}
+        h2_blocks, _, _ = outline_v2_blocks(outline_v2())
+        used = set().union(*(block["facets"] for block in h2_blocks))
+        problems = []
+        if kept - used:
+            problems.append(f"not in an H2: {', '.join(sorted(kept - used))}")
+        if used - kept:
+            problems.append(f"not a kept facet: {', '.join(sorted(used - kept))}")
+        return ("fail", "; ".join(problems)) if problems else ("pass", f"{len(kept)} kept facets")
+
+    def gains():
+        rows = table_rows(section(read(7, "-information-gain.md"), "## Gains", 7, "information-gain.md"))
+        listed = {row["ID"] for row in rows if row.get("ID")}
+        h2_blocks, _, _ = outline_v2_blocks(outline_v2())
+        used = set().union(*(block["gains"] for block in h2_blocks))
+        problems = []
+        if listed - used:
+            problems.append(f"not in a Gains line: {', '.join(sorted(listed - used))}")
+        if used - listed:
+            problems.append(f"not in the gains file: {', '.join(sorted(used - listed))}")
+        return ("fail", "; ".join(problems)) if problems else ("pass", f"{len(listed)} gains")
+
+    def calculator():
+        outline_v1 = section(read(8, "-outline.md"), "## Outline V1", 8, "outline.md")
+        value = line_value(outline_v1, "Calculator")
+        if not value or "[" in value:
+            return "fail", f"Calculator line of Outline V1: {value!r}"
+        return "pass", value
+
+    def content_outline():
+        v2 = outline_v2()
+        brief = section(read(10, ""), "## Content Outline", 10, "brief.md")
+        brief_lines = [line for line in comparable(brief) if not line.startswith("**Outline file**")]
+        for brief_line, outline_line in zip_longest(brief_lines, comparable(v2), fillvalue="(no line)"):
+            if brief_line != outline_line:
+                return "fail", f"Outline V2 has {outline_line!r}. The brief has {brief_line!r}"
+        return "pass", ""
+
+    check("structure", "Kept facets in Outline V2", 8, kept_facets)
+    check("structure", "Gains in Outline V2", 8, gains)
+    check("structure", "Calculator", 8, calculator)
+    check("structure", "Content Outline", 9, content_outline)
+
+    def adopted_sources():
+        rows = table_rows(section(read(6, "-evidence-plan.md"), "## Sources", 6, "evidence-plan.md"))
+        adopted = {int(row["#"]) for row in rows if row.get("Status") == "adopted" and row.get("#", "").isdigit()}
+        h2_blocks, faq, _ = outline_v2_blocks(outline_v2())
+        cited = set().union(*(block["sources"] for block in h2_blocks))
+        for line in faq.splitlines():
+            if "Evidence:" in line:
+                cited |= source_numbers(line.rsplit("Evidence:", 1)[1])
+        not_adopted = sorted(cited - adopted)
+        if not_adopted:
+            return "fail", f"not adopted in the evidence plan: {', '.join(map(str, not_adopted))}"
+        return "pass", f"{len(cited)} sources cited"
+
+    def evidence_or_claim():
+        h2_blocks, _, _ = outline_v2_blocks(outline_v2())
+        if not h2_blocks:
+            raise GateFail(8, "Outline V2 has no H2 block")
+        bare = [block["heading"] for block in h2_blocks if not block["sources"] and block["claim"] in ("", "-")]
+        return ("fail", f"no source and no narrower claim: {'; '.join(bare)}") if bare else ("pass", "")
+
+    def weak_questions():
+        rows = table_rows(section(read(6, "-evidence-plan.md"), "## Questions", 6, "evidence-plan.md"))
+        weak = [f"{row.get('ID')}: {row.get('Question')}" for row in rows if row.get("Weak") == "yes"]
+        return ("warn", "; ".join(weak)) if weak else ("pass", "")
+
+    def still_open():
+        _, _, open_text = outline_v2_blocks(outline_v2())
+        if open_text.lower().rstrip(".") in ("", "none"):
+            return "pass", ""
+        return "warn", " ".join(line.lstrip("- ").strip() for line in open_text.splitlines() if line.strip())
+
+    check("evidence", "Adopted sources", 8, adopted_sources)
+    check("evidence", "Evidence or narrower claim", 8, evidence_or_claim)
+    check("evidence", "Weak questions", 6, weak_questions)
+    check("evidence", "Still Open", 8, still_open)
+    item("evidence", "Semantic baseline", "not built", "A-09 is not built yet.")
+
+    return items, {"step_4": step_4_credits(state), "step_6": step_6_credits(state)}
+
+
+def step_4_credits(state: dict) -> int | None:
+    try:
+        text = output_file(state, 4, "-competitor-gaps.md").read_text(encoding="utf-8")
+    except GateFail:
+        return None
+    match = re.search(r"^\| Fetch \|.*?(\d+) credits", text, re.M)
+    return int(match.group(1)) if match else None
+
+
+def step_6_credits(state: dict) -> int | None:
+    try:
+        text = output_file(state, 6, "-evidence-plan.md").read_text(encoding="utf-8")
+        rows = table_rows(section(text, "## Search Plan", 6, "evidence-plan.md"))
+    except GateFail:
+        return None
+    total = next((row for row in rows if row.get("Facet") == "Total"), {})
+    value = total.get("Actual credits", "")
+    return int(value) if value.isdigit() else None
+
+
+def cmd_gate(args: argparse.Namespace) -> dict:
+    path = state_path(Path(args.out), args.slug)
+    if not path.exists():
+        raise StateError(f"{path} does not exist. Run init first")
+    state = read_state(path)
+    step = state["steps"].get(str(GATE_STEP))
+    if step is None or step["status"] != "in_progress":
+        status = step["status"] if step else "missing"
+        raise StateError(f"Step {GATE_STEP} is {status}. Set it to in_progress first")
+
+    items, credits = gate_checks(state)
+    failed = [entry for entry in items if entry["result"] == "fail"]
+    result = "fail" if failed else ("warn" if any(entry["result"] == "warn" for entry in items) else "pass")
+    previous = state.get("gate") or {}
+    if not failed:
+        attempt = 0
+    elif previous.get("result") == "fail":
+        attempt = previous.get("attempt", 0) + 1
+    else:
+        attempt = 1
+    state["gate"] = {
+        "result": result,
+        "checked": now(),
+        "attempt": attempt,
+        "redo_from": min(entry["redo"] for entry in failed) if failed else None,
+        "credits": credits,
+        "items": items,
+    }
+
+    if not failed:
+        step.update(status="done", outputs=[], note=f"Gate: {result}")
+    elif attempt >= GATE_STOP_AFTER:
+        listed = "; ".join(f"{entry['check']}: {entry['detail']}" for entry in failed)
+        step.update(status="stopped", note=f"The gate failed {attempt} times in a row. {listed}")
+    step["updated"] = now()
+    write_state(path, state)
+    return summary(state, path, gate=state["gate"])
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -247,6 +549,11 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--file", action="append", help="an output file in another place than the checklist says; replaces the expected files")
     p.add_argument("--out", default="briefs")
     p.set_defaults(func=cmd_set)
+
+    p = sub.add_parser("gate")
+    p.add_argument("--slug", required=True)
+    p.add_argument("--out", default="briefs")
+    p.set_defaults(func=cmd_gate)
 
     args = parser.parse_args(argv)
     try:
