@@ -9,7 +9,7 @@ description: >
   maps (blog-cluster), or a brief or outline for one post (blog-brief,
   blog-outline). Makes no promise of rankings or AI citations.
 user-invocable: true
-argument-hint: "<niche>"
+argument-hint: "<niche> [--posts <csv>]"
 license: MIT
 ---
 
@@ -48,10 +48,24 @@ Gather context through questions or project analysis:
 
 1. **Business**: What do you sell/do? Who are your customers?
 2. **Blog goals**: Traffic? Leads? Authority? AI citations?
-3. **Current state**: Existing blog content? (scan if project available)
+3. **Current state**: Existing blog content? If the site has existing posts, ask for a CSV of them with the columns `url`, `title`, and `lastmod` (an export of the sitemap works). The `lastmod` column can be empty.
 4. **Competitors**: Who are your 3-5 main competitors?
 5. **Differentiator**: What unique expertise or data do you have?
 6. **Resources**: Writing capacity (posts/week), budget for visuals?
+
+#### Plan Files
+
+`${CLAUDE_SKILL_DIR}/scripts/existing_posts.py` keeps the plan in
+`strategy/` in the project root. Run it with `python3` from the project root. `[site]` is the
+domain without `www.` and its top-level domain, or the brand name if there
+is no domain. Use only lowercase letters, numbers, and hyphens.
+
+1. After the questions, run `init --site [site]`. If the user gave a CSV,
+   add `--posts [path]`. The script numbers the posts E1, E2, and so on in
+   URL order. Tell the user the total, each skipped row with its reason,
+   and the number of posts with no date.
+2. If the script prints an error, fix the cause and run it again. If
+   `check` fails two times in a row, stop and show the errors to the user.
 
 ### Step 2: Competitive Landscape
 
@@ -110,6 +124,15 @@ Define 2-3 audience segments:
 
 ### Step 4: Content Pillar Design with Topic Cluster Architecture
 
+If the site has existing posts, start from them:
+
+1. Run `list --site [site]`. Group the titles by the reader question that
+   they answer. Write one sentence and the post count for each group. Do
+   not save the groups.
+2. Use the groups, the audience, and the competitive gaps to choose the
+   pillars. Prefer a group with many existing posts. Do not make a pillar
+   for a group outside the business.
+
 Design 3-5 content pillars based on audience needs and competitive gaps.
 For each pillar, build the full hub-and-spoke cluster model.
 
@@ -147,23 +170,39 @@ For each pillar, design the complete hub-and-spoke structure:
 ```
 
 For each cluster, specify:
-- **8-12 spoke topics** per pillar, each targeting a specific long-tail keyword
+- **8-12 spoke topics** per pillar, each targeting a specific long-tail keyword. Count the existing spokes and the new spokes together. The range is a target, not a quota: plan a new spoke only for a question that no existing post answers, even if the pillar then has fewer than 8 spokes.
 - **Internal linking plan** between all cluster pages (every spoke links to pillar, pillar links to all spokes, spokes cross-link to related spokes)
 - **Content template assignment** for each piece from the 12 available templates:
   `how-to-guide`, `listicle`, `case-study`, `comparison`, `pillar-page`,
   `product-review`, `thought-leadership`, `roundup`, `tutorial`,
   `news-analysis`, `data-research`, `faq-knowledge`
 
+#### Assignments
+
+Write one JSON object on each line of `strategy/[site]-assignments.jsonl`.
+Write one line for each existing post:
+
 ```
-### Cluster Build Plan: [Pillar Topic]
-| # | Spoke Topic | Template | Target Keyword | Word Count | Internal Links |
-|---|------------|----------|---------------|-----------|----------------|
-| P | [Pillar title] | pillar-page | [keyword] | 3,000-4,000 | Links to all spokes |
-| 1 | [Spoke title] | how-to-guide | [keyword] | 1,500-2,500 | Pillar + Spokes 2,3 |
-| 2 | [Spoke title] | comparison | [keyword] | 1,500-2,500 | Pillar + Spokes 1,3 |
-| 3 | [Spoke title] | listicle | [keyword] | 1,500-2,500 | Pillar + Spokes 1,2 |
-| ... | ... | ... | ... | ... | ... |
+{"id": "E12", "pillar": "Linen Care", "role": "spoke", "action": "keep"}
 ```
+
+- `pillar`: a pillar name, or `none` if the post fits no pillar.
+- `role`: `pillar` if the post can be the pillar page, or `spoke`. For `none`, write `-`.
+- `action`: `keep`, or `possible duplicate of E[n]` if two posts answer the same reader question. For `none`, write the reason. A duplicate is only a lead. `/blog cannibalization` confirms it with data.
+
+Write one line for each new post, with the ids N1, N2, and so on:
+
+```
+{"id": "N3", "pillar": "Linen Care", "role": "spoke", "title": "How to Remove Wrinkles From Linen", "template": "how-to-guide", "target_keyword": "how to get wrinkles out of linen", "word_count": "1,500-2,500", "internal_links": "N1, E12"}
+```
+
+- Each pillar has exactly one `pillar` row. If no existing post can be the pillar page, plan a new one with the template `pillar-page`.
+- `internal_links` gives the ids of the posts that the new post links to.
+
+Then run `check --site [site] --pillars "[pillar 1]" "[pillar 2]"` with
+every pillar, in the order of the strategy. It writes
+`strategy/[site]-plan.csv`, one row for each post, and prints the counts
+for each pillar.
 
 Reference: `${CLAUDE_SKILL_DIR}/../blog/references/internal-linking.md` for hub-and-spoke model and anchor text rules.
 
@@ -311,6 +350,8 @@ Reference: `${CLAUDE_SKILL_DIR}/../blog/references/distribution-playbook.md` for
 
 ### Step 8: Generate Strategy Document
 
+Save the document as `strategy/[site]-strategy.md` in the project root.
+
 Output format:
 
 ```
@@ -323,9 +364,14 @@ Output format:
 [Segment summaries]
 
 ## Content Pillars & Cluster Architecture
-[3-5 pillars with full hub-and-spoke cluster plans]
-[Internal linking map for each cluster]
-[Template assignments for each piece]
+[3-5 pillars: purpose, unique angle, and AI citation potential]
+Plan: `strategy/[site]-plan.csv`
+
+## Existing Content Inventory
+[The counts of `check` for each pillar: existing posts, new posts, and
+possible duplicates. The number of posts with pillar `none`. Say that the
+posts were assigned by title only, without ranking data. If the site has no
+existing posts, write `No existing posts.`]
 
 ## Competitive Positioning
 [How we differentiate - what unique value we bring]
@@ -379,6 +425,7 @@ Output format:
 
 ## Next Steps
 1. Run `/blog calendar` to create the first month's editorial calendar
+   (or run `/blog cluster plan --from strategy strategy/[site]-plan.csv` to plan the new posts of one pillar)
 2. Run `/blog brief` for the first pillar page
 3. Run `/blog write` to generate the first article
 4. Set up AI citation monitoring for target queries

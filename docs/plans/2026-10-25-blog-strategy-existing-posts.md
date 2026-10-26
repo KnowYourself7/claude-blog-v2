@@ -3,7 +3,7 @@
 | 项目 | 内容 |
 |---|---|
 | 日期 | 2026-10-25 |
-| 状态 | 方案已和用户逐段确认，等实施 |
+| 状态 | 已实施，等用户审核后合并 |
 | 分支 | feat/blog-strategy-existing-posts，从 `main` 的 bb0ee67 开 |
 | 依据 | 瑜东第 01 课：已经运营的网站要结合站内覆盖情况、支柱页和锚文本清单来判断，避免重复建设（p.107）；资料盘点单的「同站博客清单，用于选内链和避免重复」（p.110）。Anthropic 官方 Prompting best practices：结构化的状态信息用 JSON，https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices 。本项目 CLAUDE.md：脚本要有 docstring、命令行接口和 JSON 输出 |
 | 来源 | `docs/reviews/2026-10-25-existing-blog-clusters-and-internal-links.md`；2026-10-25 和用户的方案讨论 |
@@ -58,7 +58,7 @@
 
 1. Step 1：问完 6 个问题后，跑 `init --site [site]`，有 CSV 时加 `--posts [路径]`。
    - 必须有 `url`、`title` 两列，缺列报错并写明缺哪一列。
-   - 网址不是 `http://` 或 `https://` 开头的行跳过；同一网址只留第一行。两种都列进输出的 `skipped`，写明原因。
+   - 网址不是 `http://` 或 `https://` 开头的行跳过；标题为空的行跳过（归类只看标题，没有标题没法归）；同一网址只留第一行。三种都列进输出的 `skipped`，写明原因和 CSV 里的行号。标题为空这条是实施时加的。
    - 按网址排序后编号 E1、E2……，写出 `[site]-existing-posts.json`，打印总数、跳过数、没有日期的篇数。
    - 文件已存在时报错，防止覆盖做到一半的归类；要重来加 `--force`。
 2. Step 4 开头，有已有文章时：跑 `list --site [site]`，每篇一行「编号、标题、日期」。Claude 按「回答读者什么问题」把标题分成若干组，每组一句话、几篇。这份分组只是草稿，不落盘。
@@ -111,7 +111,7 @@
 `skills/blog-cluster/SKILL.md` 的 Strategy Import 一节（第 209 到 218 行）：
 
 - 第 1 条改成找 `strategy/*-plan.csv`（或用户给的路径），写明列名。
-- 第 2 条改成按 `pillar` 列分组；`status` 为 `existing` 的行不写，也不做 SERP 验证，只加进「已写好、可以链过去」的文章列表。
+- 第 2 条改成：一个支柱就是一份集群计划（`cluster-plan.json` 只能有一个支柱），CSV 里有多个支柱时先问用户规划哪个；`role` 为 `pillar` 的行是支柱页；`status` 为 `existing` 的行不写，也不验证关键词，只加进「已写好、可以链过去」的文章列表。原来「每个支柱一张表」时也是一次只能规划一个支柱，只是没写明；这条是实施时补的。
 - 其余几条不变。
 
 ### 4.5 改动文件
@@ -141,17 +141,39 @@
 
 ## 6. 验证
 
-| 验证项 | 打算怎么验 |
+### 6.1 结果
+
+| 验证项 | 结果 |
 |---|---|
-| 先看到失败 | 先写测试，脚本不存在时测试失败 |
-| 脚本单元测试 | 缺列；重复网址和坏网址进 `skipped`；拒绝覆盖和 `--force`；`list` 的格式；`check` 每类错误各一个用例；连同标题里的逗号、引号、竖线写进 CSV 后能用 `csv` 模块原样读回；排序和 `status`；没有 CSV 时只有 N 行 |
-| 契约测试 | strategy 的 CSV 列名出现在 cluster 的 Strategy Import 里 |
-| 仓库检查 | `pytest`、`validate_skills.py`、`consistency_check.py`（看 errors）、`lint_prose.py` |
-| 整篇重读 | 改过的每个文件从头读，每句问谁需要、删了坏什么、别处是否已写 |
-| 模拟跑 | 子代理只读改后的 SKILL.md，给它一份 30 行的假 CSV，报告每一处不得不猜的地方 |
-| 真实跑 | 用户提供一份真实站点地图导出的 CSV，在 playground 跑一次，看归类有没有用、`none` 和疑似重复合不合理、Excel 打开是否正常 |
-| 独立审查 | 子代理只拿课程和代码审查 |
-| 对照瑜东、对照上游（提交前评估） | 第 01 课 p.107、p.110；上游 `3544423` 的 blog-strategy 和 blog-cluster |
+| 先看到失败 | 先写 `tests/test_existing_posts.py`，脚本不存在时收集就报错。写完脚本 28 项通过，只剩契约测试失败，改完 cluster 的 Strategy Import 后 29 项全过 |
+| 脚本单元测试 | 29 项（参数化逐个算是 46 个用例）：编号和 `skipped` 的三种原因；Excel 存的带 BOM、列名大写的 CSV；缺列；拒绝覆盖和 `--force`；坏的站点 slug；`list` 的格式；总表的顺序、`status`、BOM、`-`，以及标题里的逗号、引号、竖线写进 CSV 后原样读回；没有 CSV 时只有 N 行；`check` 18 类错误各一个用例，出错时不生成总表；不是 JSON 的行报出行号；模板名来自 `skills/blog/templates/` |
+| 契约测试 | `test_blog_cluster_reads_the_plan_csv_columns`：总表的 12 个列名都出现在 cluster 的 Strategy Import 一节里 |
+| 仓库检查 | `pytest tests/` 1568 通过、56 跳过。跳过的比上一个分支多 50 个，全是渲染测试，原因是本机没装匹配的 Chromium，和本分支无关（这些测试不碰 strategy 和 cluster）。改模拟跑反馈后复跑相关 79 项全过。`validate_skills.py` 通过；`consistency_check.py` errors 为空；`lint_prose.py` 本分支文件 0 处 |
+| 整篇重读 | strategy：删掉 Plan Files 第 2 条「在 Step 4 写判断、跑 check」，和 Step 4 的 Assignments 一节重复；盘点一节「sorted by title」用词不对，改成 assigned。脚本：读 lastmod 那行和写 CSV 的临时缓冲改成直白写法 |
+| 模拟跑（子代理，Haiku，只读 SKILL.md，在 scratchpad 真跑脚本） | 30 行假列表（亚麻男装站，放了重复网址、相对路径、空标题、女装、床品、促销页）：`init` 收 27 篇、跳过 3 行；子代理定 3 个支柱，新写 3 篇，`check` 第一次就通过；3 篇归 `none`（促销、床品、女装）。它提 7 处疑问，改了 4 处：「8 到 12 篇」和「够了就不新写」像冲突，改成「是目标不是配额」；写明 `strategy/` 在项目根目录；写明 E 编号按网址排序；跳过原因写出重复时保留哪一行，相对路径的原因改成「不是以 http:// 或 https:// 开头」。没改：分组本来就不落盘；文档语言跟模板走英文；`check` 的报错文字由单元测试覆盖 |
+| 真实跑 | 没做。要用户提供一份真实站点地图导出的 CSV |
+| 对照瑜东（提交前评估） | 见 6.2 |
+| 对照上游原版（提交前评估） | 见 6.3 |
+
+### 6.2 对照瑜东
+
+| 课程要求 | 现在 | 结论 |
+|---|---|---|
+| 已经运营的网站要结合站内覆盖情况、支柱页判断，避免重复建设（第 01 课 p.107） | 先看已有文章怎么分组再定支柱；能当总览页的已有文章标 `pillar`；新文章只补没覆盖的问题 | 符合 |
+| 同站博客清单用于选内链和避免重复（p.110） | 新文章的 `internal_links` 可以写已有文章编号；cluster 把已有文章当链接目标；两篇回答同一问题标疑似重复 | 符合 |
+| 锚文本清单（p.107） | 不做 | 不符合。CSV 里没有锚文本，以后接排名数据时再定 |
+
+课程没有策略这一层的卡片，下面这些是我们自己定的：CSV 三列的格式、E 和 N 编号、`keep` 和 `possible duplicate` 两种动作、`none` 要写原因、连续两次 `check` 没过就停（沿用阶段门的项目规则）。
+
+### 6.3 对照上游原版
+
+上游 `3544423` 的 blog-strategy 和 blog-cluster，fork 之后到 `main` 一行没改过。原版 strategy 只收行业名，Step 1 问一句有没有已有博客，之后没有一步用它；集群建设表手写在对话里，不落盘。
+
+| | 内容 |
+|---|---|
+| 增益 | 有几百篇博客的站，规划会接住已有文章，不再从零规划；每篇已有文章都有归属或不归的原因，漏行由脚本挡住；策略文档和总表落盘到 `strategy/`，总表可以在 Excel 里按支柱筛选；cluster 不会重写已有文章，还能链过去 |
+| 代价 | strategy 多 47 行（385 到 432）；每次多跑 2 到 4 次脚本；200 多篇时，Claude 要写 200 多行 JSONL，比原来手写一张表多花 token；不给 CSV 的老用法也要写 JSONL、跑 `check`，比原来多一步 |
+| 证据 | 单元测试和一次模拟跑。归类只看标题，在真实站点上有没有用未验证 |
 
 ## 7. 提交拆分
 

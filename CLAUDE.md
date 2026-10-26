@@ -63,7 +63,9 @@ claude-blog/
       scripts/                    # keyword_pool.py: Step 3 pool building and facet ranking over the DataForSEO REST API; brief_state.py: step progress, resume, and the Step 11 A-to-B gate
     blog-outline/SKILL.md         # SERP-informed outlines
     blog-calendar/SKILL.md        # Editorial calendars
-    blog-strategy/SKILL.md        # Blog positioning and planning
+    blog-strategy/                 # Blog positioning and planning
+      SKILL.md                    # Strategy workflow; reads an existing post list when given
+      scripts/                    # existing_posts.py: numbers the existing posts, checks the assignments, writes the plan CSV
     blog-seo-check/SKILL.md      # Post-writing SEO validation
     blog-schema/SKILL.md          # JSON-LD schema generation
     blog-chart/SKILL.md           # Inline SVG data visualizations

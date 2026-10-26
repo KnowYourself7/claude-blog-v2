@@ -210,8 +210,8 @@ Show a summary table of clusters and posts, total interlinks, estimated words, a
 
 Bridges `blog-strategy` output into a cluster plan.
 
-1. Locate strategy output. Scan the current directory (or the user-specified path) for a file containing a `Cluster Build Plan` table with the columns `# | Spoke Topic | Template | Target Keyword | Word Count | Internal Links` (the format produced by `/blog strategy`).
-2. Parse the table. Extract the pillar row (marked `P`), the spoke rows, template assignments, target keywords, word counts, and link relationships.
+1. Locate strategy output. Use the path that the user gives, or find `strategy/*-plan.csv` (the plan CSV of `/blog strategy`). Its columns are `id`, `status`, `pillar`, `role`, `title`, `url`, `lastmod`, `template`, `target_keyword`, `word_count`, `internal_links`, and `action`.
+2. Parse the CSV. One pillar is one cluster plan. If the CSV has more than one pillar, ask the user which pillar to plan, and ignore rows with pillar `none`. The row with `role` `pillar` is the pillar. A row with `status` `existing` is a written post: do not write it again, do not validate its keyword, and add its `url` to the posts that new posts can link to. A row with `status` `new` gives a post to write, with its template, target keyword, word count, and `internal_links` (ids of other rows).
 3. Validate and enrich. Run SERP overlap validation (Plan Phase Step 2) on each keyword. Add volume estimates and verify cluster groupings semantically.
 4. If SERP data contradicts the strategy table, flag the conflict; do not silently override the user's strategic intent.
 5. Generate `cluster-plan.json` and `cluster-map.html` using the same outputs as the standard Plan Phase.
