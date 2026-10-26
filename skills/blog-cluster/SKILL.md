@@ -47,7 +47,7 @@ keyword. Three layers: Semantic Clustering (the brain), Cluster Architecture
 |---------|--------------|
 | `/blog cluster` | Interactive. Asks whether to plan or execute. |
 | `/blog cluster plan <seed-keyword>` | SERP-based semantic analysis. Outputs cluster plan + map. |
-| `/blog cluster plan --from strategy [path]` | Imports existing `blog-strategy` cluster build plan and validates against SERP data. |
+| `/blog cluster plan --from strategy [path]` | Imports one pillar of the `blog-strategy` plan CSV and validates its new posts against SERP data. |
 | `/blog cluster execute [path-to-plan]` | Sequential `blog-write` calls with cluster context and auto-interlinks. |
 
 ## Key references (load on demand)
@@ -60,7 +60,7 @@ keyword. Three layers: Semantic Clustering (the brain), Cluster Architecture
 
 | Skill | When this skill calls it |
 |-------|--------------------------|
-| `/blog strategy` | Upstream planning. `plan --from strategy` consumes its Cluster Build Plan tables. |
+| `/blog strategy` | Upstream planning. `plan --from strategy` reads its plan CSV. |
 | `/blog write` | Per-post execution. Each spoke and the pillar are produced by `blog-write` with a prepended cluster-context block. |
 | `/blog chart` | Invoked internally by `blog-write` for inline SVG charts. No direct call from this skill. |
 | `/blog image` | Not called by this skill. Each post's hero is created once by `blog-write`'s delivery contract (via `generate_hero.py`); see Step 4. |
@@ -186,6 +186,9 @@ All plan and execute artifacts go into a single subdirectory of the current work
 }
 ```
 
+A pillar or post that comes from an `existing` row of a strategy plan CSV
+also has `"status": "existing"` and its `"url"`. It is already written.
+
 Note: volume estimates are relative indicators (high, medium, low) derived from SERP signals, not absolute search volumes. For precise data, the user should consult Ahrefs, SEMrush, or DataForSEO (claude-blog provides the `seo-dataforseo` companion sibling).
 
 #### `cluster-map.html` (XSS-safe)
@@ -211,7 +214,7 @@ Show a summary table of clusters and posts, total interlinks, estimated words, a
 Bridges `blog-strategy` output into a cluster plan.
 
 1. Locate strategy output. Use the path that the user gives, or find `strategy/*-plan.csv` (the plan CSV of `/blog strategy`). Its columns are `id`, `status`, `pillar`, `role`, `title`, `url`, `lastmod`, `template`, `target_keyword`, `word_count`, `internal_links`, and `action`.
-2. Parse the CSV. One pillar is one cluster plan. If the CSV has more than one pillar, ask the user which pillar to plan, and ignore rows with pillar `none`. The row with `role` `pillar` is the pillar. A row with `status` `existing` is a written post: do not write it again, do not validate its keyword, and add its `url` to the posts that new posts can link to. A row with `status` `new` gives a post to write, with its template, target keyword, word count, and `internal_links` (ids of other rows).
+2. Parse the CSV. One pillar is one cluster plan. If the CSV has more than one pillar, ask the user which pillar to plan, and ignore rows with pillar `none`. The row with `role` `pillar` is the pillar. A row with `status` `existing` is a written post: do not validate its keyword, and write it into `cluster-plan.json` with `"status": "existing"` and its `url`, so that the Execute Phase does not write it again. A row with `status` `new` gives a post to write, with its template, target keyword, word count, and `internal_links` (ids of other rows).
 3. Validate and enrich. Run SERP overlap validation (Plan Phase Step 2) on each keyword. Add volume estimates and verify cluster groupings semantically.
 4. If SERP data contradicts the strategy table, flag the conflict; do not silently override the user's strategic intent.
 5. Generate `cluster-plan.json` and `cluster-map.html` using the same outputs as the standard Plan Phase.
@@ -230,6 +233,10 @@ Read `cluster-plan.json` from the user-specified path or the most recent `cluste
 Before reading a user-supplied plan path, canonicalize it relative to the current working directory. Reject absolute paths, `..`, symlinks, non-`cluster-plan.json` filenames, and any path outside the selected cluster directory. Constrain all generated post, image, map, and scorecard outputs to that cluster directory.
 
 ### Step 2. Determine execution order
+
+Skip the pillar or a post with `"status": "existing"`: it is already
+written. Add it, with its `url`, to the already-written posts of the
+cluster context.
 
 1. Pillar page first (so spokes can link to a known filename).
 2. Then spokes, ordered by `(cluster priority, search_volume_estimate desc, post id alphabetical)`. Cluster priority is the sum of estimated volumes within the cluster (highest first).

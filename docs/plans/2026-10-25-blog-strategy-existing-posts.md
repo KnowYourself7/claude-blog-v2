@@ -23,7 +23,7 @@
 | 已有文章之间加内链的改链清单 | 评估文档里的 `cluster --from site`，以后再定 |
 | 把 blog-strategy 拆成步骤文件 | 以后单独做。它现在 385 行，这次加完约 430 行，在 500 行以内 |
 | 按标题文字相似度自动分组 | 不做。标题相似不等于话题相同（「linen pants with sneakers」和「linen pants in winter」），分组由 Claude 判断 |
-| `blog-cluster` 执行阶段、链接矩阵、质量门的其他改动 | 不做。只改 Strategy Import 一节 |
+| `blog-cluster` 链接矩阵、质量门、执行流程的其他改动 | 不做。只改读入 CSV 和跳过已有文章所需的几处，见 4.4 |
 
 ## 3. 原因
 
@@ -112,7 +112,9 @@
 
 - 第 1 条改成找 `strategy/*-plan.csv`（或用户给的路径），写明列名。
 - 第 2 条改成：一个支柱就是一份集群计划（`cluster-plan.json` 只能有一个支柱），CSV 里有多个支柱时先问用户规划哪个；`role` 为 `pillar` 的行是支柱页；`status` 为 `existing` 的行不写，也不验证关键词，只加进「已写好、可以链过去」的文章列表。原来「每个支柱一张表」时也是一次只能规划一个支柱，只是没写明；这条是实施时补的。
-- 其余几条不变。
+- 自检时发现：`cluster-plan.json` 原来没有字段表示「已写好」，支柱页是已有文章时，执行阶段可能把它重写。所以 schema 下面补一句：来自已有行的支柱或文章带 `"status": "existing"` 和 `url`；执行阶段 Step 2 开头补一句：跳过这些文章，把它们连同网址加进集群上下文里「已写好」的列表。
+- Commands 表和 Cross-references 表里还写着「读 Cluster Build Plan 表格」的两处，改成读 plan CSV。
+- 其余不变。
 
 ### 4.5 改动文件
 
@@ -120,7 +122,7 @@
 |---|---|
 | `skills/blog-strategy/scripts/existing_posts.py` | 新建：`init`、`list`、`check` |
 | `skills/blog-strategy/SKILL.md` | 参数说明加 `--posts`；Step 1 第 3 个问题和 `init`；Step 4 分组、定支柱、写 jsonl、跑 `check`，删掉手写的 Cluster Build Plan 表格式；Step 8 存进 `strategy/`，表格一节换成「现有内容盘点」 |
-| `skills/blog-cluster/SKILL.md` | Strategy Import 第 1、2 条 |
+| `skills/blog-cluster/SKILL.md` | Strategy Import 第 1、2 条；Commands 表和 Cross-references 表各一处；schema 下一句；执行阶段 Step 2 开头一句 |
 | `tests/test_existing_posts.py` | 新建 |
 | `tests/` 下一个契约测试 | strategy 写的 CSV 列名和 cluster 认的列名一致 |
 | `CLAUDE.md` | 脚本说明和目录树 |
@@ -146,11 +148,12 @@
 | 验证项 | 结果 |
 |---|---|
 | 先看到失败 | 先写 `tests/test_existing_posts.py`，脚本不存在时收集就报错。写完脚本 28 项通过，只剩契约测试失败，改完 cluster 的 Strategy Import 后 29 项全过 |
-| 脚本单元测试 | 29 项（参数化逐个算是 46 个用例）：编号和 `skipped` 的三种原因；Excel 存的带 BOM、列名大写的 CSV；缺列；拒绝覆盖和 `--force`；坏的站点 slug；`list` 的格式；总表的顺序、`status`、BOM、`-`，以及标题里的逗号、引号、竖线写进 CSV 后原样读回；没有 CSV 时只有 N 行；`check` 18 类错误各一个用例，出错时不生成总表；不是 JSON 的行报出行号；模板名来自 `skills/blog/templates/` |
+| 脚本单元测试 | 自检后共 40 个用例（18 个测试函数，其中两个参数化，分别是 18 个和 6 个用例；自检前是 29 个，之前写成「参数化逐个算是 46 个」，是数错了）：空行之后的行号、非 UTF-8 的报错、看起来填了其实不对的值（null、数组、小写编号、没有编号的链接、链到自己、`-` 当原因）、支柱名前后空格、失败时删掉旧总表、cluster 跳过已有文章；编号和 `skipped` 的三种原因；Excel 存的带 BOM、列名大写的 CSV；缺列；拒绝覆盖和 `--force`；坏的站点 slug；`list` 的格式；总表的顺序、`status`、BOM、`-`，以及标题里的逗号、引号、竖线写进 CSV 后原样读回；没有 CSV 时只有 N 行；`check` 18 类错误各一个用例，出错时不生成总表；不是 JSON 的行报出行号；模板名来自 `skills/blog/templates/` |
 | 契约测试 | `test_blog_cluster_reads_the_plan_csv_columns`：总表的 12 个列名都出现在 cluster 的 Strategy Import 一节里 |
-| 仓库检查 | `pytest tests/` 1568 通过、56 跳过。跳过的比上一个分支多 50 个，全是渲染测试，原因是本机没装匹配的 Chromium，和本分支无关（这些测试不碰 strategy 和 cluster）。改模拟跑反馈后复跑相关 79 项全过。`validate_skills.py` 通过；`consistency_check.py` errors 为空；`lint_prose.py` 本分支文件 0 处 |
+| 仓库检查 | 自检修改后 `pytest tests/` 1579 通过、56 跳过（第一次提交时 1568 通过）。跳过的比上一个分支多 50 个，全是渲染测试，原因是本机没装匹配的 Chromium，和本分支无关（这些测试不碰 strategy 和 cluster）。改模拟跑反馈后复跑相关 79 项全过。`validate_skills.py` 通过；`consistency_check.py` errors 为空；`lint_prose.py` 本分支文件 0 处 |
 | 整篇重读 | strategy：删掉 Plan Files 第 2 条「在 Step 4 写判断、跑 check」，和 Step 4 的 Assignments 一节重复；盘点一节「sorted by title」用词不对，改成 assigned。脚本：读 lastmod 那行和写 CSV 的临时缓冲改成直白写法 |
 | 模拟跑（子代理，Haiku，只读 SKILL.md，在 scratchpad 真跑脚本） | 30 行假列表（亚麻男装站，放了重复网址、相对路径、空标题、女装、床品、促销页）：`init` 收 27 篇、跳过 3 行；子代理定 3 个支柱，新写 3 篇，`check` 第一次就通过；3 篇归 `none`（促销、床品、女装）。它提 7 处疑问，改了 4 处：「8 到 12 篇」和「够了就不新写」像冲突，改成「是目标不是配额」；写明 `strategy/` 在项目根目录；写明 E 编号按网址排序；跳过原因写出重复时保留哪一行，相对路径的原因改成「不是以 http:// 或 https:// 开头」。没改：分组本来就不落盘；文档语言跟模板走英文；`check` 的报错文字由单元测试覆盖 |
+| 对照开发文档自检（子代理，独立，只给开发文档和代码） | 第 4 节各条和第 2 节的边界都核过。挑出 2 处必须改、3 组建议改、5 处可不改，核实后全部属实。改了：CSV 里有空行时跳过行的行号错位，改用 `reader.line_num`（必须改）；`cluster-plan.json` 没有字段表示已写好，支柱页是已有文章时执行阶段可能重写，补 schema 一句和执行阶段一句（必须改）；cluster 另两处还写读表格；`check` 放过 null、数组、小写编号、没有编号的链接、链到自己、`-` 当原因；测试数写错。可不改里改了三处便宜的：非 UTF-8 时给看得懂的报错、支柱名去前后空格、`check` 失败时删掉旧总表。没改：网址去尾斜杠和 http/https 当同一篇、`.co.uk` 这类域名的 slug，规则见仁见智，等真实跑遇到再定 |
 | 真实跑 | 没做。要用户提供一份真实站点地图导出的 CSV |
 | 对照瑜东（提交前评估） | 见 6.2 |
 | 对照上游原版（提交前评估） | 见 6.3 |

@@ -45,7 +45,7 @@ TEMPLATE_DIR = Path(__file__).resolve().parents[2] / "blog" / "templates"
 SCHEMA_VERSION = 1
 SITE_SLUG = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 DUPLICATE_ACTION = re.compile(r"^possible duplicate of (E\d+)$")
-POST_ID = re.compile(r"\b[EN]\d+\b")
+POST_ID = re.compile(r"\b[EN]\d+\b", re.IGNORECASE)
 ROLES = ("pillar", "spoke")
 NEW_POST_FIELDS = ("title", "template", "target_keyword", "word_count", "internal_links")
 PLAN_COLUMNS = [
@@ -86,37 +86,49 @@ def read_existing_posts(path: Path) -> list[dict]:
     return json.loads(path.read_text(encoding="utf-8"))["posts"]
 
 
+def read_posts_csv(path: Path) -> tuple[dict[str, dict], list[dict]]:
+    """Return (the kept posts by URL, the skipped rows) of the user's CSV. Row numbers are file lines."""
+    kept: dict[str, dict] = {}
+    kept_row: dict[str, int] = {}
+    skipped: list[dict] = []
+    with path.open(encoding="utf-8-sig", newline="") as stream:
+        reader = csv.DictReader(stream)
+        columns = {name.strip().lower(): name for name in reader.fieldnames or []}
+        missing = [name for name in ("url", "title") if name not in columns]
+        if missing:
+            raise PlanError(f"{path} has no {' and no '.join(missing)} column")
+        for row in reader:
+            row_number = reader.line_num
+            url = (row.get(columns["url"]) or "").strip()
+            title = (row.get(columns["title"]) or "").strip()
+            lastmod = (row.get(columns["lastmod"]) or "").strip() if "lastmod" in columns else ""
+            reason = None
+            if not url.startswith(("http://", "https://")):
+                reason = "url does not start with http:// or https://"
+            elif not title:
+                reason = "no title"
+            elif url in kept:
+                reason = f"duplicate url, row {kept_row[url]} is kept"
+            if reason:
+                skipped.append({"row": row_number, "url": url, "reason": reason})
+                continue
+            kept[url] = {"url": url, "title": title, "lastmod": lastmod}
+            kept_row[url] = row_number
+    return kept, skipped
+
+
 def cmd_init(args: argparse.Namespace) -> dict:
     paths = file_paths(Path(args.out), args.site)
     if paths["posts"].exists() and not args.force:
         raise PlanError(f"{paths['posts']} exists. Add --force to start again")
 
     kept: dict[str, dict] = {}
-    kept_row: dict[str, int] = {}
     skipped: list[dict] = []
     if args.posts:
-        with open(args.posts, encoding="utf-8-sig", newline="") as stream:
-            reader = csv.DictReader(stream)
-            columns = {name.strip().lower(): name for name in reader.fieldnames or []}
-            missing = [name for name in ("url", "title") if name not in columns]
-            if missing:
-                raise PlanError(f"{args.posts} has no {' and no '.join(missing)} column")
-            for row_number, row in enumerate(reader, start=2):
-                url = (row.get(columns["url"]) or "").strip()
-                title = (row.get(columns["title"]) or "").strip()
-                lastmod = (row.get(columns["lastmod"]) or "").strip() if "lastmod" in columns else ""
-                reason = None
-                if not url.startswith(("http://", "https://")):
-                    reason = "url does not start with http:// or https://"
-                elif not title:
-                    reason = "no title"
-                elif url in kept:
-                    reason = f"duplicate url, row {kept_row[url]} is kept"
-                if reason:
-                    skipped.append({"row": row_number, "url": url, "reason": reason})
-                    continue
-                kept[url] = {"url": url, "title": title, "lastmod": lastmod}
-                kept_row[url] = row_number
+        try:
+            kept, skipped = read_posts_csv(Path(args.posts))
+        except UnicodeDecodeError:
+            raise PlanError(f"{args.posts} is not UTF-8. Save it as CSV UTF-8 and run init again") from None
 
     posts = [{"id": f"E{number}", **kept[url]} for number, url in enumerate(sorted(kept), start=1)]
     data = {
@@ -161,7 +173,15 @@ def read_assignments(path: Path) -> tuple[list[tuple[int, dict]], list[str]]:
         if not isinstance(row, dict):
             errors.append(f"line {line_number}: not a JSON object")
             continue
-        rows.append((line_number, {key: str(value).strip() for key, value in row.items()}))
+        clean: dict[str, str] = {}
+        for key, value in row.items():
+            if isinstance(value, str):
+                clean[key] = value.strip()
+            elif isinstance(value, (int, float)) and not isinstance(value, bool):
+                clean[key] = str(value)
+            else:
+                errors.append(f"line {line_number}: {row.get('id', '?')}: {key} must be text, not {json.dumps(value)}")
+        rows.append((line_number, clean))
     return rows, errors
 
 
@@ -197,7 +217,7 @@ def validate(rows: list[tuple[int, dict]], posts: list[dict], pillars: list[str]
             if pillar == "none":
                 if role != "-":
                     errors.append(f"{where}: role must be - for pillar none")
-                if not action or action == "keep" or DUPLICATE_ACTION.match(action):
+                if action in ("", "-", "keep") or DUPLICATE_ACTION.match(action):
                     errors.append(f"{where}: pillar none needs a reason in action")
                 continue
         elif pillar == "none":
@@ -226,8 +246,13 @@ def validate(rows: list[tuple[int, dict]], posts: list[dict], pillars: list[str]
                 errors.append(f"{where}: {field} is empty")
         if row.get("template") and row["template"] not in templates:
             errors.append(f"{where}: template {row['template']!r} is not one of {', '.join(sorted(templates))}")
-        for target in POST_ID.findall(row.get("internal_links", "")):
-            if target not in all_ids:
+        targets = [target.upper() for target in POST_ID.findall(row.get("internal_links", ""))]
+        if row.get("internal_links") and not targets:
+            errors.append(f"{where}: internal_links names no id")
+        for target in targets:
+            if target == row_id:
+                errors.append(f"{where}: internal_links links to itself")
+            elif target not in all_ids:
                 errors.append(f"{where}: internal link {target} does not exist")
 
     for pillar, pillar_ids in pillar_rows.items():
@@ -269,10 +294,13 @@ def plan_rows(rows: list[tuple[int, dict]], posts: list[dict], pillars: list[str
 
 def cmd_check(args: argparse.Namespace) -> dict:
     paths = file_paths(Path(args.out), args.site)
+    args.pillars = [pillar.strip() for pillar in args.pillars]
     posts = read_existing_posts(paths["posts"])
     rows, errors = read_assignments(paths["assignments"])
     errors += validate(rows, posts, args.pillars, load_templates())
     if errors:
+        # An old plan no longer matches the assignments.
+        paths["plan"].unlink(missing_ok=True)
         return {"errors": errors}
 
     plan = plan_rows(rows, posts, args.pillars)

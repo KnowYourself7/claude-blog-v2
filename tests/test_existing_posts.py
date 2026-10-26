@@ -216,3 +216,57 @@ def test_blog_cluster_reads_the_plan_csv_columns():
     assert "-plan.csv" in strategy_import
     for column in existing_posts.PLAN_COLUMNS:
         assert f"`{column}`" in strategy_import, column
+
+
+def test_init_gives_the_file_row_of_a_skipped_row_after_a_blank_line(tmp_path, capsys):
+    text = "url,title\nhttps://example.com/a,A\n\n\nrelative/b,B\n"
+    code, result = _run(capsys, tmp_path / "strategy", "init", "--posts", str(_write_posts(tmp_path, text)))
+    assert code == 0
+    assert result["skipped"] == [{"row": 5, "url": "relative/b", "reason": "url does not start with http:// or https://"}]
+
+
+def test_init_asks_for_utf8_when_the_csv_is_not_utf8(tmp_path, capsys):
+    path = tmp_path / "posts.csv"
+    path.write_bytes("url,title\nhttps://example.com/a,亚麻\n".encode("gbk"))
+    code, result = _run(capsys, tmp_path / "strategy", "init", "--posts", str(path))
+    assert code == 1
+    assert "UTF-8" in result["error"]
+
+
+@pytest.mark.parametrize(
+    ("rows", "message"),
+    [
+        (_replace("N2", target_keyword=None), "target_keyword must be text"),
+        (_replace("N2", internal_links=["N1", "E4"]), "internal_links must be text"),
+        (_replace("N2", internal_links="n1, e99"), "E99 does not exist"),
+        (_replace("N2", internal_links="all spokes"), "internal_links names no id"),
+        (_replace("N2", internal_links="N1, N2"), "links to itself"),
+        (_replace("E1", action="-"), "needs a reason"),
+    ],
+)
+def test_check_refuses_values_that_look_filled(out_dir, capsys, rows, message):
+    _assign(out_dir, rows)
+    code, result = _check(capsys, out_dir)
+    assert code == 1
+    assert any(message in error for error in result["errors"]), result["errors"]
+
+
+def test_check_strips_spaces_around_pillar_names(out_dir, capsys):
+    _assign(out_dir, GOOD_ROWS)
+    code, result = _run(capsys, out_dir, "check", "--pillars", " Linen Care ", "Linen Style ")
+    assert code == 0, result
+
+
+def test_a_failed_check_removes_the_old_plan(out_dir, capsys):
+    _assign(out_dir, GOOD_ROWS)
+    assert _check(capsys, out_dir)[0] == 0
+    _assign(out_dir, _replace("E4", action="update"))
+    assert _check(capsys, out_dir)[0] == 1
+    assert not (out_dir / f"{SITE}-plan.csv").exists()
+
+
+def test_blog_cluster_does_not_write_existing_posts_again():
+    cluster = (ROOT / "skills" / "blog-cluster" / "SKILL.md").read_text(encoding="utf-8")
+    assert "Cluster Build Plan" not in cluster
+    execute = cluster.split("### Step 2. Determine execution order", 1)[1].split("### Step 3.", 1)[0]
+    assert '"status": "existing"' in execute
