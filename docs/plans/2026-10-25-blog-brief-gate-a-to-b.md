@@ -3,7 +3,7 @@
 | 项目 | 内容 |
 |---|---|
 | 日期 | 2026-10-25 |
-| 状态 | 已实施，等合并 |
+| 状态 | 已合并（#21） |
 | 分支 | feat/blog-brief-gate-a-to-b，从 `main` 的 10ea95d 开 |
 | 依据 | 第 05 课 A→B 阶段门三项检查、产物落盘、检查不等于人工确认（p.127）；第 00 课每一步有输入、产物和验收（p.106），质量门要说清「哪一步有问题、为什么、怎么修」（p.29）；Anthropic 官方 Skill authoring best practices「Create verifiable intermediate outputs」：中间产物用脚本校验，出错信息指明具体问题，https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices |
 | 上一份文档 | `docs/plans/2026-10-25-blog-brief-run-state-and-gate.md`：状态文件和阶段门的总方案，2026-10-25 用户确认。本文件是其中第二个分支的细化，背景和原因只摘要，详见那份文档第 3 节 |
