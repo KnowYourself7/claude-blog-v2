@@ -85,7 +85,9 @@ not proof that content is stale or fresh.
 Do not prioritize an update solely because a frontmatter date is old or a
 vendor sample observed recently updated citations.
 
-Output a decay report:
+Output a decay report in the conversation. It is working output, not a calendar
+section: rows confirmed here become entries in the Material-Change Review Queue
+that Step 5.7 writes into the calendar file.
 
 ```
 ## Content Decay Report
@@ -193,11 +195,22 @@ Reference: `${CLAUDE_SKILL_DIR}/../blog/references/content-templates.md` for ful
 - Repurposed content: [N]
 - Content types: [guides, comparisons, how-tos, listicles, ...]
 
-## Freshness Update Queue
-| Post | Last Updated | Priority | Scheduled |
-|------|-------------|----------|-----------|
-| [slug] | [date] | High | Week 2 |
-| [slug] | [date] | Medium | Week 4 |
+## Topic Cluster Progress
+| Cluster | Pillar | Spokes Published | Spokes Planned | Coverage |
+|---------|--------|-----------------|----------------|----------|
+| [Topic] | Published | 5/10 | 5 this month | 50% |
+| [Topic] | Draft | 2/8 | 3 this month | 25% |
+
+## Distribution Schedule
+| Post | Publish Date | LinkedIn | Reddit | Email | YouTube |
+|------|-------------|----------|--------|-------|---------|
+| [Title] | [Date] | Same day | +2-3 days | Next batch | If pillar |
+
+## Material-Change Review Queue
+| Post | Review Trigger | Evidence | Priority | Scheduled | Owner |
+|------|----------------|----------|----------|-----------|-------|
+| [slug] | [official source/product/fact changed] | [link or observation] | High | Week 2 | [name] |
+| [slug] | [sustained performance or intent shift] | [surface-specific comparison] | Medium | Week 4 | [name] |
 
 ## Seasonal Hooks
 - [Event/trend and how to leverage it]
@@ -231,6 +244,23 @@ Reference: `${CLAUDE_SKILL_DIR}/../blog/references/content-templates.md` for ful
 ## Month 3: [Month]
 ### Focus: [Primary cluster or theme]
 [...]
+
+## Topic Cluster Progress
+| Cluster | Pillar | Spokes Published | Spokes Planned | Coverage |
+|---------|--------|-----------------|----------------|----------|
+| [Topic] | Published | 5/10 | 5 this quarter | 50% |
+| [Topic] | Draft | 2/8 | 3 this quarter | 25% |
+
+## Distribution Schedule
+| Post | Publish Date | LinkedIn | Reddit | Email | YouTube |
+|------|-------------|----------|--------|-------|---------|
+| [Title] | [Date] | Same day | +2-3 days | Next batch | If pillar |
+
+## Material-Change Review Queue
+| Post | Review Trigger | Evidence | Priority | Scheduled | Owner |
+|------|----------------|----------|----------|-----------|-------|
+| [slug] | [official source/product/fact changed] | [link or observation] | High | Month 1 | [name] |
+| [slug] | [sustained performance or intent shift] | [surface-specific comparison] | Medium | Month 3 | [name] |
 
 ## Quarterly Goals
 - [ ] Publish [N] new posts
@@ -286,10 +316,10 @@ Set up a system for ongoing freshness maintenance:
 
 ```
 ## Material-Change Review Queue
-| Post | Review Trigger | Evidence | Priority | Owner |
-|------|----------------|----------|----------|-------|
-| [slug] | [official source/product/fact changed] | [link or observation] | High | [name] |
-| [slug] | [sustained performance or intent shift] | [surface-specific comparison] | Medium | [name] |
+| Post | Review Trigger | Evidence | Priority | Scheduled | Owner |
+|------|----------------|----------|----------|-----------|-------|
+| [slug] | [official source/product/fact changed] | [link or observation] | High | Week 2 | [name] |
+| [slug] | [sustained performance or intent shift] | [surface-specific comparison] | Medium | Week 4 | [name] |
 ```
 
 Automation recommendations:
