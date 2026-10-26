@@ -11,16 +11,17 @@ and the evidence for the answer.
 - `templates/outline.md`: the output template.
 - `briefs/[slug]-search-intent.md`: the Reader Task, for the review of
   the order.
-- `briefs/[slug]-task-brief.md`: the Reader decision, the Page this
-  post supports, the Reader next step, and the Does not sell or claim
-  row.
+- `briefs/[slug]-task-brief.md`: the Positioning, the Reader decision,
+  the Page this post supports, the Reader next step, and the Does not
+  sell or claim row.
 - `briefs/[slug]-demand-facets.md`: the Kept Facets, the questions
   that the post must answer.
 - `briefs/[slug]-evidence-plan.md`: the Facet and Weak columns of the
   Questions table. The #, Question, Finding, Status, and Chart columns
   of the Sources table.
 - `briefs/[slug]-information-gain.md`: the gain IDs and their Use, the
-  Evidence requirement of each gain, and First-Party Evidence.
+  Evidence requirement of each gain, the Deliverable gain, and
+  First-Party Evidence.
 
 #### Rules
 
@@ -61,6 +62,7 @@ and the evidence for the answer.
 
    | Check | Question |
    |-------|----------|
+   | Positioning | Is the deliverable gain the main job of one H2? Does an H2 explain background that the reader of the Positioning does not need? |
    | Intent | Does the order match the Reader Task? Does the first H2 answer the main question, or does it explain a concept first? |
    | Questions | Does each kept facet have an H2? Do two H2s answer the same question? |
    | Evidence | Does each core answer have an adopted source or a narrower claim? |
@@ -68,8 +70,9 @@ and the evidence for the answer.
 
 5. Fill the Changes table, one row for each change from V1 to V2. For
    example, merge two H2s that answer the same question, or add an H2
-   for a missing facet. Then write the change IDs in the Changes column
-   of the Self-Review table.
+   for a missing facet. Shorten or merge an H2 that explains background
+   that the reader does not need, and keep its facets in an H2. Then
+   write the change IDs in the Changes column of the Self-Review table.
 6. Fill Outline V2. Apply the changes to V1, and fill the five lines of
    each H2.
    - In Evidence, write the source # of each adopted source. If the
@@ -91,7 +94,8 @@ and the evidence for the answer.
 #### Check
 
 - Every kept facet is in at least one H2 of Outline V2. Every gain ID
-  is in at least one Gains line.
+  is in at least one Gains line. The deliverable gain is the main job
+  of one H2.
 - Every Answer line gives a conclusion for the reader. No two Answer
   lines have the same text. No line has more than two sentences or a
   sentence over 25 words.

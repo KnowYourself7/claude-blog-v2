@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SKILL_DIR = ROOT / "skills" / "blog-brief"
 STEP_LINE = re.compile(r"^- \[ \] Step (\d+): ([^.]+)\. (.+)$")
 BRIEF_FILE = re.compile(r"briefs/\[slug\]-([\w\[\]-]+\.md)")
+TASK_BRIEF_ROW = re.compile(r"\bthe ([A-Z][a-z]+(?: [a-z]+)*)")
 
 
 def _skill_text() -> str:
@@ -89,3 +90,27 @@ def test_save_step_output_is_in_its_section() -> None:
     save_section = _skill_text().split("### Step 10: Save the Brief", 1)[1]
     for output in CHECKLIST[10]["outputs"]:
         assert f"briefs/[slug]-{output}" in save_section
+
+
+def _task_brief_rows() -> set[str]:
+    text = (SKILL_DIR / "templates" / "task-brief.md").read_text(encoding="utf-8")
+    return set(re.findall(r"^\| ([^|]+?) \|", text, re.M)) - {"Item"}
+
+
+@pytest.mark.parametrize(
+    ("step_number", "rows"),
+    [
+        (7, {"Positioning", "Deliverable"}),
+        (8, {"Positioning"}),
+        (9, {"Positioning", "Reader", "Deliverable"}),
+    ],
+)
+def test_steps_read_task_brief_rows_that_exist(step_number: int, rows: set[str]) -> None:
+    inputs_section = _section(CHECKLIST[step_number]["step_file"], "Inputs")
+    item = next(i for i in re.split(r"\n(?=- )", inputs_section) if "task-brief.md" in i)
+    named = {
+        re.sub(r" rows?$", "", name)
+        for name in TASK_BRIEF_ROW.findall(" ".join(item.split()))
+    }
+    assert rows <= named
+    assert named <= _task_brief_rows()

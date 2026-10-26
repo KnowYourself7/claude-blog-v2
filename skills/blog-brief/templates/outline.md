@@ -20,6 +20,7 @@ Title: [a clear title that identifies the page and matches the Reader Task]
 
 | Check | Finding | Changes |
 |-------|---------|---------|
+| Positioning | [what you found] | [C-IDs, or none] |
 | Intent | [what you found] | [C-IDs, or none] |
 | Questions | [what you found] | [C-IDs, or none] |
 | Evidence | [what you found] | [C-IDs, or none] |

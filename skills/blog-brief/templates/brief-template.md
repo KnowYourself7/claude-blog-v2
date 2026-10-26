@@ -4,6 +4,11 @@
 
 # Content Brief: [Title Suggestion]
 
+## Positioning
+- **Positioning**: [the Positioning of the task brief]
+- **Reader**: [the Reader of the task brief]
+- **Deliverable**: [the Deliverable of the task brief]
+
 ## Template
 **Recommended**: [template-name]: [1-sentence rationale]
 
