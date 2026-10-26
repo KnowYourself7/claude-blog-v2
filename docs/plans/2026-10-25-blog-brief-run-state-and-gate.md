@@ -3,7 +3,7 @@
 | 项目 | 内容 |
 |---|---|
 | 日期 | 2026-10-25 |
-| 状态 | 2026-10-25 用户确认方案。第一个分支已合并（#19）；第二个分支未开始 |
+| 状态 | 2026-10-25 用户确认方案。第一个分支已合并（#19）；第二个分支已合并（#21），细化方案见 `docs/plans/2026-10-25-blog-brief-gate-a-to-b.md` |
 | 分支 | 两个分支，先后做：`feat/blog-brief-run-state`（状态文件），`feat/blog-brief-gate-a-to-b`（阶段门）。都等 `feat/blog-brief-workflow-checklist` 合并后从 `main` 开，因为两个都要读它加的可勾选清单 |
 | 依据 | 第 05 课 A→B 阶段门（p.127）；第 01 课任务状态文件 `_blog_workflow_state.json`（p.108）；第 00 课「每一步都有明确输入、产物和验收」（p.106）和质量门要说清「哪一步有问题、为什么、怎么修」（p.29）；Anthropic 官方 Prompting best practices「State management best practices」和 Skill authoring best practices「Create verifiable intermediate outputs」，原话见第 3.3 节 |
 | 路线图 | `docs/plans/2026-10-22-blog-brief-step-files.md` 第 6 节第 2 行（原名 run-folder）和第 8 行 |

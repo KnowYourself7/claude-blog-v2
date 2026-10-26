@@ -69,6 +69,7 @@ Brief Progress:
 - [ ] Step 8: Outline. Read step-8-outline.md. Uses Step 1, Step 2, Step 3, Step 6, Step 7. Output: outline.md.
 - [ ] Step 9: Generate the Brief. Read step-9-generate-brief.md. Uses Step 1, Step 2, Step 5, Step 6, Step 7, Step 8. Output: the filled brief, no file.
 - [ ] Step 10: Save the Brief. Read the Step 10 section below. Uses Step 9. Output: brief.md.
+- [ ] Step 11: A-to-B Gate. Read step-11-a-to-b-gate.md. Uses Step 1, Step 2, Step 3, Step 4, Step 6, Step 7, Step 8, Step 10. Output: no file. Can stop.
 ```
 
 ### State File
@@ -88,7 +89,7 @@ continue the run. Run the script with `python3` from the project root.
 3. When every item of the Check is true, run the same command with
    `--status done`. For Step 5, add `--note` with the template and the
    reason. If you save the brief in another place, add `--file` with
-   its path.
+   its path. For Step 11, do what its step file says.
 4. When a step stops, run it with `--status stopped --note "[the question]"`.
    When the user answers, run it with
    `--status in_progress --note "[the answer]"`.
@@ -99,4 +100,4 @@ step before `set` accepts `done`.
 ### Step 10: Save the Brief
 
 Save to the user's project as `briefs/[slug]-brief.md` or to a location
-they specify. Create the `briefs/` directory if it does not exist. Confirm the brief is ready for `/blog write`.
+they specify. Create the `briefs/` directory if it does not exist.

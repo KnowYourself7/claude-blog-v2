@@ -52,7 +52,7 @@ STEPS_WITH_FILES = sorted(n for n, s in CHECKLIST.items() if s["step_file"])
 
 
 def test_checklist_lists_every_step_in_order() -> None:
-    assert sorted(CHECKLIST) == list(range(1, 11))
+    assert sorted(CHECKLIST) == list(range(1, 12))
 
 
 @pytest.mark.parametrize("step_number", STEPS_WITH_FILES)
