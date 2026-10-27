@@ -59,7 +59,7 @@ user a question. If it stops, wait for the answer.
 
 ```
 Brief Progress:
-- [ ] Step 1: Topic Intake. Read step-1-topic-intake.md. Output: task-brief.md.
+- [ ] Step 1: Topic Intake. Read step-1-topic-intake.md. Output: task-brief.md. Can stop.
 - [ ] Step 2: SERP Intent Gate. Read step-2-serp-intent-gate.md. Uses Step 1. Output: search-intent.md. Can stop.
 - [ ] Step 3: Keywords to Demand Facets. Read step-3-demand-facets.md. Uses Step 1, Step 2. Output: keyword-research.md, demand-facets.md, and the work files that the step file lists. Can stop.
 - [ ] Step 4: Competitor Gap List. Read step-4-competitor-gaps.md. Uses Step 2, Step 3. Output: competitor-gaps.md, competitor-[n].md.

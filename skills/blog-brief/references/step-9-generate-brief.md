@@ -15,8 +15,10 @@ Turn Outline V2 and the research files into the brief that
   task, the counts, and the decision.
 - `briefs/[slug]-evidence-plan.md`: the adopted sources, for
   Statistics to Include.
-- `briefs/[slug]-task-brief.md`: the Page this post supports, for
-  Internal Link Architecture.
+- `briefs/[slug]-task-brief.md`: the Positioning, the Reader, and the
+  Deliverable rows, which the brief copies into its own Positioning
+  section. The Page this post supports, for Internal Link
+  Architecture.
 - `briefs/[slug]-information-gain.md`: First-Party Evidence, for the
   Experience line of E-E-A-T Signals.
 - `briefs/[slug]-state.json`: the note of Step 5, the template and the
@@ -37,8 +39,9 @@ Turn Outline V2 and the research files into the brief that
 
 #### Check
 
-- The Content Outline is the same as Outline V2 of the outline file,
-  without its Title line.
+- The Positioning section has the same three values as the task
+  brief. The Content Outline is the same as Outline V2 of the outline
+  file, without its Title line.
 - Every source # in the Content Outline has a row in Statistics to
   Include. Every row is an adopted source that the Content Outline
   cites.
