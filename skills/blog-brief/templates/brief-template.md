@@ -7,6 +7,7 @@
 ## Positioning
 - **Positioning**: [the Positioning of the task brief]
 - **Reader**: [the Reader of the task brief]
+- **Role**: [the Role of the task brief]
 - **Deliverable**: [the Deliverable of the task brief]
 
 ## Template
@@ -26,8 +27,8 @@
 - **Decision**: [continue / stop, user chose to write the blog anyway]
 
 ## Content Parameters
-- **Word count**: [2,000-2,500] words
-- **Reading level**: Flesch 60-70 (expert-accessible)
+- **Word count**: about [n] words, a planning estimate from the range [low-high] of [file name and table, or the template name]
+- **Reading level**: [tier or band]: Flesch Grade [range], Flesch Ease [range], from [VOICE.md / the Reader row / the default target]
 - **Format**: [Markdown/MDX/HTML]
 - **H2 sections**: [the number of H2 sections in Outline V2]
 - **Images**: as the topic needs (original assets, product screenshots, diagrams, or licensed stock); no fixed count

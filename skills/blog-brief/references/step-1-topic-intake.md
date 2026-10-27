@@ -47,16 +47,22 @@ away from it.
    not sell or must not claim.
 4. Page: the page that this post supports, and the next step for the
    reader.
-5. Delivery: the positioning and the deliverable of the post.
+5. Delivery: the positioning, the role, and the deliverable of the
+   post.
    - The positioning names the type of post, the reader, and the job
      of the post for the brand. For example, a troubleshooting post
      for buyers of dispensing supplies leads them to the matching
      products.
+   - The role is the place of the post in the site. A `pillar` is the
+     core page of a topic, and the cluster posts of the topic link to
+     it. A `cluster` post answers one question of a topic and links to
+     its pillar. A `standalone` post is neither.
    - The deliverable is the main thing that the reader takes from the
      post and can use, and its size. For example, a table of 7 faults
      gives the symptom, the cause, and the part to check.
    - If the user did not give one of them, draft it from the reader
-     decision, the Reader row, and the Sells row.
+     decision, the Reader row, and the Sells row. Draft the role as
+     `standalone`.
 6. If a Delivery row is a draft, or a Page row is exactly `missing`,
    save the task brief and stop. In one message, show each draft and
    ask for each missing Page row.
@@ -73,10 +79,11 @@ away from it.
 - No brand fact and no Reader row comes from outside the words of the
   user and `BRAND.md`.
 - The Positioning names the type of post, the reader, and the job for
-  the brand, or says `missing` for a part without a source. The
-  Deliverable names a thing that the reader can use.
+  the brand, or says `missing` for a part without a source. The Role is
+  `pillar`, `cluster`, or `standalone`. The Deliverable names a thing
+  that the reader can use.
 - The user answered each draft and each missing Page row. Or the user
-  gave all four values: the two Delivery rows and the two Page rows.
+  gave all five values: the three Delivery rows and the two Page rows.
 - The market has two codes and says `given` or `default`. The slug has
   only `a` to `z`, `0` to `9`, and single hyphens. The file name
   starts with it.

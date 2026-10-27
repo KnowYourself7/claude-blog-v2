@@ -39,4 +39,5 @@
 | Item | Value |
 |------|-------|
 | Positioning | [the type of post, the reader, and the job of the post for the brand] |
+| Role | [pillar, cluster, or standalone] |
 | Deliverable | [the main thing that the reader takes from the post and can use, and its size] |
