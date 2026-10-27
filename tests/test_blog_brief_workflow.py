@@ -102,7 +102,7 @@ def _task_brief_rows() -> set[str]:
     [
         (7, {"Positioning", "Deliverable"}),
         (8, {"Positioning"}),
-        (9, {"Positioning", "Reader", "Deliverable"}),
+        (9, {"Positioning", "Reader", "Role", "Deliverable"}),
     ],
 )
 def test_steps_read_task_brief_rows_that_exist(step_number: int, rows: set[str]) -> None:
@@ -114,3 +114,9 @@ def test_steps_read_task_brief_rows_that_exist(step_number: int, rows: set[str])
     }
     assert rows <= named
     assert named <= _task_brief_rows()
+
+
+def test_brief_template_has_no_fixed_length_or_reading_level() -> None:
+    template = (SKILL_DIR / "templates" / "brief-template.md").read_text(encoding="utf-8")
+    assert "2,000-2,500" not in template
+    assert "expert-accessible" not in template
