@@ -35,6 +35,8 @@ One row for each organic item. Labels come from the URL and the title.
 
 The searcher wants to [one sentence].
 
+Post type: [two or three words, for example troubleshooting post. If the Positioning of the task brief names another type, write both]
+
 ## SERP Features
 
 | Feature | Result |
