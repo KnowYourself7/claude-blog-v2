@@ -13,7 +13,7 @@ This file is the keyword evidence for `briefs/[slug]-demand-facets.md`.
 | Market | [location_code] / [language_code] |
 | Date | [YYYY-MM-DD of the expand calls] |
 | Questions | `briefs/[slug]-questions.md`, written by `scripts/keyword_pool.py` |
-| Search volume, KD, intent | DataForSEO Labs: Related Keywords and Keyword Overview |
+| Search volume, KD, intent | DataForSEO Labs: Related Keywords, Keyword Suggestions, and Keyword Overview |
 | AI search volume | DataForSEO AI Keyword Data |
 
 The calls and their costs are in the Calls table of the questions file.
@@ -24,6 +24,7 @@ The calls and their costs are in the Calls table of the questions file.
 |-------|------|-----------------|-----------------|
 | 1 | [focus keyword] | the focus keyword | [n] |
 | 2 | [wider seed, or not run] | [the modifiers that you removed, or the shorter phrase, or "round 1 had 9 or more"] | [n] |
+| suggest | [core phrase] | the focus keyword without question words and articles | [n] |
 
 ## Removed Rows
 

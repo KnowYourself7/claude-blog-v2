@@ -12,6 +12,9 @@ Subcommands:
                  questions and keywords to the questions file (.md and .json),
                  deduplicated, with a Calls table of costs, and report whether
                  the count is below --min (default 9).
+    suggest      One extra round: call Keyword Suggestions for the core
+                 phrase (at most --limit 100 keywords) and add the keywords
+                 to the questions file with round "suggest". Runs once.
     volume       Call Keyword Overview for every question that has no search
                  volume yet. A missing value stays null, never 0.
     rank-facets  Rank facets written by the model: representative keyword,
@@ -27,6 +30,7 @@ Usage:
         --seed "can you wear linen in winter" --round 1 --out briefs
     python3 keyword_pool.py expand --slug linen-winter --focus "can you wear linen in winter" \
         --seed "linen in winter" --round 2 --out briefs
+    python3 keyword_pool.py suggest --slug linen-winter --seed "wear linen winter" --out briefs
     python3 keyword_pool.py volume --slug linen-winter --out briefs
     python3 keyword_pool.py rank-facets --slug linen-winter --facets briefs/linen-winter-facets.json --out briefs
     python3 keyword_pool.py ai --slug linen-winter --out briefs
@@ -51,6 +55,8 @@ API_BASE = "https://api.dataforseo.com/v3/"
 AUTOCOMPLETE = "serp/google/autocomplete/live/advanced"
 ORGANIC = "serp/google/organic/live/advanced"
 RELATED = "dataforseo_labs/google/related_keywords/live"
+SUGGESTIONS = "dataforseo_labs/google/keyword_suggestions/live"
+SUGGESTIONS_MAX = 100
 OVERVIEW = "dataforseo_labs/google/keyword_overview/live"
 AI_VOLUME = "ai_optimization/ai_keyword_data/keywords_search_volume/live"
 OVERVIEW_CHUNK = 700
@@ -189,6 +195,14 @@ def questions_from_related(data: dict[str, Any]) -> list[dict[str, Any]]:
     for item in items_from_response(data):
         if item.get("keyword"):
             out.append({"text": item["keyword"], "source": "related keyword", **_metrics(item)})
+    return out
+
+
+def questions_from_suggestions(data: dict[str, Any]) -> list[dict[str, Any]]:
+    out = []
+    for item in items_from_response(data):
+        if item.get("keyword"):
+            out.append({"text": item["keyword"], "source": "keyword suggestion", **_metrics(item)})
     return out
 
 
@@ -434,6 +448,24 @@ def cmd_expand(args: argparse.Namespace) -> dict[str, Any]:
     return {"round": args.round, "seed": args.seed, "found": len(found), "added": added, "questions": total, "short": total < args.min, "min": args.min, "cost": round(cost, 5), "files": [str(path), str(out / f"{args.slug}-questions.md")]}
 
 
+def cmd_suggest(args: argparse.Namespace) -> dict[str, Any]:
+    if not 1 <= args.limit <= SUGGESTIONS_MAX:
+        raise KeywordPoolError(f"--limit must be 1 to {SUGGESTIONS_MAX}")
+    out = Path(args.out)
+    state = _load_state(out, args.slug)
+    if any(r["round"] == "suggest" for r in state["rounds"]):
+        raise KeywordPoolError("the suggest round already ran; it runs once")
+    market = {"location_code": state["location"], "language_code": state["language"]}
+    data = call_api(SUGGESTIONS, [{"keyword": args.seed, "limit": args.limit, **market}])
+    found = questions_from_suggestions(data)
+    state["calls"].append({"call": "Keyword Suggestions", "endpoint": SUGGESTIONS, "parameters": f'keyword "{args.seed}", limit {args.limit}', "results": len(found), "cost": response_cost(data)})
+    added = add_questions(state, found, args.seed, "suggest")
+    total = len(state["questions"])
+    state["rounds"].append({"round": "suggest", "seed": args.seed, "found": len(found), "added": added, "total": total})
+    _save_state(out, args.slug, state)
+    return {"round": "suggest", "seed": args.seed, "found": len(found), "added": added, "questions": total, "cost": round(response_cost(data), 5), "files": [str(_state_path(out, args.slug)), str(out / f"{args.slug}-questions.md")]}
+
+
 def cmd_volume(args: argparse.Namespace) -> dict[str, Any]:
     out = Path(args.out)
     state = _load_state(out, args.slug)
@@ -505,6 +537,13 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--language", default="en")
     p.add_argument("--out", default="briefs", help="output folder (default: briefs)")
     p.set_defaults(func=cmd_expand)
+
+    p = sub.add_parser("suggest")
+    p.add_argument("--slug", required=True)
+    p.add_argument("--seed", required=True, help="the core phrase: the focus keyword without question words and articles")
+    p.add_argument("--limit", type=int, default=SUGGESTIONS_MAX, help=f"most keywords to return, 1 to {SUGGESTIONS_MAX} (default: {SUGGESTIONS_MAX})")
+    p.add_argument("--out", default="briefs")
+    p.set_defaults(func=cmd_suggest)
 
     p = sub.add_parser("volume")
     p.add_argument("--slug", required=True)

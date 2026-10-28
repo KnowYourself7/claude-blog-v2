@@ -10,9 +10,10 @@ post must answer.
   root. `python3 scripts/keyword_pool.py <subcommand> --help` lists
   the flags. It reads `DATAFORSEO_LOGIN` and `DATAFORSEO_PASSWORD`.
   If they are not set, stop and ask the user to set them.
-- Its five DataForSEO endpoints: Autocomplete, the organic SERP with
+- Its six DataForSEO endpoints: Autocomplete, the organic SERP with
   the PAA box (People Also Ask) opened two levels deep, Related
-  Keywords two levels deep, Keyword Overview, AI Keyword Data.
+  Keywords two levels deep, Keyword Suggestions, Keyword Overview, AI
+  Keyword Data.
 
 #### Inputs
 
@@ -38,7 +39,12 @@ post must answer.
    phrase for the same reader task. For example, `linen in winter`
    for `can you wear linen in winter`. Run `expand` again with
    `--seed "[wider seed]" --round 2`. Do not run a third round.
-3. Run `volume --slug [slug]`. It fills the search volume, KD
+3. Make the core phrase: the focus keyword without question words and
+   articles. Keep the verb. For example, `wear cardigan men` for
+   `how to wear a cardigan men`. Run
+   `suggest --slug [slug] --seed "[core phrase]"`. It adds at most 100
+   Keyword Suggestions to the questions file, with round `suggest`.
+   Run it one time. Then run `volume --slug [slug]`. It fills the search volume, KD
    (keyword difficulty, 0 to 100), and intent of every row from
    Keyword Overview. A row that the API does not know stays `null`.
 4. Read the questions file. Write `briefs/[slug]-facets.json`, a JSON
@@ -116,7 +122,8 @@ Ebestron, demand facets, 5 of 9 shown:
 
 #### Check
 
-- Round 1 ran. Round 2 ran only if round 1 was short. 3 to 9 facets
+- Round 1 ran. Round 2 ran only if round 1 was short. The suggest
+  round ran one time with the core phrase. 3 to 9 facets
   are kept, or the user chose write anyway.
 - In `briefs/[slug]-facets.json`, no row number is in two facets, and
   every row of the questions file is in a facet or in Removed Rows.

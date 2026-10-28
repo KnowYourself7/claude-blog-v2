@@ -95,3 +95,14 @@ Step 4 到 Step 8 读 Kept Facets 的 ID、问题和代表词，列名不变，�
 1. `docs(blog-brief): add design for Step 3 question expansion`
 2. `feat(blog-brief): expand demand questions from the focus keyword and widen the seed when short`
 3. `feat(blog-brief): add AI search volume to the demand facets`
+
+## 8. 变更：加回 Keyword Suggestions，作为一轮补充（2026-10-28 晚）
+
+| 项目 | 内容 |
+|---|---|
+| 起因 | Coofandy「how to wear a cardigan men」真实跑 Step 1 到 8 时，用户问为什么没用 Keyword Suggestions。第 5 节当时没选「保留 300 词池当补充」 |
+| 用户决定 | 2026-10-28：只用 Keyword Suggestions 补一轮，上限 100；第 1 轮之后总是跑，不看问题够不够 9 条；种子用去掉疑问词和冠词、保留动词的核心词组（如 `wear cardigan men`） |
+| 和第 5 节的关系 | 起点仍是问题：9 条仍只数第 1 步去重后的问题。补充轮上限 100，不是 300；结果并进同一张问题表，来源记 `keyword suggestion`，按同样规则去重和删行 |
+| 实现 | 脚本新增 `suggest` 子命令：调 `dataforseo_labs/google/keyword_suggestions/live` 一次，`limit` 默认 100、不能超过 100，同一份问题表只能跑一次，行的轮次记 `suggest`。Step 3 action 3 先跑 `suggest` 再跑 `volume`；关键词调研模板的 Rounds 表加 `suggest` 行 |
+| 费用 | 每篇多一次 Labs 调用，按 100 条估约 US$0.02（按官方价目推算，未实测） |
+| 验证 | `tests/test_keyword_pool.py` 加 2 条：读 Suggestions 返回的词和指标；`suggest` 只跑一次、上限 100、并表去重、Calls 表记费用 |

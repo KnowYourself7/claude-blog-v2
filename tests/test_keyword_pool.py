@@ -56,6 +56,14 @@ def test_items_from_response_collects_items_and_cost():
     assert keyword_pool.response_cost(data) == 0.0102
 
 
+def test_questions_from_suggestions_keep_keyword_metrics():
+    data = json.loads((FIXTURES / "keyword_pool_suggestions.json").read_text(encoding="utf-8"))
+    found = keyword_pool.questions_from_suggestions(data)
+    assert [q["text"] for q in found][:2] == ["linen pants outfit", "linen pant outfit"]
+    assert {q["source"] for q in found} == {"keyword suggestion"}
+    assert found[0]["volume"] == 1000 and found[0]["kd"] == 12 and found[0]["intent"] == "informational"
+
+
 def test_normalize_ignores_case_spaces_and_end_punctuation():
     assert keyword_pool.normalize("  Is linen  Warm? ") == "is linen warm"
     assert keyword_pool.normalize("is linen warm") == keyword_pool.normalize("Is linen warm?")
@@ -239,3 +247,49 @@ def test_cli_expand_volume_rank_ai_writes_files(tmp_path, monkeypatch):
     assert "| F2 | Is linen warm enough for winter? | - | Is linen warm? | 1300 | 210 |" in tables
     assert "| F1 | How do you layer linen in winter? | - | linen in winter outfit | 320 | null |" in tables
     assert "ai_optimization/ai_keyword_data/keywords_search_volume/live" in tables
+
+
+SUGGESTIONS = _response([
+    {"keyword": "how to wear linen in winter", "keyword_info": {"search_volume": 90, "monthly_searches": [{"year": 2026, "month": 1, "search_volume": 140}]}, "keyword_properties": {"keyword_difficulty": 1}, "search_intent_info": {"main_intent": "informational"}},
+    {"keyword": "linen in winter outfit", "keyword_info": {"search_volume": 320, "monthly_searches": []}, "keyword_properties": {"keyword_difficulty": 4}, "search_intent_info": {"main_intent": "informational"}},
+], cost=0.0102)
+
+
+def test_cli_suggest_adds_one_capped_round(tmp_path, monkeypatch, capsys):
+    calls = []
+
+    def fake_call(endpoint, payload):
+        calls.append((endpoint, payload[0]))
+        return {
+            keyword_pool.AUTOCOMPLETE: AUTOCOMPLETE,
+            keyword_pool.ORGANIC: SERP,
+            keyword_pool.RELATED: RELATED,
+            keyword_pool.SUGGESTIONS: SUGGESTIONS,
+        }[endpoint]
+
+    monkeypatch.setattr(keyword_pool, "call_api", fake_call)
+    out = tmp_path / "briefs"
+    focus = "can you wear linen in winter"
+    assert keyword_pool.main(["expand", "--slug", "t", "--focus", focus, "--seed", focus, "--out", str(out)]) == 0
+
+    assert keyword_pool.main(["suggest", "--slug", "t", "--seed", "wear linen winter", "--out", str(out)]) == 0
+    assert calls[-1][0] == keyword_pool.SUGGESTIONS
+    assert calls[-1][1]["keyword"] == "wear linen winter" and calls[-1][1]["limit"] == 100
+    assert calls[-1][1]["location_code"] == 2840 and calls[-1][1]["language_code"] == "en"
+    state = json.loads((out / "t-questions.json").read_text(encoding="utf-8"))
+    assert len(state["questions"]) == 6
+    new = state["questions"][-1]
+    assert new["text"] == "how to wear linen in winter" and new["round"] == "suggest" and new["volume"] == 90
+    outfit = next(q for q in state["questions"] if q["text"] == "linen in winter outfit")
+    assert outfit["sources"] == ["related search", "related keyword", "keyword suggestion"]
+    assert state["rounds"][-1] == {"round": "suggest", "seed": "wear linen winter", "found": 2, "added": 1, "total": 6}
+    questions_md = (out / "t-questions.md").read_text(encoding="utf-8")
+    assert "| 6 | how to wear linen in winter | keyword suggestion | suggest | 90 | Jan 2026: 140 | 1 | informational |" in questions_md
+    assert '| Keyword Suggestions | `dataforseo_labs/google/keyword_suggestions/live` | keyword "wear linen winter", limit 100 | 2 | 0.0102 |' in questions_md
+
+    capsys.readouterr()
+    assert keyword_pool.main(["suggest", "--slug", "t", "--seed", "linen winter", "--out", str(out)]) == 1
+    assert "already ran" in capsys.readouterr().out
+    assert keyword_pool.main(["suggest", "--slug", "t", "--seed", "linen winter", "--limit", "101", "--out", str(out)]) == 1
+    assert "--limit must be 1 to 100" in capsys.readouterr().out
+    assert len([c for c in calls if c[0] == keyword_pool.SUGGESTIONS]) == 1
