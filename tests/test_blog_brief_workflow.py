@@ -120,3 +120,19 @@ def test_brief_template_has_no_fixed_length_or_reading_level() -> None:
     template = (SKILL_DIR / "templates" / "brief-template.md").read_text(encoding="utf-8")
     assert "2,000-2,500" not in template
     assert "expert-accessible" not in template
+
+
+def test_task_brief_template_has_the_four_input_groups() -> None:
+    """Step 1 collects the four Yudong input groups and the existing pages."""
+    template = (SKILL_DIR / "templates" / "task-brief.md").read_text(encoding="utf-8")
+    for heading in ("## Topic", "## Business", "## Existing Pages", "## Page", "## Delivery"):
+        assert heading in template
+    assert "| URL | Covers | Type |" in template
+    assert {
+        "First-party material",
+        "Existing post on this topic",
+        "Scope",
+        "API budget",
+        "Author and platform",
+        "Page this post supports",
+    } <= _task_brief_rows()

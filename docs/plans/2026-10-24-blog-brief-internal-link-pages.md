@@ -3,7 +3,7 @@
 | 项目 | 内容 |
 |---|---|
 | 日期 | 2026-10-24 |
-| 状态 | 计划中。等 `feat/blog-brief-a10-outline` 合并后，从 `main` 开分支。2026-10-26 补记：#24 给任务单加了 Delivery 表，#25 加了 Role 行，Step 1 和 Step 8 都改过。动手前要按新的任务单模板改写本计划，cluster 文章链回 pillar 也可以放进来 |
+| 状态 | 计划中。等 `feat/blog-brief-a10-outline` 合并后，从 `main` 开分支。2026-10-26 补记：#24 给任务单加了 Delivery 表，#25 加了 Role 行，Step 1 和 Step 8 都改过。动手前要按新的任务单模板改写本计划，cluster 文章链回 pillar 也可以放进来。2026-10-27 补记：Existing Pages 表（URL、Covers、Type）和 Step 1 的撞题检查由分支 feat/upgrade-step-1-topic-intake 做了，见 2026-10-27-blog-brief-step-1-yudong-intake.md；本计划只剩 Step 8、Step 9 的内链部分，动手前删掉第 2 节「不做」表里的撞题一行和 4.2 第 1 条 |
 | 分支 | feat/blog-brief-internal-link-pages（暂定） |
 | 依据 | 第 01 课资料盘点单「已有网站资料：产品网址清单、同站博客清单，用于选内链和避免重复」（p.110）；第 05 课第二版「确定表格、案例、内链的位置」（p.125）；第 07 课自然内链「连接支柱页和相关内容」、条数「没有通用标准」（p.132-133） |
 | 来源 | `docs/reviews/2026-10-24-blog-brief-narrow-constraints.md` 的 A1 |
