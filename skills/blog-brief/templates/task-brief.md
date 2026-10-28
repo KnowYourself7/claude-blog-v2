@@ -1,6 +1,7 @@
 <!-- Output of blog-brief Step 1 (../references/step-1-topic-intake.md).
      Fill every [bracket]. Unknown cell: `missing`. Value from BRAND.md:
-     add "(from BRAND.md)". Drafted Delivery value: start with "draft:".
+     add "(from BRAND.md)". Drafted Reader decision or Delivery value:
+     start with "draft:".
      No page or no next step: "missing, the user has none". Existing
      Pages: one row per page, or one row of "missing". -->
 
@@ -46,7 +47,7 @@
 | Item | Value |
 |------|-------|
 | Positioning | [the type of post, the reader, and the job of the post for the brand] |
-| Role | [pillar, cluster, or standalone] |
+| Role | [pillar, cluster, or standalone. For cluster, add its pillar page or topic, or missing] |
 | Deliverable | [the main thing that the reader takes from the post and can use, and its size] |
 | Scope | [what this run delivers, and who approves publishing, or missing] |
 | API budget | [the limit on paid API calls for this run, or missing] |

@@ -23,7 +23,9 @@ of the pages that rank.
    two pages share a format, write `mixed`.
 2. Choose the content template that fits that format and the Reader
    Task. If the format is `mixed`, choose from the Reader Task and
-   say so in the reason. Write the reason in one sentence.
+   say so in the reason. The "When to use" of a template can conflict
+   with the Reader Task. Then choose from the format, and name the
+   conflict in the reason. Write the reason in one sentence.
 3. Read `../blog/templates/[template name].md`, for example
    `../blog/templates/how-to-guide.md`, to make sure that its
    sections fit the Reader Task.

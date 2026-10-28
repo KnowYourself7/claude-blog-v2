@@ -13,7 +13,7 @@ Use says how the post uses the evidence, and the care that it needs.
 
 | ID | Facet | Question | Source type | Use | Weak |
 |----|-------|----------|---------------|-----|------|
-| E1 | [F-ID or -] | [one claim or number to prove] | [standard / paper / technical document / vendor document / case / forum lead] | [how the post uses it, and the care that it needs] | [yes / no] |
+| E1 | [F-ID or -] | [one claim or number to prove] | [standard / paper / technical document / vendor document / editorial / case / forum lead] | [how the post uses it, and the care that it needs] | [yes / no] |
 
 ## Search Plan
 

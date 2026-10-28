@@ -23,7 +23,8 @@ research plan is not a list of URLs.
    the reader decision depends on, from the Kept Facets and the Gap
    List. Write one F-ID in Facet, or `-` for a gap with no facet.
    Write one Source type: standard, paper, technical document, vendor
-   document, case, or forum lead. Write in Use how the post uses the
+   document, editorial, case, or forum lead. `editorial` is an article
+   of a magazine or an expert site. Write in Use how the post uses the
    evidence.
 2. Before the first search, fill the Search Plan. Write one row for
    each facet that has at least one question, and one row for `-`.
@@ -48,7 +49,9 @@ research plan is not a list of URLs.
    source, write `-` in Finding and Chart.
 6. After the last fetch, write Weak `yes` for each question with no
    adopted source, else `no`. Then fill the Actual columns of the
-   Search Plan.
+   Search Plan. Count each fetch in the row of the search that found
+   it. A source that also answers the questions of other rows stays
+   in that one row.
 
 #### Outputs
 

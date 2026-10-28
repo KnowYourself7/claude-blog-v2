@@ -37,6 +37,8 @@ The searcher wants to [one sentence].
 
 Post type: [two or three words, for example troubleshooting post. If the Positioning of the task brief names another type, write both]
 
+PAA: [the questions of the People Also Ask box, or none]
+
 ## SERP Features
 
 | Feature | Result |

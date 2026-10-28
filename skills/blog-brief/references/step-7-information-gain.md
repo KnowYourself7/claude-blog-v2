@@ -44,13 +44,16 @@ evidence that each addition needs.
    from the evidence plan and the owner of the data, the one who made
    it. Write the type. `measured`: a test, a survey, or a
    specification. `estimated`: calculated from other numbers or a
-   model. `example`: made up to show an idea. Name the owner in every
+   model. `guidance`: a rule that an expert, an editor, or a maker
+   publishes, with no test behind it. `example`: made up to show an
+   idea. Name the owner in every
    row. Do not point to another row. If no adopted source supports the
    gain, write the narrower claim: the smaller statement that the
    adopted sources do support.
 6. Fill First-Party Evidence from the First-party material row of the
    task brief: the method, the evidence, and the results. If the row
-   is `missing`, write `none supplied`.
+   is `missing`, write `none supplied`. If no item of the row is about
+   this topic, write `none supplied for this topic`.
 
 #### Outputs
 

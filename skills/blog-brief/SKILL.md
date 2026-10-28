@@ -20,8 +20,9 @@ it is not an exported shell variable. Resolve them before execution, quote
 paths, and refuse nonabsolute overrides. Pass `blog_reference_root` resolved
 from `${CLAUDE_SKILL_DIR}/../blog/references`, `blog_template_root` from
 `${CLAUDE_SKILL_DIR}/../blog/templates`, and needed sibling roots to agents.
-Read the main reference `orchestration-details.md` before loading project
-context; pass only its helper-fenced output to downstream agents.
+Read the Project-Root Context section of the main reference
+`orchestration-details.md` before loading project context; pass only its
+helper-fenced output to downstream agents.
 
 Generates comprehensive content briefs that guide blog writing for maximum
 impact on both Google rankings and AI citation platforms.
@@ -55,7 +56,8 @@ Step files are in `${CLAUDE_SKILL_DIR}/references/`. Paths in the step
 files are relative to `${CLAUDE_SKILL_DIR}`. Output files are in
 `briefs/` and start with `[slug]-`. "Uses" names the steps whose output
 the step reads. "Can stop" means that the step can stop and ask the
-user a question. If it stops, wait for the answer.
+user a question. If it stops, wait for the answer. When you save a
+template as an output file, delete the HTML comment at its top.
 
 ```
 Brief Progress:
@@ -77,6 +79,9 @@ Brief Progress:
 `${CLAUDE_SKILL_DIR}/scripts/brief_state.py` keeps the progress of the
 run in `briefs/[slug]-state.json`. A new session uses the file to
 continue the run. Run the script with `python3` from the project root.
+If the output files go to another folder than `briefs/`, add
+`--out [folder]` to every command of `brief_state.py` and
+`keyword_pool.py`.
 
 1. Before you write the first file of Step 1, run
    `init --slug [slug] --focus "[focus keyword]"`. To continue a run,

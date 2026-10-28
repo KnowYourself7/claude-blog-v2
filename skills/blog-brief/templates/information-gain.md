@@ -8,7 +8,7 @@
 
 | ID | The ranking pages give | Gain | Name | Use | Evidence requirement |
 |----|------------------------|------|------|-----|----------------------|
-| I1 | [one line: what the reader gets from the pages now] | [the thing, for example a fault table, an index, a check order, or a concept card] | [a short name] | [the structure in one line, ending with what the reader can understand, decide, or do] | [source #, the owner of the data, measured / estimated / example. For missing evidence: the narrower claim] |
+| I1 | [one line: what the reader gets from the pages now] | [the thing, for example a fault table, an index, a check order, or a concept card] | [a short name] | [the structure in one line, ending with what the reader can understand, decide, or do] | [source #, the owner of the data, measured / estimated / guidance / example. For missing evidence: the narrower claim] |
 
 Deliverable gain: [gain ID]
 

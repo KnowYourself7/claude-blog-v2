@@ -1,5 +1,8 @@
 <!-- Output of blog-brief Step 3, action 7 (../references/step-3-demand-facets.md).
-     Fill every [bracket] and keep the section order. -->
+     Fill every [bracket] and keep the section order. Copy the Kept
+     Facets table, its AI search volume line, and the Other Facets
+     table from `briefs/[slug]-facet-tables.md`, written by
+     `scripts/keyword_pool.py`. -->
 
 # Demand Facets: [focus keyword]
 
@@ -13,8 +16,6 @@
 
 ## Kept Facets
 
-Copy this table, its AI search volume line, and the Other Facets table
-from `briefs/[slug]-facet-tables.md`, written by `scripts/keyword_pool.py`.
 Each kept facet goes into at least one H2 of the brief. The table goes
 from the highest source count to the lowest, then from the highest
 volume to the lowest, `null` after the volumes. This order does not set

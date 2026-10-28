@@ -16,8 +16,10 @@
 ## Structure
 
 One row for each H2 of the article. Site headings such as Cart or
-Subscribe are not rows. If the article has no H2, write one row with
-`none` and `overview only`.
+Subscribe are not rows. If the article has no H2, use its highest
+section heading level, and write the level before the heading, for
+example `H4: The smart-casual option`. If the article has no section
+heading, write one row with `none` and `overview only`.
 
 | H2 | Reader question that the section answers |
 |----|-------------------------------------------|

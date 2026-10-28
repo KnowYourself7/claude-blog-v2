@@ -58,8 +58,9 @@ review it line by line, and turn it into V2.
 6. Fill Outline V2: apply the changes. For each H2, fill the five
    lines Facets, Answer, Evidence, Gains, and Components. Fill
    Introduction, FAQ, and Conclusion as the template says.
-   - Evidence: the # of each adopted source. Write `estimated` or
-     `example` after a # when the Evidence requirement says so.
+   - Evidence: the # of each adopted source. If the Evidence
+     requirement names `estimated`, `guidance`, or `example`, write
+     that type after the #. Write nothing after a `measured` source.
    - Components: the tables, charts, images, cases, internal links,
      decision framework, and calculator of the H2, each with its task.
      A chart only for a source with Chart `yes`. A case only from an

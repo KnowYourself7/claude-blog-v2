@@ -30,11 +30,15 @@ category page, or a calculator.
    that brand name. `other meaning`: another meaning of the word.
 4. Fill the Counts table. Write Blog share as
    `blog [n]/[total] = [n]%` and Off topic as `[n] of [total]`.
+   The total is the count of organic items that the call returned.
+   SERP features can take slots, so it can be below 10. Do not call
+   again to get more.
 5. Read the `blog` titles and the PAA questions (PAA is the People
    Also Ask box of the results page). Write the Reader Task in one
    sentence, "The searcher wants to ...". Write the Post type in two
    or three words. If it differs from the type in the Positioning
-   row, write both and do not change the task brief.
+   row, write both and do not change the task brief. If the page has no
+   PAA box, write `none` in the PAA line. Else write its questions.
 6. Write `present` or `none` for the AI Overview and the featured
    snippet.
 7. Fill the Decision table with `yes` or `no` for each of its three

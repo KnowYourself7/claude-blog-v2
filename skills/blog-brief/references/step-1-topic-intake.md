@@ -41,8 +41,10 @@ The four groups below are the four tables of the task brief.
    Write `missing` in Covers or Type when the user did not give it.
    When the Covers cell of a page names the same reader decision,
    write its URL and `ask` in Existing post on this topic.
-6. When Positioning, Role, or Deliverable has no value from the user,
-   draft it from Reader decision, Reader, and Sells. Start a drafted
+6. When Reader decision, Positioning, Role, or Deliverable has no
+   value from the user, draft it. Draft Reader decision from the focus
+   keyword. Draft the others from Reader decision, Reader, and Sells.
+   Start a drafted
    value with `draft:`. A drafted Role is `standalone`. Never draft
    Scope, API budget, or Author and platform.
 7. Save the file. If it has a `draft:` value, an `ask`, or `missing`

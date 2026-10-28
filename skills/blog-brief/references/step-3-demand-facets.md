@@ -9,6 +9,7 @@ post must answer.
 - `scripts/keyword_pool.py`, run with `python3` from the project
   root. `python3 scripts/keyword_pool.py <subcommand> --help` lists
   the flags. It reads `DATAFORSEO_LOGIN` and `DATAFORSEO_PASSWORD`.
+  If they are not set, stop and ask the user to set them.
 - Its five DataForSEO endpoints: Autocomplete, the organic SERP with
   the PAA box (People Also Ask) opened two levels deep, Related
   Keywords two levels deep, Keyword Overview, AI Keyword Data.
@@ -52,7 +53,9 @@ post must answer.
      another meaning of the word, or store or platform navigation.
      Keep its `#` and the reason for Removed Rows in action 7.
    - `business`: `out` when the facet asks for a thing outside Sells
-     or inside Does not sell or claim. Else `in`.
+     or inside Does not sell or claim. Else `in`. A styling or how-to
+     question that only names such a thing is `in`. For example,
+     "What shoes go with a cardigan?" is `in` for a brand with no shoes.
    - `reason_kept`: one sentence. For an `out` facet, say why it is
      out. For a facet that matches a product line with a low or `null`
      volume, say that the business sells the product.
