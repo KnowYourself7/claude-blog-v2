@@ -1,134 +1,121 @@
 ### Step 3: Keywords to Demand Facets
 
-#### Goal
+Expand the focus keyword into the questions that readers ask, then
+merge them into demand facets. Each facet is one question that the
+post must answer.
 
-Turn the keywords of the topic into demand facets. A demand facet is
-one part of the reader task: one question that the post must answer.
+#### Tools
+
+- `scripts/keyword_pool.py`, run with `python3` from the project
+  root. `python3 scripts/keyword_pool.py <subcommand> --help` lists
+  the flags. It reads `DATAFORSEO_LOGIN` and `DATAFORSEO_PASSWORD`.
+- Its five DataForSEO endpoints: Autocomplete, the organic SERP with
+  the PAA box (People Also Ask) opened two levels deep, Related
+  Keywords two levels deep, Keyword Overview, AI Keyword Data.
 
 #### Inputs
 
-- `templates/keyword-research.md`: the template for the keyword
-  evidence.
-- `templates/demand-facets.md`: the template for the facets.
-- `scripts/keyword_pool.py`: the script that calls DataForSEO Labs,
-  builds the keyword pool, and ranks the facets. Run it with
-  `python3`. `<subcommand> --help` lists the fields of each JSON file
-  that you write for it.
-- `briefs/[slug]-search-intent.md`: the reader task.
-- `briefs/[slug]-task-brief.md`: the market codes, and the business
-  scope in the Sells and Does not sell or claim rows.
-- The Live SERP response of Step 2, SERP Intent Gate. Do not call the
-  SERP again.
+- The Reader Task and the SERP Features section, from
+  `briefs/[slug]-search-intent.md`.
+- The Market row (location_code / language_code), Sells, and Does not
+  sell or claim, from `briefs/[slug]-task-brief.md`.
 
-#### Rules
+#### Actions
 
-- Volume, KD (keyword difficulty, 0 to 100), and intent come only from
-  DataForSEO Labs, through the script. Write `null` for a missing
-  value, never `0`. Do not add the volumes of two keywords.
-- The script reads `DATAFORSEO_LOGIN` and `DATAFORSEO_PASSWORD` from
-  the environment. If the script prints an error, stop and say why. Do
-  not use WebSearch.
-- The script does the grouping, the sorting, the tie breaks, and the
-  counts. Do not do them again by hand.
-
-#### Steps
-
-Keywords:
-
-1. Copy four parts of the Step 2 response as the Question Evidence:
-   the AI Overview section titles, the PAA (People Also Ask)
-   questions, the related searches, and the organic titles. Add the
-   Step 2 label to each organic title.
-2. Call `serp/google/autocomplete/live/advanced` one time for the
-   focus keyword. Send it with `mcp__dataforseo__api_request`, with
-   `client: "gws-wiz-serp"`, `noAiMode: true`, and the market codes of
-   the task brief.
-   - A modifier is a word that narrows the reader task, for example a
-     color or an audience.
-   - Add the questions to the Question Evidence as the fifth part. Add
-     the suggestions that add a new modifier to the same part.
-   - Do not use the questions or the suggestions for volume.
-3. Make the seeds. A seed is a keyword that the script expands into
-   more keywords. Write how you made each seed.
-   - Seed 1 is the focus keyword.
-   - Seed 2 is the focus keyword without its modifiers. If the focus
-     keyword has no modifier, skip seed 2.
-   - Seed 3 is a shorter phrase for the same reader task.
-4. Write the PAA questions and the related searches of the Step 2
-   response to `briefs/[slug]-evidence.json`. Then run the `pool`
-   subcommand with the focus keyword, the seeds, the market codes, and
-   that file. The subcommand writes `briefs/[slug]-keyword-pool.md`
-   and `.json`. This step uses two tables of the pool file:
-   - Keyword Pool: the keywords that DataForSEO Labs gives for the
-     seeds. Item 10 can add more keywords.
-   - Other Sources: the PAA questions and the related searches that
-     are not in the Keyword Pool.
-5. Read the Keyword Pool and Other Sources tables. Remove each keyword
-   that does not ask about the reader task. Never remove a keyword for
-   its volume or its intent. If you are not sure, keep the keyword.
-   Give each removed keyword the first class that applies, in this
-   order:
-   - other audience
-   - other task
-   - other meaning of the same word
-   - store or platform navigation. A product brand, such as nike, is
-     not a store.
-   - business conflict. The keyword asks for a thing outside the
-     business scope, for example another audience or product type.
-
-   Write the removals to `briefs/[slug]-removed.json`. Then run the
-   `remove` subcommand.
-6. Fill `keyword-research.md`: the Question Evidence, the Seeds, the
-   SERP Features, and the link to the pool file.
-
-Facets:
-
-7. Make facets from the Question Evidence items. If items differ in
-   one value only, make one facet and list the values. For example,
-   black linen pants and white linen pants differ only in the color.
-   If an item is about another task, put it in Other Facets with the
-   reason `other page`.
-8. Read the first 50 Keyword Pool rows and all Other Sources rows.
-   Decide where each row goes:
-
-   | The row | It goes to |
-   |---------|------------|
-   | restates the focus keyword | the focus keyword |
-   | answers a facet | that facet |
-   | names a new part of the reader task | a new facet |
-   | fits nothing | `other page` |
-
-9. Write the facets to `briefs/[slug]-facets.json`. Mark each facet
-   `in` or `out` of the business scope. Do not drop a facet that
-   matches a product line for a low or `null` volume. Say so in its
-   reason. Then run the `rank-facets` subcommand. It picks the
-   representative keyword of each facet and moves the `out` facets to
-   Other Facets. Then it sorts the other facets, keeps the first 9,
-   and writes `briefs/[slug]-facet-tables.md`.
-10. If the script reports fewer than 5 facets, run the `related`
-    subcommand one time. Then do items 8 and 9 again.
-11. If fewer than 3 facets are kept after item 10, stop. Tell the user
-    that the keyword is possibly too narrow for one post. Ask the user
-    to write anyway, try another keyword, or end.
-12. Copy the two tables from the facet tables file into
-    `demand-facets.md`. Then fill the rest of the template.
+1. Run
+   `expand --slug [slug] --focus "[focus keyword]" --seed "[focus keyword]" --round 1 --location [location_code] --language [language_code]`.
+   It writes `briefs/[slug]-questions.md`, the questions file below.
+   The file has one row per distinct text from PAA, autocomplete,
+   related searches, and related keywords, with its sources. It also
+   has a Calls table with the cost of each call. The script prints a
+   JSON summary. If the summary
+   has `"short": true` (fewer than 9 questions), do action 2. If not,
+   skip to action 3.
+2. A modifier is a word that narrows the reader task, such as a color
+   or an audience. Make the wider seed: remove the modifiers from the
+   focus keyword. If the focus keyword has no modifier, use a shorter
+   phrase for the same reader task. For example, `linen in winter`
+   for `can you wear linen in winter`. Run `expand` again with
+   `--seed "[wider seed]" --round 2`. Do not run a third round.
+3. Run `volume --slug [slug]`. It fills the search volume, KD
+   (keyword difficulty, 0 to 100), and intent of every row from
+   Keyword Overview. A row that the API does not know stays `null`.
+4. Read the questions file. Write `briefs/[slug]-facets.json`, a JSON
+   list. Each item has `question`, `values`, `rows`, `business`, and
+   `reason_kept`.
+   - `question`: one reader question. Synonyms are one facet. Rows
+     that differ in one value only, such as black and white linen
+     pants, are one facet, and `values` lists those values.
+   - `rows`: the `#` of each row that the facet covers. A row goes to
+     one facet at most.
+   - Attach no row that is about another task, another audience,
+     another meaning of the word, or store or platform navigation.
+     Keep its `#` and the reason for Removed Rows in action 7.
+   - `business`: `out` when the facet asks for a thing outside Sells
+     or inside Does not sell or claim. Else `in`.
+   - `reason_kept`: one sentence. For an `out` facet, say why it is
+     out. For a facet that matches a product line with a low or `null`
+     volume, say that the business sells the product.
+5. Run `rank-facets --slug [slug] --facets briefs/[slug]-facets.json`.
+   It picks the representative keyword, the attached row with the
+   highest volume. It moves `out` facets to Other Facets, sorts by
+   source count then volume, and keeps the first 9. It writes
+   `briefs/[slug]-facet-tables.md`, the facet tables file below. If
+   the summary note is `fewer than 3 facets kept`, stop. Tell the
+   user that the keyword is possibly too narrow for one post. Ask:
+   write anyway, another keyword, or end. Write anyway: do action 6.
+   Another keyword: start again at Step 1. End: stop the run.
+6. Run `ai --slug [slug]`. It adds the AI search volume of each
+   representative keyword and a line with the endpoint, market, and
+   date to the facet tables file.
+7. Fill `templates/keyword-research.md` as
+   `briefs/[slug]-keyword-research.md`: Data Scope, Rounds, Removed
+   Rows, and the SERP Features section copied from
+   `briefs/[slug]-search-intent.md`.
+8. Fill `templates/demand-facets.md` as `briefs/[slug]-demand-facets.md`.
+   Fill the header table. Then copy the Kept Facets table, the AI
+   search volume line, and the Other Facets table from the facet
+   tables file.
 
 #### Outputs
 
 - `briefs/[slug]-keyword-research.md`
-- `briefs/[slug]-keyword-pool.md` and `.json`, written by the script
 - `briefs/[slug]-demand-facets.md`
-- `briefs/[slug]-evidence.json`, `-removed.json`, `-facets.json`, and
-  `-facet-tables.md`. You and the script use these files to pass data
-  to each other.
+- Work files, shared with the script: `briefs/[slug]-questions.md`,
+  `briefs/[slug]-questions.json`, `briefs/[slug]-facets.json`,
+  `briefs/[slug]-facet-tables.md`.
+
+#### Rules
+
+- Volume, KD, intent, and AI search volume come only from the script.
+  A missing value is `null`, never `0`, because `0` reads as "nobody
+  asks". Do not add the volumes of two keywords.
+- AI search volume is not a Google volume. Keep the two columns apart
+  and keep the line that names its endpoint, market, and date. A
+  mention in an AI answer is not traffic and not a lead.
+- If the script prints an error, stop the run and say why. Do not use
+  WebSearch, because it is not DataForSEO data.
+- The questions find the scope of the post. They are not a list of
+  words to put into the text.
+
+#### Example
+
+Ebestron, demand facets, 5 of 9 shown:
+
+- F1: question "Why does the epoxy not cure?", representative keyword
+  `epoxy not curing`, section fault 1 of the post.
+- F2: "Why is the mix uneven?", `static mixing nozzle`, fault 2.
+- F3: "Why does the nozzle clog?", `clogged mixing nozzle`, fault 3.
+- F4: "Why are there air bubbles?", `air bubbles in epoxy`, fault 4.
+- F6: "Why does the gun drip?", `cartridge gun dripping`, the lowest
+  volume, kept because the business sells the part.
+- Warning: a low or missing volume does not mean that nobody asks.
 
 #### Check
 
-- 3 to 9 facets are kept, or you stopped and asked the user.
-- Every kept facet has a reader question, evidence or rows, and a
-  reason.
-- No missing value is written as `0`.
-- Each of the first 50 pool rows and each Other Sources row is in a
-  facet, on the focus keyword, or `other page`.
-- Every removed keyword has a class and a reason.
-- The pool and facet tables came from the script, not by hand.
+- Round 1 ran. Round 2 ran only if round 1 was short. 3 to 9 facets
+  are kept, or the user chose write anyway.
+- In `briefs/[slug]-facets.json`, no row number is in two facets, and
+  every row of the questions file is in a facet or in Removed Rows.
+- No missing value is `0`. The Kept Facets and Other Facets tables
+  and the AI search volume line match the facet tables file.

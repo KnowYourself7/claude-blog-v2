@@ -1,6 +1,5 @@
-<!-- Output template for the blog-brief skill (Step 3, items 7 to 12).
-     Fill every [bracket] and keep the section order. The rules for
-     filling it are in ../references/step-3-demand-facets.md. -->
+<!-- Output of blog-brief Step 3, action 7 (../references/step-3-demand-facets.md).
+     Fill every [bracket] and keep the section order. -->
 
 # Demand Facets: [focus keyword]
 
@@ -10,40 +9,31 @@
 | Date | [YYYY-MM-DD] |
 | Keyword evidence | `briefs/[slug]-keyword-research.md` |
 | Business scope | `briefs/[slug]-task-brief.md` |
-| Related Keywords | [not called / called in Step 3 item 10] |
-
-## Focus Keyword
-
-Rows that restate the focus keyword: pool [n], [n]. other [n].
+| Rounds | [1 or 2] |
 
 ## Kept Facets
 
-Copy this table and the Other Facets table from
-`briefs/[slug]-facet-tables.md`, written by `scripts/keyword_pool.py`.
+Copy this table, its AI search volume line, and the Other Facets table
+from `briefs/[slug]-facet-tables.md`, written by `scripts/keyword_pool.py`.
 Each kept facet goes into at least one H2 of the brief. The table goes
-from the highest evidence count to the lowest. For equal counts, it goes
-from the highest volume to the lowest, with `-` after the volumes. If
-volumes are equal too, the order of the keyword file stays. This order
-does not set the H2 order. Evidence numbers are the `#` in Question Evidence. Rows are the
-`#` in the Keyword Pool and in Other Sources. Search volume, KD, and
-intent are the values of the representative keyword only.
+from the highest source count to the lowest, then from the highest
+volume to the lowest, `null` after the volumes. This order does not set
+the H2 order. Questions are the `#` in the questions file. Search
+volume, KD, intent, and AI search volume are the values of the
+representative keyword only: `null` means the API gave no value,
+`-` means the facet has no attached row. Sources are source names. The
+AI search volume is not a Google volume; do not add the two.
 
-| ID | Reader question | Values | Evidence | Evidence types | Representative keyword | Search volume | KD | Intent | Rows | Reason kept |
-|----|-----------------|--------|----------|----------------|------------------------|---------------|----|--------|------|-------------|
-| F1 | [one full question] | [values, or -] | [evidence numbers, or -] | [1-6] | [keyword or -] | [n, null, or -] | [0-100, null, or -] | [main_intent, null, or -] | pool [n], [n]. other [n] | [one sentence] |
+| ID | Reader question | Values | Representative keyword | Search volume | AI search volume | KD | Intent | Sources | Questions | Reason kept |
+|----|-----------------|--------|------------------------|---------------|------------------|----|--------|---------|-----------|-------------|
+| F1 | [one full question] | [values, or -] | [keyword or -] | [n, null, or -] | [n, null, or -] | [0-100, null, or -] | [intent, null, or -] | [source names] | [question numbers] | [one sentence] |
+
+AI search volume: [the endpoint, market, and date line from the facet tables file]
 
 ## Other Facets
 
 The post does not cover these facets.
 
-| ID | Reader question | Evidence | Rows | Reason not kept |
-|----|-----------------|----------|------|-----------------|
-| F[n] | [one full question] | [evidence numbers, or -] | [rows, or -] | [other page / outside business / lower rank] |
-
-## Keyword Check
-
-| Check | Result |
-|-------|--------|
-| First 50 pool rows | [n] attached to a facet, [n] restate the focus keyword, [n] other page |
-| New facets from keyword rows | [n] |
-| Other Sources rows | [n] attached, [n] other page, of [n] |
+| ID | Reader question | Questions | Reason not kept |
+|----|-----------------|-----------|-----------------|
+| F[n] | [one full question] | [question numbers, or -] | [outside business / lower rank] |

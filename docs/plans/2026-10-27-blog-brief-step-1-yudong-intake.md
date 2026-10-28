@@ -46,7 +46,7 @@
 
 ### 3.3 结构
 
-瑜东每一步的讲法是：工具、输入、动作、产物/落盘、红线、例子。`essentials/skill-file-format.md` 定的六段（Goal、Inputs、Rules、Steps、Outputs、Check）已经一一对应前五样，只差例子。本分支在六段后加第七段 `#### Example`。工具写进 Goal 的最后两句。
+瑜东每一步的讲法是：工具、输入、动作、产物/落盘、红线、例子（claude.ai/artifact/AeYQFBw1ef3a6FdbFv2fij）。用户 2026-10-28 定：步骤文件放弃 essentials 原来的六段写法，照瑜东的六块写，开头一句目的，末尾三条验收；Inputs 按信息组写，不列模板和脚本；Actions 每条一个动作；Rules 一到四条；Example 是案例卡。`essentials/skill-file-format.md` 第二节同日改成这个写法（v1.3）。用户随后要求其余八个步骤文件也改成同一骨架，只改排版和措辞，规则、阈值、脚本调用不动；每个文件的 Example 取瑜东对应步骤的 Ebestron 案例卡，没有对应步骤的（Step 5、Step 9）用仓库里记过的 Coofandy 真实跑，Step 11 用阶段门自己的三组检查。
 
 ## 4. 方案
 
@@ -100,6 +100,8 @@
 | `skills/blog-brief/templates/task-brief.md` | 见 4.2 第 1 条 |
 | `skills/blog-brief/references/step-1-topic-intake.md` | 见 4.2 第 2 条 |
 | `skills/blog-brief/references/step-2-serp-intent-gate.md`、`skills/blog-brief/templates/search-intent.md` | 见 4.5 |
+| `skills/blog-brief/references/` 其余八个步骤文件，`templates/keyword-research.md`、`templates/demand-facets.md` 注释里的条目号 | 改成瑜东骨架，见 3.3；模板注释的 items 改成 actions |
+| Step 3 的重做（脚本、两个模板、步骤文件） | 另一份开发文档 `docs/plans/2026-10-28-blog-brief-step-3-question-expansion.md`，用户定在本分支一起做 |
 | `tests/test_blog_brief_workflow.py` | 见 4.2 第 3 条 |
 | `docs/plans/2026-10-24-blog-brief-internal-link-pages.md` | 状态行补记 |
 | `docs/FORK-DEVLOG.md` | 022、023 两行 |
@@ -127,6 +129,9 @@
 | 整篇重读 | 用户 2026-10-27 看过第一版后说太啰嗦，整篇压到 103 行（原 193 行）：删掉 Delivery 定义表（模板占位符已经说明每行）、slug 规则合成一句、Check 压成四条、例子表把 missing 行合并成一行；模板注释也压成五句。之后按 skill-creator 的写法规则再过一遍：每条红线加半句原因，例子标成 Input 和 Output，116 行 |
 | 新旧对照（子代理） | 报 3 处含义变化、5 处要猜、4 处重复、4 处例子和规则不符。已改：Goal 补回「读者得到什么」；草稿定义限定为 Positioning、Role、Deliverable 三行；Existing Pages 缺 Covers 或 Type 时写 `missing`、不从网址推断类型；同题多页时每个网址都写；`ask` 没选就再问；Check 第 5 条写明两行 Page 的来源；例子里「不冒称胶水厂」改成用户原话。没改的重复：模板列值、步骤写判断（声明写哪行、`none in the list` 怎么判），按「填表规则归模板、判断规则归步骤」的分工各写一遍 |
 | 模拟跑（子代理，Ebestron 和 COOFANDY 两个场景） | 报 7 处要猜。已改：用户给的标题没处放，Topic 表加 Working title 行；Existing post 行的 `missing` 不再算「Page 缺」，只列出不追问；「行业领先」这类声明以前会被静默丢掉，现在写进 Does not sell or claim 行并标 `no proof given`；Positioning 和 Deliverable 「给没给」有了判断标准，用户给了一部分就保留那部分再起草；规模定义为计数或长度；例子的 Positioning 改成草稿、读者决策不再偏向「换零件」。没改：英国市场的 DataForSEO 代码靠模型记忆（2826），这是 #27 之前就有的规则，Step 2 调接口时错码会报错，另议 |
+| 新旧对照，其余八个步骤文件（子代理） | 报 20 处：丢了 9 条规则或定义（脚本负责排序不手算、business conflict 的定义、摘要页退为 reference、Chart 写 no、「只在」读过原文后采用、checklist 也不算证明、用增量单里的窄版说法、不抄增量单格子、Details 列指向详情文件）、3 处「only」变弱、4 处新歧义（Fill templates/… 像是改模板文件、matrix 没定义）、2 处例子和规则冲突（F6 搜索量 0 对 null 规则、故障 5 写成来源缺什么）。全部改回或改清。Step 5、9、11 没丢 |
+| 语言和结构复审（用户 2026-10-28 要求，两个子代理各审五个文件） | 报 70 余处：分号和括号藏规则、动作句没有动词、术语先用后定义（PAA、Still Open、Self-Review、redo_from、phase A）、Check 和产物对不上、同一事物几个叫法（supported page 对 Page this post supports、gain file、deliverable gain 大小写）、Step 2 丢了 Decision 表怎么填、Step 9 Rule 和 Check 矛盾（Title 行）、Step 11 的 Check 从文件答不出来。十个文件全部重写一遍：条件在前、一句一个动作、术语第一次出现时定义、名字统一用模板行名和节名、工具失败一律写 stop the run、Example 用表名开头；两个竞品模板里指向 step-5 的旧路径改成 step-4；keyword-research 的 SERP Features 和 search-intent 对齐。改后全文无分号，25 词以上的句子从 25 句降到 0 句 |
+| `tests/test_release_safeguards.py` | 一条测试查 Step 8 里的原句 only when the user supplies supporting methodology，改写时丢了，已按原句放回 |
 | 真实跑 | 没做。Step 1 不调接口，模拟跑覆盖了全部动作；真实跑等 Step 7、8 读新格子的分支一起在 playground 做 |
 | 对照瑜东步骤 01 | 四组输入各有格子：主题与读者（Topic 表 6 行）、客户与品牌（Business 表含一手资料）、页面与转化（Page 表含同题旧文、Existing Pages 表）、执行与交付（Delivery 表含范围、预算、作者平台）。三条红线进了 Rules。动作「结合站内覆盖判断」是 Steps 第 5 条。产物对应 `briefs/[slug]-task-brief.md` 和 `briefs/[slug]-state.json`。Ebestron 例子在 Example 段。没搬的：`_research_plan.json`、锚文本清单，见第 2 节 |
 | 对照上游原版（3544423） | 原版 Step 1 收话题、读者、搜索意图、业务背景四项，缺了「从上下文推断」。本分支保持 fork 的做法：品牌事实不推断、写 `missing`，搜索意图留给 Step 2；读者和业务背景都保留，只是分了格子 |

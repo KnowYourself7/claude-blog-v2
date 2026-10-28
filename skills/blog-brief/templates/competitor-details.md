@@ -1,6 +1,6 @@
 <!-- Output template for the blog-brief skill, Step 4: one file for each
      competitor. Fill every [bracket] and keep the section order. The
-     rules for filling it are in ../references/step-5-competitor-gaps.md. -->
+     rules for filling it are in ../references/step-4-competitor-gaps.md. -->
 
 # Competitor [n]: [domain]
 

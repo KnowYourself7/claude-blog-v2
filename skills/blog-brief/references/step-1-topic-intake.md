@@ -1,116 +1,98 @@
 ### Step 1: Topic Intake
 
-#### Goal
+Before any research, get clear on what to write, for whom, what the
+brand can say, and what this run can spend.
 
-Turn the words of the user into a task brief: who the post is for,
-what the brand can say, which page it serves, and what this run
-delivers. The only sources are the user and `BRAND.md`. This step
-calls no API and opens no web page.
+#### Tools
+
+- The user, and `BRAND.md` when SKILL.md loaded it through the fenced
+  helper. No API, no web page.
 
 #### Inputs
 
-- `templates/task-brief.md`: the output template.
-- `BRAND.md`, if SKILL.md loaded it: brand facts and the Audience
-  section.
+The four groups below are the four tables of the task brief.
 
-#### Rules
+- Topic: focus keyword, working title, market, the decision that the
+  reader is making, who the readers are.
+- Business: brand, domain, what it sells, what it does not sell or
+  must not claim, first-party material that it can publish.
+- Existing Pages and Page: each existing page of the site, the page
+  that this post supports, the next step for the reader.
+- Delivery: positioning, role, deliverable, scope and publishing
+  approval, API budget, author and platform.
 
-- Take brand facts and the Reader row only from the user and
-  `BRAND.md`. If both give a value, use the user, because the user
-  is the newer source.
-- Do not infer a brand fact, and do not open any website or URL. Only
-  the client knows what the client can say.
-- Write no capability, certificate, patent, case, or test data that
-  the user did not give. An invented one becomes a false claim in the
-  post. Write `missing` and let the user fill it.
-- A statement without proof is a claim, not a fact. Write it in the
-  Does not sell or claim row as `claim, no proof given: [the claim]`,
-  nowhere else, so the writer sees it as a limit, not as evidence.
-- A draft is a Positioning, Role, or Deliverable that you wrote
-  because the user did not give it. The user accepts or changes it,
-  because these decide what the whole brief is for.
-- Do not ask for the search intent. Step 2 reads it from the SERP,
-  which is more reliable than a guess.
+#### Actions
 
-#### Steps
-
-1. Fill the Topic table. If the user names no market, write 2840 / en
-   and `default`. Infer the Reader decision from the focus keyword if
-   the user did not give it.
-2. Make the slug from the focus keyword: lowercase, accented letters to
-   plain, delete every character except `a` to `z`, `0` to `9`, space,
-   and hyphen, then join with single hyphens. If nothing remains, ask
-   the user for an English slug.
-3. Fill the Business table. Put each warning that the user gives about
-   the content in the Does not sell or claim row. First-party material
-   is material that the brand owns and can publish, for example test
-   data or a spec sheet. Write each item and where it is.
-4. Fill the Existing Pages table from the pages that the user gives.
-   Do not infer a type from a URL. A URL path often lies.
-5. Fill the Page table. For the Existing post on this topic row, judge
-   from the Covers cells only, because you do not open pages. If a
-   page answers the Reader decision, write its URL and `ask`. A new
-   post on the same question competes with the old one for the same
-   search, so the user must choose. Otherwise write `none in the
-   list`, or `missing` if there is no list.
-6. Fill the Delivery table. A Positioning is given only if the user
-   named the type of post, the reader, and the job for the brand. A
-   Deliverable is given only if the user named the thing and its size
-   (a count or a length). If not given, draft it from the Reader
-   decision, the Reader row, and the Sells row. Keep the parts that
-   the user gave. A drafted Role is `standalone`. Never draft Scope,
-   API budget, or Author and platform.
-7. Save the task brief. Stop if any value is a draft, if a row ends
-   with `ask`, or if Page this post supports or Reader next step is
-   `missing`. Without a supported page and a next step, nothing ties
-   the post to the business. Ask in one message, so the user answers
-   once: show the drafts, ask for the missing Page values, and for
-   each `ask` page ask: new post, update it, or new angle. Then list
-   every other `missing` cell as optional. Write the answers in. If a
-   draft or an `ask` gets no answer, ask again.
+1. Make the slug from the focus keyword: lowercase, only `a` to `z`,
+   `0` to `9`, and one hyphen between words. Then run
+   `brief_state.py init --slug [slug] --focus "[focus keyword]"`
+   (SKILL.md, State File).
+2. Fill `templates/task-brief.md` as `briefs/[slug]-task-brief.md`.
+   Write `missing` in a cell when the user and `BRAND.md` give
+   nothing. When both give a value, use the value of the user. When
+   only `BRAND.md` gives a value, add `(from BRAND.md)` after it.
+3. If the user gives no market, write `2840 / en, default` in Market.
+   2840 is the DataForSEO location code of the United States, `en` is
+   the language code.
+4. Write each warning of the user in Does not sell or claim. Write
+   each statement without proof there too, as
+   `claim, no proof given: [the claim]`.
+5. Write one row in Existing Pages for each page that the user gives.
+   Write `missing` in Covers or Type when the user did not give it.
+   When the Covers cell of a page names the same reader decision,
+   write its URL and `ask` in Existing post on this topic.
+6. When Positioning, Role, or Deliverable has no value from the user,
+   draft it from Reader decision, Reader, and Sells. Start a drafted
+   value with `draft:`. A drafted Role is `standalone`. Never draft
+   Scope, API budget, or Author and platform.
+7. Save the file. If it has a `draft:` value, an `ask`, or `missing`
+   in a Page row, stop. A Page row is Page this post supports or
+   Reader next step. Ask the user in one message. Show each draft and
+   ask the user to accept or
+   change it. For each `ask` row, ask: new post, update that page, or
+   new angle. For Page this post supports and Reader next step, ask
+   for a value, or write `missing, the user has none`. List the other
+   `missing` cells and ask the user to fill them or to say that none
+   exists. If a draft or an `ask` gets no answer, ask again.
 
 #### Outputs
 
 - `briefs/[slug]-task-brief.md`
-- `briefs/[slug]-state.json`, created by `init` (SKILL.md, State File)
+- `briefs/[slug]-state.json`, created by `init` in action 1
 
-#### Check
+#### Rules
 
-- No cell is empty, no value starts with `draft:`, no row ends with
-  `ask`.
-- No brand fact, claim, or Reader value comes from outside the user
-  and `BRAND.md`. Claims carry `no proof given`.
-- The Positioning names the type, the reader, and the job for the
-  brand. The Deliverable names a thing the reader can use.
-- Page this post supports and Reader next step have a user value or
-  `missing, the user has none`.
+- Do not infer a brand fact. Write `missing` and ask once, because an
+  invented capability, certificate, patent, or case becomes a false
+  claim in the post.
+- A statement is a claim until the user gives proof. A claim never
+  enters the Sells row.
+- A draft is a proposal. Only the user turns it into a value.
+- Do not ask for the search intent. Step 2 reads it from the SERP.
 
 #### Example
 
-Input, the words of the user: focus keyword `2k dispensing problems`,
-title "7 common faults of two-part dispensing". Client Ebestron,
-adhesivespackage.com, industrial packaging supplies: cartridges, glue
-guns, static mixers, needles. It does not make glue formulas, so do
-not present it as a glue maker. Do not blame every fault on the
-hardware to sell parts. A troubleshooting post that leads readers to
-the matching products, about 2.8K words, 7 fault topics. No
-`BRAND.md`.
+Ebestron, task brief:
 
-Output, the task brief:
+- Focus keyword `2k dispensing problems`, title "7 common faults of
+  two-part dispensing".
+- Client Ebestron, adhesivespackage.com, industrial packaging
+  supplies: cartridges, glue guns, static mixers, needles.
+- Does not sell or claim: glue formulas. Do not present it as a glue
+  maker. Do not blame every fault on the hardware to sell parts.
+- Positioning `draft:` a troubleshooting post that leads buyers of
+  dispensing supplies to the matching products. Deliverable `draft:`
+  a table of 7 faults, about 2.8K words. Role `draft:` standalone.
+- Reader, First-party material, Existing Pages, Page this post
+  supports, Reader next step, Scope, API budget, Author and platform:
+  `missing`.
+- Result: saved, then one stop for three drafts and two missing Page
+  values.
 
-| Row | Value | Source |
-|---|---|---|
-| Focus keyword, Working title | 2k dispensing problems, 7 common faults of two-part dispensing | the user |
-| Slug, Market | 2k-dispensing-problems, 2840 / en, default | items 1 and 2 |
-| Reader decision | what causes a two-part dispensing fault, and how to fix it | inferred |
-| Brand, Domain, Sells | Ebestron, adhesivespackage.com, industrial packaging supplies: cartridges, glue guns, static mixers, needles | the user |
-| Does not sell or claim | glue formulas. Do not present Ebestron as a glue maker. Do not blame every fault on the hardware. | the user |
-| Positioning | draft: A troubleshooting post for buyers of dispensing supplies leads them to the matching products. | the user gave the type and the job, the reader is drafted |
-| Role | draft: standalone | drafted |
-| Deliverable | draft: A table of 7 faults with the symptom, the cause, and the part to fix, about 2.8K words. | the user gave the size, the thing is drafted |
-| Every other row | missing | the user gave none |
+#### Check
 
-Result: the step saves the brief and stops, because of three drafts
-and two missing Page values. One message shows the drafts, asks for
-the supported page and the reader next step, and lists the other
-`missing` cells as optional.
+- No `draft:` value, no `ask`, every cell filled or `missing`.
+- Nothing in Topic or Business comes from outside the user and
+  `BRAND.md`.
+- Page this post supports and Reader next step have a user value, or
+  `missing, the user has none`.

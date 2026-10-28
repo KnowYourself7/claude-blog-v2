@@ -1,6 +1,5 @@
-<!-- Output template for the blog-brief skill (Step 3, items 1 to 6). Fill
-     every [bracket] and keep the section order. The rules for filling it
-     are in ../references/step-3-demand-facets.md. -->
+<!-- Output of blog-brief Step 3, action 7 (../references/step-3-demand-facets.md).
+     Fill every [bracket] and keep the section order. -->
 
 # Keyword Research: [focus keyword]
 
@@ -12,44 +11,37 @@ This file is the keyword evidence for `briefs/[slug]-demand-facets.md`.
 |------|-------|
 | Focus keyword | [keyword] |
 | Market | [location_code] / [language_code] |
-| Date | [YYYY-MM-DD] |
-| Search volume, KD, intent | DataForSEO Labs: Suggestions for the pool, Overview for other sources |
+| Date | [YYYY-MM-DD of the expand calls] |
+| Questions | `briefs/[slug]-questions.md`, written by `scripts/keyword_pool.py` |
+| Search volume, KD, intent | DataForSEO Labs: Related Keywords and Keyword Overview |
+| AI search volume | DataForSEO AI Keyword Data |
 
-The calls, their costs, and the pool tables are in
-`briefs/[slug]-keyword-pool.md`, written by `scripts/keyword_pool.py`.
+The calls and their costs are in the Calls table of the questions file.
 
-| Call | Results |
-|------|---------|
-| Live SERP, Step 2 response | [n] AI Overview sections, [n] PAA, [n] related searches, [n] organic |
-| Google Autocomplete | [n] suggestions, [n] kept as evidence |
+## Rounds
 
-## Question Evidence
+| Round | Seed | How you made it | Questions after |
+|-------|------|-----------------|-----------------|
+| 1 | [focus keyword] | the focus keyword | [n] |
+| 2 | [wider seed, or not run] | [the modifiers that you removed, or the shorter phrase, or "round 1 had 9 or more"] | [n] |
 
-Copy the text as it is. If a part has no items, write one row with `none`.
+## Removed Rows
 
-| # | Part | Text | Label |
-|---|------|------|-------|
-| 1 | [AI Overview / PAA / related search / organic title / Autocomplete] | [text] | [Step 2 label for an organic title, or -] |
+Rows of the questions file that are attached to no facet, with the
+reason: other task, other audience, other meaning, store or platform
+navigation, or business conflict. Write one row `none` if every row is
+attached.
 
-## Seeds
-
-| # | Seed | How and why | Results |
-|---|------|-------------|---------|
-| 1 | [focus keyword] | focus keyword | [n] of [total_count] |
-| 2 | [seed, or not made] | [the modifiers that you removed, or "the focus keyword has no modifier"] | [n] of [total_count] |
-| 3 | [seed] | [why this phrase names the same reader task] | [n] of [total_count] |
-
-## Keyword Pool
-
-The Keyword Pool, Other Sources, Removed Keywords, and Not in Overview
-tables are in `briefs/[slug]-keyword-pool.md`.
+| # | Text | Reason |
+|---|------|--------|
+| [n] | [text] | [reason] |
 
 ## SERP Features
 
-From the Live SERP response. Write `none` for a feature that is not on the
-results page.
+Copy the SERP Features section of `briefs/[slug]-search-intent.md`.
+Write `none` for a feature that is not on the results page.
 
 | Feature | Result |
 |---------|--------|
-| AI Overview | [present or none]. Cited publishers: [names] |
-| Featured snippet | [present or none]. Answer format: [paragraph / list / table] |
+| AI Overview | [present or none] |
+| Featured snippet | [present or none] |

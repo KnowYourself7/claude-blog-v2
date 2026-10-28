@@ -1,32 +1,35 @@
 #!/usr/bin/env python3
-"""Mechanical work of blog-brief Step 3: build the keyword pool and rank facets.
+"""Mechanical work of blog-brief Step 3: expand demand questions and rank facets.
 
-The script calls DataForSEO Labs directly over HTTPS with Basic auth. It reads
-the credentials from the environment variables DATAFORSEO_LOGIN and
+The script calls DataForSEO directly over HTTPS with Basic auth. It reads the
+credentials from the environment variables DATAFORSEO_LOGIN and
 DATAFORSEO_PASSWORD, the same pair that the DataForSEO MCP server uses. Large
 API responses never enter the model context: the script keeps them on disk.
 
 Subcommands:
-    pool         Call Keyword Suggestions for each seed, build the Keyword Pool
-                 and Other Sources tables, call Keyword Overview for the related
-                 searches that are not in the pool.
-    remove       Move rows to Removed Keywords from a JSON list written by the
-                 model (row number, class, reason).
-    related      Call Related Keywords (depth 2) for the focus keyword and add
-                 the keywords to the pool.
+    expand       For one seed, call Autocomplete, the organic SERP with PAA
+                 click depth 2, and Related Keywords (depth 2). Add the
+                 questions and keywords to the questions file (.md and .json),
+                 deduplicated, with a Calls table of costs, and report whether
+                 the count is below --min (default 9).
+    volume       Call Keyword Overview for every question that has no search
+                 volume yet. A missing value stays null, never 0.
     rank-facets  Rank facets written by the model: representative keyword,
-                 evidence type count, business scope, keep the first 9.
+                 source count, business scope, keep the first 9.
+    ai           Call AI Keyword Data for the representative keyword of each
+                 kept facet and add the AI search volume column.
 
 Every subcommand prints a JSON summary on stdout and writes files under the
 output folder. Errors are JSON {"error": ...} on stdout with exit code 1.
 
 Usage:
-    python3 keyword_pool.py pool --slug linen-winter --focus "can you wear linen in winter" \
-        --seed "can you wear linen in winter" --seed "linen in winter" \
-        --evidence briefs/linen-winter-evidence.json --out briefs
-    python3 keyword_pool.py remove --slug linen-winter --removed briefs/linen-winter-removed.json --out briefs
-    python3 keyword_pool.py related --slug linen-winter --focus "can you wear linen in winter" --out briefs
+    python3 keyword_pool.py expand --slug linen-winter --focus "can you wear linen in winter" \
+        --seed "can you wear linen in winter" --round 1 --out briefs
+    python3 keyword_pool.py expand --slug linen-winter --focus "can you wear linen in winter" \
+        --seed "linen in winter" --round 2 --out briefs
+    python3 keyword_pool.py volume --slug linen-winter --out briefs
     python3 keyword_pool.py rank-facets --slug linen-winter --facets briefs/linen-winter-facets.json --out briefs
+    python3 keyword_pool.py ai --slug linen-winter --out briefs
 """
 
 from __future__ import annotations
@@ -34,8 +37,10 @@ from __future__ import annotations
 import argparse
 import base64
 import calendar
+import datetime as dt
 import json
 import os
+import re
 import sys
 import urllib.error
 import urllib.request
@@ -43,11 +48,15 @@ from pathlib import Path
 from typing import Any
 
 API_BASE = "https://api.dataforseo.com/v3/"
-POOL_COLUMNS = "| # | Main keyword | Variants | Search volume | Peak month | KD | Intent | Other intents | Source |"
-POOL_RULE = "|---|--------------|----------|---------------|------------|----|--------|---------------|--------|"
-OTHER_COLUMNS = "| # | Keyword | Source | Search volume | Peak month | KD | Intent |"
-OTHER_RULE = "|---|---------|--------|---------------|------------|----|--------|"
-EVIDENCE_PARTS = ("AI Overview", "PAA", "related search", "organic title", "Autocomplete")
+AUTOCOMPLETE = "serp/google/autocomplete/live/advanced"
+ORGANIC = "serp/google/organic/live/advanced"
+RELATED = "dataforseo_labs/google/related_keywords/live"
+OVERVIEW = "dataforseo_labs/google/keyword_overview/live"
+AI_VOLUME = "ai_optimization/ai_keyword_data/keywords_search_volume/live"
+OVERVIEW_CHUNK = 700
+AI_CHUNK = 1000
+QUESTION_COLUMNS = "| # | Question or keyword | Sources | Round | Search volume | Peak month | KD | Intent |"
+QUESTION_RULE = "|---|---------------------|---------|-------|---------------|------------|----|--------|"
 
 
 class KeywordPoolError(ValueError):
@@ -101,7 +110,7 @@ def response_cost(data: dict[str, Any]) -> float:
     return float(data.get("cost") or 0.0)
 
 
-# ---------------------------------------------------------------- pool building
+# ---------------------------------------------------------------- helpers
 
 
 def _info(item: dict[str, Any], *keys: str) -> Any:
@@ -113,17 +122,10 @@ def _info(item: dict[str, Any], *keys: str) -> Any:
     return value
 
 
-def dedupe(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Drop exact duplicates; two spellings that differ only in letter case are one."""
-    seen: set[str] = set()
-    kept = []
-    for item in items:
-        key = str(item.get("keyword", "")).strip().lower()
-        if key in seen:
-            continue
-        seen.add(key)
-        kept.append(item)
-    return kept
+def normalize(text: str) -> str:
+    """Key for duplicates: lowercase, single spaces, no end punctuation."""
+    text = re.sub(r"\s+", " ", str(text).strip().lower())
+    return text.rstrip("?.!").strip()
 
 
 def peak_month(monthly: list[dict[str, Any]] | None) -> str:
@@ -147,193 +149,126 @@ def _volume_key(volume: Any) -> tuple[int, int]:
     return (1, 0) if volume is None else (0, -int(volume))
 
 
-def build_pool(
-    items: list[dict[str, Any]], seed_index: int | None = None, source: str = "suggestions"
-) -> list[dict[str, Any]]:
-    """Group deduplicated items by core_keyword and return pool rows in order."""
-    groups: dict[str, list[dict[str, Any]]] = {}
-    order: list[str] = []
-    for item in items:
-        core = _info(item, "keyword_properties", "core_keyword")
-        key = str(core or item["keyword"]).strip().lower()
-        if key not in groups:
-            groups[key] = []
-            order.append(key)
-        groups[key].append(item)
-    label = f"{source} (seed {seed_index})" if seed_index else source
-    rows = []
-    for key in order:
-        members = groups[key]
-        best = min((_info(m, "keyword_info", "search_volume") for m in members), key=_volume_key)
-        candidates = [m for m in members if _info(m, "keyword_info", "search_volume") == best]
-        main = next((m for m in candidates if m["keyword"].strip().lower() == key), candidates[0])
-        foreign = _info(main, "search_intent_info", "foreign_intent") or []
-        rows.append(
-            {
-                "main": main["keyword"],
-                "variants": [m["keyword"] for m in members if m is not main],
-                "volume": _info(main, "keyword_info", "search_volume"),
-                "peak_month": peak_month(_info(main, "keyword_info", "monthly_searches")),
-                "kd": _info(main, "keyword_properties", "keyword_difficulty"),
-                "intent": _info(main, "search_intent_info", "main_intent"),
-                "other_intents": list(foreign),
-                "source": label,
-            }
-        )
-    rows.sort(key=lambda r: _volume_key(r["volume"]))
-    for n, row in enumerate(rows, start=1):
-        row["n"] = n
-    return rows
+def _metrics(item: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "volume": _info(item, "keyword_info", "search_volume"),
+        "peak_month": peak_month(_info(item, "keyword_info", "monthly_searches")),
+        "kd": _info(item, "keyword_properties", "keyword_difficulty"),
+        "intent": _info(item, "search_intent_info", "main_intent"),
+    }
 
 
-def merge_pools(*pools: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Merge pool rows from several calls, keeping the first row for a spelling."""
-    seen: set[str] = set()
-    merged = []
-    for pool in pools:
-        for row in pool:
-            spellings = {row["main"].lower(), *(v.lower() for v in row["variants"])}
-            if spellings & seen:
-                continue
-            seen |= spellings
-            merged.append(dict(row))
-    merged.sort(key=lambda r: _volume_key(r["volume"]))
-    for n, row in enumerate(merged, start=1):
-        row["n"] = n
-    return merged
+# ---------------------------------------------------------------- expansion
 
 
-def other_sources(evidence: dict[str, Any], rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """PAA questions and related searches that are not in the pool."""
-    in_pool = {r["main"].lower() for r in rows} | {v.lower() for r in rows for v in r["variants"]}
+def questions_from_autocomplete(data: dict[str, Any]) -> list[dict[str, Any]]:
     out = []
-    for text in evidence.get("paa") or []:
-        if text.strip().lower() not in in_pool:
-            out.append({"keyword": text, "source": "PAA", "volume": None, "peak_month": "-", "kd": None, "intent": None, "no_data": False})
-    for text in evidence.get("related") or []:
-        if text.strip().lower() not in in_pool:
-            out.append({"keyword": text, "source": "related search", "volume": None, "peak_month": "null", "kd": None, "intent": None, "no_data": False})
-    for n, row in enumerate(out, start=1):
-        row["n"] = n
+    for item in items_from_response(data):
+        if item.get("suggestion"):
+            out.append({"text": item["suggestion"], "source": "Autocomplete"})
     return out
 
 
-def apply_overview(other: list[dict[str, Any]], data: dict[str, Any]) -> list[str]:
-    """Fill related-search rows from a Keyword Overview response; return keywords with no data."""
-    found = {str(i.get("keyword", "")).lower(): i for i in items_from_response(data)}
-    missing = []
-    for row in other:
-        if row["source"] != "related search":
+def questions_from_serp(data: dict[str, Any]) -> list[dict[str, Any]]:
+    """PAA questions and related searches from an organic SERP response."""
+    out = []
+    for item in items_from_response(data):
+        if item.get("type") == "people_also_ask":
+            for element in item.get("items") or []:
+                if element.get("title"):
+                    out.append({"text": element["title"], "source": "PAA"})
+        elif item.get("type") == "related_searches":
+            for text in item.get("items") or []:
+                if isinstance(text, str) and text:
+                    out.append({"text": text, "source": "related search"})
+    return out
+
+
+def questions_from_related(data: dict[str, Any]) -> list[dict[str, Any]]:
+    out = []
+    for item in items_from_response(data):
+        if item.get("keyword"):
+            out.append({"text": item["keyword"], "source": "related keyword", **_metrics(item)})
+    return out
+
+
+def add_questions(state: dict[str, Any], found: list[dict[str, Any]], seed: str, round_number: int) -> int:
+    """Merge found questions into the state; a known spelling only gains a source."""
+    by_key = {normalize(q["text"]): q for q in state["questions"]}
+    added = 0
+    for item in found:
+        key = normalize(item["text"])
+        if not key or key == normalize(seed):
             continue
-        item = found.get(row["keyword"].strip().lower())
+        known = by_key.get(key)
+        if known is not None:
+            if item["source"] not in known["sources"]:
+                known["sources"].append(item["source"])
+            if known.get("volume") is None and item.get("volume") is not None:
+                known.update({k: item[k] for k in ("volume", "peak_month", "kd", "intent")})
+            continue
+        row = {
+            "n": len(state["questions"]) + 1,
+            "text": item["text"],
+            "sources": [item["source"]],
+            "round": round_number,
+            "seed": seed,
+            "volume": item.get("volume"),
+            "peak_month": item.get("peak_month", "null"),
+            "kd": item.get("kd"),
+            "intent": item.get("intent"),
+            "no_data": False,
+        }
+        state["questions"].append(row)
+        by_key[key] = row
+        added += 1
+    return added
+
+
+def apply_overview(questions: list[dict[str, Any]], data: dict[str, Any]) -> list[str]:
+    """Fill rows from a Keyword Overview response; return the keywords with no data."""
+    found = {normalize(i.get("keyword", "")): i for i in items_from_response(data)}
+    missing = []
+    for row in questions:
+        if row.get("volume") is not None or row.get("no_data"):
+            continue
+        item = found.get(normalize(row["text"]))
         if item is None:
             row["no_data"] = True
-            missing.append(row["keyword"])
+            missing.append(row["text"])
             continue
-        row["volume"] = _info(item, "keyword_info", "search_volume")
-        row["peak_month"] = peak_month(_info(item, "keyword_info", "monthly_searches"))
-        row["kd"] = _info(item, "keyword_properties", "keyword_difficulty")
-        row["intent"] = _info(item, "search_intent_info", "main_intent")
+        row.update(_metrics(item))
     return missing
-
-
-# ---------------------------------------------------------------- rendering
-
-
-def _cell(value: Any) -> str:
-    if value is None:
-        return "null"
-    if isinstance(value, list):
-        return ", ".join(value) if value else "none"
-    return str(value)
-
-
-def render_pool_table(rows: list[dict[str, Any]]) -> str:
-    lines = [POOL_COLUMNS, POOL_RULE]
-    for r in rows:
-        lines.append(
-            f"| {r['n']} | {r['main']} | {_cell(r['variants'])} | {_cell(r['volume'])} | "
-            f"{r['peak_month']} | {_cell(r['kd'])} | {_cell(r['intent'])} | {_cell(r['other_intents'])} | {r['source']} |"
-        )
-    return "\n".join(lines)
-
-
-def render_other_table(other: list[dict[str, Any]]) -> str:
-    lines = [OTHER_COLUMNS, OTHER_RULE]
-    for r in other:
-        if r["source"] == "PAA":
-            lines.append(f"| {r['n']} | {r['keyword']} | PAA | - | - | - | - |")
-        else:
-            lines.append(
-                f"| {r['n']} | {r['keyword']} | related search | {_cell(r['volume'])} | {r['peak_month']} | {_cell(r['kd'])} | {_cell(r['intent'])} |"
-            )
-    return "\n".join(lines)
-
-
-def render_pool_file(state: dict[str, Any]) -> str:
-    calls = "\n".join(
-        f"| {c['call']} | `{c['endpoint']}` | {c['parameters']} | {c['results']} | {c['cost']} |"
-        for c in state["calls"]
-    )
-    removed = state.get("removed") or []
-    removed_lines = "\n".join(
-        f"| {r['n']} | {r['keyword']} | {r['class']} | {r['reason']} |" for r in removed
-    ) or "| - | none | - | - |"
-    not_in_overview = "\n".join(f"- {k} (related search)" for k in state.get("not_in_overview") or []) or "- none"
-    return (
-        f"# Keyword Pool: {state['focus']}\n\n"
-        "Written by `skills/blog-brief/scripts/keyword_pool.py`. The judgment\n"
-        f"sections are in `briefs/{state['slug']}-keyword-research.md`.\n\n"
-        "## Calls\n\n| Call | Endpoint | Parameters | Results | Cost (USD) |\n|------|----------|------------|---------|------------|\n"
-        f"{calls}\n\n"
-        "## Keyword Pool\n\n"
-        f"{render_pool_table(state['pool'])}\n\n"
-        "## Other Sources\n\n"
-        f"{render_other_table(state['other'])}\n\n"
-        "## Removed Keywords\n\n| Row | Keyword | Class | Reason |\n|-----|---------|-------|--------|\n"
-        f"{removed_lines}\n\n"
-        "## Not in Overview\n\n"
-        f"{not_in_overview}\n"
-    )
 
 
 # ---------------------------------------------------------------- facets
 
 
 def rank_facets(
-    facets: list[dict[str, Any]],
-    pool: list[dict[str, Any]],
-    other: list[dict[str, Any]] | None = None,
-    keep: int = 9,
-    refill_below: int = 5,
+    facets: list[dict[str, Any]], questions: list[dict[str, Any]], keep: int = 9
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], str]:
-    """Rank facets by evidence types then volume; apply business scope; keep the first `keep`.
+    """Rank facets by source count then volume; apply business scope; keep the first `keep`.
 
-    A facet lists pool rows in "rows" and Other Sources rows in "other". The
-    representative keyword is the attached keyword with the highest volume;
-    on a tie, the pool row that comes first, then the Other Sources row.
+    A facet lists question numbers in "rows". The representative keyword is the
+    attached question with the highest volume; on a tie, the lowest number.
     """
-    by_n = {r["n"]: r for r in pool}
-    by_other = {r["n"]: r for r in other or []}
+    by_n = {q["n"]: q for q in questions}
     ranked = []
     outside = []
     for order, facet in enumerate(facets):
         rows = [by_n[n] for n in facet.get("rows") or [] if n in by_n]
-        rows += [
-            {**r, "main": r["keyword"], "n": 1000 + r["n"]}
-            for n in facet.get("other") or []
-            if (r := by_other.get(n)) is not None
-        ]
         rows.sort(key=lambda r: (_volume_key(r["volume"]), r["n"]))
         rep = rows[0] if rows else None
-        types = len(set(facet.get("evidence_parts") or [])) + (1 if rows else 0)
+        sources = sorted({s for r in rows for s in r["sources"]})
         entry = {
             **facet,
-            "evidence_types": types,
-            "representative": rep["main"] if rep else "-",
+            "sources": sources,
+            "source_count": len(sources),
+            "representative": rep["text"] if rep else "-",
             "volume": rep["volume"] if rep else None,
             "kd": rep["kd"] if rep else None,
             "intent": rep["intent"] if rep else None,
+            "ai_volume": None,
             "_order": order,
             "_has_rep": rep is not None,
         }
@@ -341,7 +276,7 @@ def rank_facets(
             outside.append(entry)
         else:
             ranked.append(entry)
-    ranked.sort(key=lambda f: (-f["evidence_types"], 0 if f["_has_rep"] else 1, _volume_key(f["volume"]), f["_order"]))
+    ranked.sort(key=lambda f: (-f["source_count"], 0 if f["_has_rep"] else 1, _volume_key(f["volume"]), f["_order"]))
     kept = ranked[:keep]
     lower = ranked[keep:]
     other = [{**f, "reason": "outside business"} for f in outside] + [{**f, "reason": "lower rank"} for f in lower]
@@ -351,40 +286,88 @@ def rank_facets(
         n += 1
         f.pop("_order", None)
         f.pop("_has_rep", None)
-    note = ""
-    if len(kept) < 3:
-        note = "fewer than 3 facets kept"
-    elif len(kept) < refill_below:
-        note = f"fewer than {refill_below} facets kept"
+    note = "fewer than 3 facets kept" if len(kept) < 3 else ""
     return kept, other, note
 
 
-def render_facet_tables(kept: list[dict[str, Any]], other: list[dict[str, Any]]) -> str:
+# ---------------------------------------------------------------- rendering
+
+
+def _cell(value: Any) -> str:
+    if value is None:
+        return "null"
+    if isinstance(value, list):
+        return ", ".join(str(v) for v in value) if value else "none"
+    return str(value)
+
+
+def render_questions_table(questions: list[dict[str, Any]]) -> str:
+    lines = [QUESTION_COLUMNS, QUESTION_RULE]
+    for q in questions:
+        lines.append(
+            f"| {q['n']} | {q['text']} | {_cell(q['sources'])} | {q['round']} | {_cell(q['volume'])} | "
+            f"{q['peak_month']} | {_cell(q['kd'])} | {_cell(q['intent'])} |"
+        )
+    return "\n".join(lines)
+
+
+def render_questions_file(state: dict[str, Any]) -> str:
+    calls = "\n".join(
+        f"| {c['call']} | `{c['endpoint']}` | {c['parameters']} | {c['results']} | {c['cost']} |"
+        for c in state["calls"]
+    )
+    rounds = "\n".join(
+        f"| {r['round']} | {r['seed']} | {r['found']} | {r['added']} | {r['total']} |" for r in state["rounds"]
+    ) or "| - | none | - | - | - |"
+    no_data = "\n".join(f"- {t}" for t in state.get("no_data") or []) or "- none"
+    return (
+        f"# Demand Questions: {state['focus']}\n\n"
+        "Written by `skills/blog-brief/scripts/keyword_pool.py`. The judgment\n"
+        f"sections are in `briefs/{state['slug']}-keyword-research.md`.\n\n"
+        "## Calls\n\n| Call | Endpoint | Parameters | Results | Cost (USD) |\n|------|----------|------------|---------|------------|\n"
+        f"{calls}\n\n"
+        "## Rounds\n\n| Round | Seed | Found | New | Total after |\n|-------|------|-------|-----|-------------|\n"
+        f"{rounds}\n\n"
+        "## Questions\n\n"
+        f"{render_questions_table(state['questions'])}\n\n"
+        "## No Overview Data\n\n"
+        f"{no_data}\n"
+    )
+
+
+def render_facet_tables(kept: list[dict[str, Any]], other: list[dict[str, Any]], ai_note: dict[str, Any] | None = None) -> str:
     def rows_text(f: dict[str, Any]) -> str:
         return ", ".join(str(n) for n in f.get("rows") or []) or "-"
 
-    def ev_text(f: dict[str, Any]) -> str:
-        return ", ".join(str(n) for n in f.get("evidence") or []) or "-"
-
     lines = [
-        "| ID | Reader question | Values | Evidence | Evidence types | Representative keyword | Search volume | KD | Intent | Rows | Reason kept |",
-        "|----|-----------------|--------|----------|----------------|------------------------|---------------|----|--------|------|-------------|",
+        "| ID | Reader question | Values | Representative keyword | Search volume | AI search volume | KD | Intent | Sources | Questions | Reason kept |",
+        "|----|-----------------|--------|------------------------|---------------|------------------|----|--------|---------|-----------|-------------|",
     ]
     for f in kept:
-        vol = "-" if f["representative"] == "-" else _cell(f["volume"])
-        kd = "-" if f["representative"] == "-" else _cell(f["kd"])
-        intent = "-" if f["representative"] == "-" else _cell(f["intent"])
+        no_rep = f["representative"] == "-"
+        vol = "-" if no_rep else _cell(f["volume"])
+        ai = "-" if no_rep or ai_note is None else _cell(f.get("ai_volume"))
+        kd = "-" if no_rep else _cell(f["kd"])
+        intent = "-" if no_rep else _cell(f["intent"])
+        values = _cell(f.get("values") or []) if f.get("values") else "-"
         lines.append(
-            f"| {f['id']} | {f['question']} | {_cell(f.get('values') or []) if f.get('values') else '-'} | {ev_text(f)} | {f['evidence_types']} | "
-            f"{f['representative']} | {vol} | {kd} | {intent} | {rows_text(f)} | {f.get('reason_kept', '')} |"
+            f"| {f['id']} | {f['question']} | {values} | {f['representative']} | {vol} | {ai} | {kd} | {intent} | "
+            f"{_cell(f['sources']) if f['sources'] else '-'} | {rows_text(f)} | {f.get('reason_kept', '')} |"
+        )
+    if ai_note is None:
+        lines.append("\nAI search volume: not called.")
+    else:
+        lines.append(
+            f"\nAI search volume: `{AI_VOLUME}`, location {ai_note['location']}, language {ai_note['language']}, "
+            f"{ai_note['date']}. It is not a Google search volume; do not add the two."
         )
     lines += [
         "",
-        "| ID | Reader question | Evidence | Rows | Reason not kept |",
-        "|----|-----------------|----------|------|-----------------|",
+        "| ID | Reader question | Questions | Reason not kept |",
+        "|----|-----------------|-----------|-----------------|",
     ]
     for f in other:
-        lines.append(f"| {f['id']} | {f['question']} | {ev_text(f)} | {rows_text(f)} | {f['reason']} |")
+        lines.append(f"| {f['id']} | {f['question']} | {rows_text(f)} | {f['reason']} |")
     return "\n".join(lines)
 
 
@@ -392,128 +375,153 @@ def render_facet_tables(kept: list[dict[str, Any]], other: list[dict[str, Any]])
 
 
 def _state_path(out: Path, slug: str) -> Path:
-    return out / f"{slug}-keyword-pool.json"
+    return out / f"{slug}-questions.json"
 
 
 def _load_state(out: Path, slug: str) -> dict[str, Any]:
     path = _state_path(out, slug)
     if not path.exists():
-        raise KeywordPoolError(f"run `pool` first: {path} does not exist")
+        raise KeywordPoolError(f"run `expand` first: {path} does not exist")
     return json.loads(path.read_text(encoding="utf-8"))
 
 
 def _save_state(out: Path, slug: str, state: dict[str, Any]) -> None:
     out.mkdir(parents=True, exist_ok=True)
     _state_path(out, slug).write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
-    (out / f"{slug}-keyword-pool.md").write_text(render_pool_file(state), encoding="utf-8")
+    (out / f"{slug}-questions.md").write_text(render_questions_file(state), encoding="utf-8")
 
 
-def cmd_pool(args: argparse.Namespace) -> dict[str, Any]:
-    evidence = json.loads(Path(args.evidence).read_text(encoding="utf-8")) if args.evidence else {}
-    calls = []
-    pools = []
-    for i, seed in enumerate(args.seed, start=1):
-        data = call_api(
-            "dataforseo_labs/google/keyword_suggestions/live",
-            [{"keyword": seed, "location_code": args.location, "language_code": args.language, "limit": 300}],
-        )
-        items = dedupe(items_from_response(data))
-        pools.append(build_pool(items, seed_index=i))
-        calls.append({"call": f"Keyword Suggestions, seed {i}", "endpoint": "keyword_suggestions/live", "parameters": f'keyword "{seed}", limit 300', "results": len(items), "cost": response_cost(data)})
-    pool = merge_pools(*pools)
-    other = other_sources(evidence, pool)
-    not_in_overview: list[str] = []
-    related = [o["keyword"] for o in other if o["source"] == "related search"]
-    if related:
-        data = call_api(
-            "dataforseo_labs/google/keyword_overview/live",
-            [{"keywords": related, "location_code": args.location, "language_code": args.language}],
-        )
-        not_in_overview = apply_overview(other, data)
-        calls.append({"call": "Keyword Overview", "endpoint": "keyword_overview/live", "parameters": f"{len(related)} related searches", "results": len(related) - len(not_in_overview), "cost": response_cost(data)})
+def _write_facet_tables(out: Path, slug: str, state: dict[str, Any]) -> Path:
+    text = render_facet_tables(state["facets"]["kept"], state["facets"]["other"], state.get("ai_note"))
+    path = out / f"{slug}-facet-tables.md"
+    path.write_text(text + "\n", encoding="utf-8")
+    return path
+
+
+def cmd_expand(args: argparse.Namespace) -> dict[str, Any]:
+    out = Path(args.out)
+    path = _state_path(out, args.slug)
+    if path.exists():
+        state = json.loads(path.read_text(encoding="utf-8"))
     else:
-        calls.append({"call": "Keyword Overview", "endpoint": "keyword_overview/live", "parameters": "not called", "results": 0, "cost": 0})
-    state = {"slug": args.slug, "focus": args.focus, "location": args.location, "language": args.language, "seeds": list(args.seed), "calls": calls, "pool": pool, "other": other, "removed": [], "not_in_overview": not_in_overview}
-    _save_state(Path(args.out), args.slug, state)
-    return {"pool_rows": len(pool), "other_rows": len(other), "not_in_overview": not_in_overview, "cost": round(sum(c["cost"] for c in calls), 5), "files": [str(_state_path(Path(args.out), args.slug)), str(Path(args.out) / f"{args.slug}-keyword-pool.md")]}
+        state = {"slug": args.slug, "focus": args.focus, "location": args.location, "language": args.language, "calls": [], "rounds": [], "questions": [], "no_data": []}
+    market = {"location_code": state["location"], "language_code": state["language"]}
+    found: list[dict[str, Any]] = []
+    cost = 0.0
+
+    data = call_api(AUTOCOMPLETE, [{"keyword": args.seed, "client": "gws-wiz-serp", **market}])
+    part = questions_from_autocomplete(data)
+    found += part
+    cost += response_cost(data)
+    state["calls"].append({"call": f"Autocomplete, round {args.round}", "endpoint": AUTOCOMPLETE, "parameters": f'keyword "{args.seed}", client gws-wiz-serp', "results": len(part), "cost": response_cost(data)})
+
+    data = call_api(ORGANIC, [{"keyword": args.seed, "depth": 10, "people_also_ask_click_depth": args.paa_depth, **market}])
+    part = questions_from_serp(data)
+    found += part
+    cost += response_cost(data)
+    state["calls"].append({"call": f"Organic SERP with PAA, round {args.round}", "endpoint": ORGANIC, "parameters": f'keyword "{args.seed}", depth 10, people_also_ask_click_depth {args.paa_depth}', "results": len(part), "cost": response_cost(data)})
+
+    data = call_api(RELATED, [{"keyword": args.seed, "depth": args.related_depth, "limit": 100, **market}])
+    part = questions_from_related(data)
+    found += part
+    cost += response_cost(data)
+    state["calls"].append({"call": f"Related Keywords, round {args.round}", "endpoint": RELATED, "parameters": f'keyword "{args.seed}", depth {args.related_depth}', "results": len(part), "cost": response_cost(data)})
+
+    added = add_questions(state, found, args.seed, args.round)
+    total = len(state["questions"])
+    state["rounds"].append({"round": args.round, "seed": args.seed, "found": len(found), "added": added, "total": total})
+    _save_state(out, args.slug, state)
+    return {"round": args.round, "seed": args.seed, "found": len(found), "added": added, "questions": total, "short": total < args.min, "min": args.min, "cost": round(cost, 5), "files": [str(path), str(out / f"{args.slug}-questions.md")]}
 
 
-def cmd_remove(args: argparse.Namespace) -> dict[str, Any]:
-    state = _load_state(Path(args.out), args.slug)
-    removed = json.loads(Path(args.removed).read_text(encoding="utf-8"))
-    by_n = {r["n"]: r for r in state["pool"]}
-    other_by_n = {r["n"]: r for r in state["other"]}
-    for entry in removed:
-        table = entry.get("table", "pool")
-        source = by_n if table == "pool" else other_by_n
-        row = source.get(entry["n"])
-        if row is None:
-            raise KeywordPoolError(f"no row {entry['n']} in {table}")
-        state["removed"].append({"n": entry["n"], "table": table, "keyword": row.get("main") or row.get("keyword"), "class": entry["class"], "reason": entry["reason"]})
-        row["removed"] = True
-    state["pool"] = [r for r in state["pool"] if not r.get("removed")]
-    state["other"] = [r for r in state["other"] if not r.get("removed")]
-    _save_state(Path(args.out), args.slug, state)
-    return {"removed": len(removed), "pool_rows": len(state["pool"]), "other_rows": len(state["other"])}
-
-
-def cmd_related(args: argparse.Namespace) -> dict[str, Any]:
-    state = _load_state(Path(args.out), args.slug)
-    data = call_api(
-        "dataforseo_labs/google/related_keywords/live",
-        [{"keyword": args.focus, "location_code": state["location"], "language_code": state["language"], "depth": 2}],
-    )
-    items = dedupe(items_from_response(data))
-    new_rows = build_pool(items, source="related")
-    before = len(state["pool"])
-    state["pool"] = merge_pools(state["pool"], new_rows)
-    state["calls"].append({"call": "Related Keywords", "endpoint": "related_keywords/live", "parameters": f'keyword "{args.focus}", depth 2', "results": len(items), "cost": response_cost(data)})
-    _save_state(Path(args.out), args.slug, state)
-    return {"added_rows": len(state["pool"]) - before, "pool_rows": len(state["pool"]), "cost": response_cost(data)}
+def cmd_volume(args: argparse.Namespace) -> dict[str, Any]:
+    out = Path(args.out)
+    state = _load_state(out, args.slug)
+    todo = [q for q in state["questions"] if q.get("volume") is None and not q.get("no_data")]
+    missing: list[str] = []
+    cost = 0.0
+    for start in range(0, len(todo), OVERVIEW_CHUNK):
+        chunk = [q["text"] for q in todo[start:start + OVERVIEW_CHUNK]]
+        data = call_api(OVERVIEW, [{"keywords": chunk, "location_code": state["location"], "language_code": state["language"]}])
+        missing += apply_overview(state["questions"], data)
+        cost += response_cost(data)
+        state["calls"].append({"call": "Keyword Overview", "endpoint": OVERVIEW, "parameters": f"{len(chunk)} keywords", "results": len(chunk) - len(missing), "cost": response_cost(data)})
+    if not todo:
+        state["calls"].append({"call": "Keyword Overview", "endpoint": OVERVIEW, "parameters": "not called", "results": 0, "cost": 0})
+    state["no_data"] = sorted(set(state.get("no_data") or []) | set(missing))
+    _save_state(out, args.slug, state)
+    return {"asked": len(todo), "no_data": missing, "cost": round(cost, 5)}
 
 
 def cmd_rank_facets(args: argparse.Namespace) -> dict[str, Any]:
-    state = _load_state(Path(args.out), args.slug)
+    out = Path(args.out)
+    state = _load_state(out, args.slug)
     facets = json.loads(Path(args.facets).read_text(encoding="utf-8"))
-    kept, other, note = rank_facets(facets, state["pool"], other=state.get("other"), keep=args.keep, refill_below=5)
-    text = render_facet_tables(kept, other)
-    path = Path(args.out) / f"{args.slug}-facet-tables.md"
-    path.write_text(text + "\n", encoding="utf-8")
+    kept, other, note = rank_facets(facets, state["questions"], keep=args.keep)
+    state["facets"] = {"kept": kept, "other": other}
+    state.pop("ai_note", None)
+    _save_state(out, args.slug, state)
+    path = _write_facet_tables(out, args.slug, state)
     return {"kept": len(kept), "other": len(other), "note": note, "file": str(path)}
+
+
+def cmd_ai(args: argparse.Namespace) -> dict[str, Any]:
+    out = Path(args.out)
+    state = _load_state(out, args.slug)
+    if "facets" not in state:
+        raise KeywordPoolError("run `rank-facets` first: no facets in the state")
+    kept = state["facets"]["kept"]
+    keywords = [f["representative"] for f in kept if f["representative"] != "-"]
+    found: dict[str, Any] = {}
+    cost = 0.0
+    for start in range(0, len(keywords), AI_CHUNK):
+        chunk = keywords[start:start + AI_CHUNK]
+        data = call_api(AI_VOLUME, [{"keywords": chunk, "location_code": state["location"], "language_code": state["language"]}])
+        for item in items_from_response(data):
+            found[normalize(item.get("keyword", ""))] = item.get("ai_search_volume")
+        cost += response_cost(data)
+        state["calls"].append({"call": "AI Keyword Data", "endpoint": AI_VOLUME, "parameters": f"{len(chunk)} representative keywords", "results": len(found), "cost": response_cost(data)})
+    for f in kept:
+        f["ai_volume"] = found.get(normalize(f["representative"])) if f["representative"] != "-" else None
+    state["ai_note"] = {"location": state["location"], "language": state["language"], "date": dt.date.today().isoformat()}
+    _save_state(out, args.slug, state)
+    path = _write_facet_tables(out, args.slug, state)
+    return {"asked": len(keywords), "with_ai_volume": sum(1 for f in kept if f.get("ai_volume") is not None), "cost": round(cost, 5), "file": str(path)}
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest="command", required=True)
 
-    p = sub.add_parser("pool")
+    p = sub.add_parser("expand")
     p.add_argument("--slug", required=True)
     p.add_argument("--focus", required=True)
-    p.add_argument("--seed", action="append", required=True)
+    p.add_argument("--seed", required=True, help="the keyword to expand: the focus keyword in round 1, the wider seed in round 2")
+    p.add_argument("--round", type=int, default=1)
+    p.add_argument("--min", type=int, default=9, help="below this many questions the summary says short: true")
+    p.add_argument("--paa-depth", type=int, default=2, help="people_also_ask_click_depth, 1 to 4")
+    p.add_argument("--related-depth", type=int, default=2, help="Related Keywords depth, 0 to 4")
     p.add_argument("--location", type=int, default=2840)
     p.add_argument("--language", default="en")
-    p.add_argument("--evidence", help='JSON object {"paa": [questions], "related": [related searches]} from the Step 2 response')
-    p.add_argument("--out", default="briefs")
-    p.set_defaults(func=cmd_pool)
+    p.add_argument("--out", default="briefs", help="output folder (default: briefs)")
+    p.set_defaults(func=cmd_expand)
 
-    p = sub.add_parser("remove")
+    p = sub.add_parser("volume")
     p.add_argument("--slug", required=True)
-    p.add_argument("--removed", required=True, help='JSON list of {"n": row number, "table": "pool" or "other", "class": removal class, "reason": one sentence}')
     p.add_argument("--out", default="briefs")
-    p.set_defaults(func=cmd_remove)
-
-    p = sub.add_parser("related")
-    p.add_argument("--slug", required=True)
-    p.add_argument("--focus", required=True)
-    p.add_argument("--out", default="briefs")
-    p.set_defaults(func=cmd_related)
+    p.set_defaults(func=cmd_volume)
 
     p = sub.add_parser("rank-facets")
     p.add_argument("--slug", required=True)
-    p.add_argument("--facets", required=True, help='JSON list of facets: {"question", "values": [strings], "evidence": [Question Evidence #], "evidence_parts": [part names], "rows": [pool #], "other": [Other Sources #], "business": "in" or "out", "reason_kept"}')
-    p.add_argument("--keep", type=int, default=9)
+    p.add_argument("--facets", required=True, help='JSON list of facets: {"question", "values": [strings], "rows": [question #], "business": "in" or "out", "reason_kept"}')
+    p.add_argument("--keep", type=int, default=9, help="how many facets to keep (default: 9)")
     p.add_argument("--out", default="briefs")
     p.set_defaults(func=cmd_rank_facets)
+
+    p = sub.add_parser("ai")
+    p.add_argument("--slug", required=True)
+    p.add_argument("--out", default="briefs")
+    p.set_defaults(func=cmd_ai)
 
     args = parser.parse_args(argv)
     try:
