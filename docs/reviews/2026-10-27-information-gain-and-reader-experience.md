@@ -70,7 +70,7 @@
 | 顺序 | 做什么 | 对应瑜东 | 改在哪里 | 为什么排这里 |
 |---|---|---|---|---|
 | 1 | 任务单加「一手资料」一格：产品参数表、客服常见问题、内部数据，各写有或 `missing`。Step 7 读它。`missing` 时增量单写一行「若品牌提供 X，增益 I 可以变成 Y」，让用户看到代价 | A·01 p.107，A·08 第一方证据 | `templates/task-brief.md`、`step-1-topic-intake.md`、`step-7-information-gain.md` | 它决定增益上限。和 2026-10-27 评审第 1 条「同站页面清单」改同一个模板，可以并成一个分支 |
-| 2 | 组件词表：一个 reference 文件，列决策表、检查清单、步骤、卡片（定义、提醒、结论三种）、比较卡、FAQ、计算器槽位。每个组件写任务、什么时候用、markdown 写法、手机规则（表格最多 4 列）、无障碍标签 | B·13 p.132 | 新建 `skills/blog/references/content-components.md`。brief Step 8 和 blog-write 共用 | 不依赖接口。先定词表，渲染和验收才有对象 |
+| 2 | 组件词表：一个 reference 文件，列决策表、检查清单、步骤、卡片（定义、提醒、结论三种）、比较卡、FAQ、计算器槽位。每个组件写任务、什么时候用、markdown 写法、手机规则（表格最多 4 列）、无障碍标签 | B·13 p.132 | 在 skills/blog/references/ 下新建一个组件词表文件（文件还不存在，名字在开发文档里定）。brief Step 8 和 blog-write 共用 | 不依赖接口。先定词表，渲染和验收才有对象 |
 | 3 | 渲染器实现词表：`aside` 做卡片，`ol` 加 class 做步骤，表名变 `caption`，`figcaption` 给图。补 CSS，手机优先 | C·18 流程图、比较图 | `scripts/blog_render.py`，`tests/` 加渲染测试 | 和第 2 项一个分支。做完亚麻那篇重渲染就能看到差别 |
 | 4 | 增益落实验收：有 brief 时，blog-write 自查和 `blog-reviewer` 按 I 编号逐条查「写进去没有、结构对不对、读者能不能用」。缺一条就是 Medium 以上 | B·14 p.134，C·17 p.140 | `agents/blog-reviewer.md`、blog-write 质量检查 | 要等 `feat/blog-write-use-brief` 分支先让写作读 brief。见 `docs/plans/2026-10-25-blog-write-step-files-and-use-brief.md` |
 | 5 | 冷读闸门：审稿多一项，每个组件和图只看自身能不能回答它的问题，数字能在正文找到，手机截图上字能读 | C·18 p.142 | `agents/blog-reviewer.md`，preflight 把手机截图路径交给审稿 | 审稿 agent 现在没有图片工具，要先确认能不能看截图 |
