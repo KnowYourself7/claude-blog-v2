@@ -89,12 +89,17 @@
 - Step 1 多一种停下的情况：同题旧文。用户没给页面清单时和以前一样。
 - 新加的六个格子现在没有下游读。它们是给下一个分支（Step 7 读一手资料，Step 8、9 按清单排内链）准备的输入。
 
-### 4.5 改动文件
+### 4.5 附带：Step 2 加文章体裁
+
+用户 2026-10-27 先提出把 Step 5 模板选择并进 Step 2。这和 2026-10-23 的决定冲突（模板要看竞品页面结构选，Step 2 不打开页面），用户改定为：Step 2 只按瑜东步骤 03 的「页面选择：故障排查型博客」加一行 Post type，Step 5 和编号不动。改动：`step-2-serp-intent-gate.md` 加 Steps 第 6 条（从读者任务和博客标题写两三个词的体裁，和任务单 Positioning 不一致时两个都写）、Rules 补回「30% 是本 skill 的规则」、Example 段（Ebestron 搜索意图单，p.112）、规则各加半句原因；`templates/search-intent.md` 的 Reader Task 下加 Post type 一行。下游暂时没有步骤读 Post type。
+
+### 4.6 改动文件
 
 | 文件 | 改什么 |
 |---|---|
 | `skills/blog-brief/templates/task-brief.md` | 见 4.2 第 1 条 |
 | `skills/blog-brief/references/step-1-topic-intake.md` | 见 4.2 第 2 条 |
+| `skills/blog-brief/references/step-2-serp-intent-gate.md`、`skills/blog-brief/templates/search-intent.md` | 见 4.5 |
 | `tests/test_blog_brief_workflow.py` | 见 4.2 第 3 条 |
 | `docs/plans/2026-10-24-blog-brief-internal-link-pages.md` | 状态行补记 |
 | `docs/FORK-DEVLOG.md` | 022、023 两行 |
