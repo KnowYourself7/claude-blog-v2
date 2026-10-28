@@ -15,7 +15,6 @@ blog posts for it.
 - Send the call with `mcp__dataforseo__api_request`. If the tool is
   missing or fails two times, stop and say why. Do not use WebSearch.
 - Label a page from its URL and title only. Do not open the page.
-- The 30% line is a rule of this skill, not a Google standard.
 - When you stop, do not choose for the user.
 
 #### Steps
